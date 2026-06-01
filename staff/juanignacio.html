@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUAN IGNACIO SAITO | LIMINAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;700&family=IBM+Plex+Mono:wght@300;400&family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a0a0a;
+            --off-white: #f5f5f5;
+            --accent: #4a5d6a;
+            --muted: rgba(245,245,245,0.28);
+            --font-main: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-logo: 'DM Serif Display', serif;
+        }
+        
+        html { scroll-behavior: smooth; }
+        body { 
+            background: var(--bg-deep); 
+            color: var(--off-white); 
+            font-family: var(--font-main); 
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .font-mono-liminal { font-family: var(--font-mono); }
+        .font-logo-liminal { font-family: var(--font-logo); }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(74, 93, 106, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .animate-fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-600 { animation-delay: 600ms; }
+        
+        .image-container {
+            position: relative;
+            border-radius: 2xl;
+            overflow: hidden;
+        }
+        
+        .image-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(245,245,245,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .image-container:hover::before {
+            opacity: 1;
+        }
+        
+        .artist-image {
+            filter: grayscale(100%) contrast(1.15);
+            transition: filter 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: filter, transform;
+        }
+        
+        .image-container:hover .artist-image {
+            filter: grayscale(20%) contrast(1.25) brightness(1.05);
+            transform: scale(1.05);
+        }
+        
+        .cta-liminal {
+            font-family: var(--font-main);
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            position: relative;
+            padding-bottom: 6px;
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            cursor: pointer;
+        }
+        
+        .cta-liminal::after {
+            content: ''; 
+            position: absolute; 
+            width: 100%; 
+            transform: scaleX(0); 
+            height: 1px; 
+            bottom: 0; 
+            left: 0; 
+            background-color: var(--off-white); 
+            transform-origin: bottom right; 
+            transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+        }
+        
+        .cta-liminal::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            background: radial-gradient(circle, rgba(245,245,245,0.05) 0%, transparent 70%);
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .cta-liminal:hover::after { 
+            transform: scaleX(1); 
+            transform-origin: bottom left; 
+        }
+        
+        .cta-liminal:hover::before {
+            opacity: 1;
+        }
+        
+        .cta-liminal:hover { 
+            opacity: 1;
+            letter-spacing: 0.3em;
+        }
+        
+        .back-link {
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+        
+        .back-link::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            width: 12px;
+            height: 1px;
+            background: var(--off-white);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        
+        .back-link:hover {
+            transform: translateX(-8px);
+            opacity: 1;
+        }
+        
+        .back-link:hover::before {
+            opacity: 1;
+        }
+        
+        .divider-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(245,245,245,0.15), transparent);
+            margin: 2rem 0;
+            transition: all 0.6s ease;
+        }
+        
+        .divider-line:hover {
+            background: linear-gradient(90deg, transparent, rgba(245,245,245,0.25), transparent);
+        }
+        
+        h1, h2 {
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        
+        h1:hover, h2:hover {
+            text-shadow: 0 0 20px rgba(245,245,245,0.1);
+        }
+        
+        main {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .badge-cofundador {
+            display: inline-block;
+            padding: 6px 12px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            border: 1px solid rgba(245,245,245,0.2);
+            border-radius: 4px;
+            color: rgba(245,245,245,0.7);
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .badge-cofundador:hover {
+            border-color: rgba(245,245,245,0.4);
+            color: rgba(245,245,245,0.9);
+        }
+    </style>
+</head>
+<body>
+    <main class="min-h-screen flex flex-col items-center justify-center px-6 py-24 relative">
+        <div class="max-w-xl w-full text-center">
+            <div class="image-container mb-10 animate-fade-in-up">
+                <img 
+                    src="../assets/staff/juanignacio.jpg" 
+                    alt="Juan Ignacio Saito" 
+                    class="w-full rounded-2xl grayscale contrast-110 shadow-lg artist-image" 
+                    style="max-height:320px;object-fit:cover;"
+                >
+            </div>
+            
+            <h1 class="font-logo-liminal italic text-6xl md:text-8xl mb-4 tracking-tighter lowercase animate-fade-in-up delay-100" style="font-style: italic; font-weight: 400; line-height: 0.9;">
+                juan ignacio
+            </h1>
+            
+            <div class="flex justify-center mb-6 animate-fade-in-up delay-150">
+                <span class="badge-cofundador">Cofundador</span>
+            </div>
+            
+            <p class="font-mono-liminal text-[10px] uppercase tracking-[0.4em] opacity-50 mb-8 animate-fade-in-up delay-200">Staff</p>
+            
+            <div class="divider-line animate-fade-in-up delay-300"></div>
+            
+            <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-10 animate-fade-in-up delay-300 leading-tight">La visión detrás del sonido</h2>
+            
+            <p class="text-lg md:text-xl font-light leading-relaxed mb-12 opacity-85 animate-fade-in-up delay-400">
+                Como cofundador de LIMINAL, Juan Ignacio es la mente conceptual detrás del proyecto. Productor, artista y visionario, trasciende los límites de la música electrónica para crear experiencias inmersivas que conectan lo urbano con lo onírico. Su filosofía es transformar el ruido en magia, encontrando belleza en los detalles más sutiles. LIMINAL existe porque cree que la música debe ser arte integral, filosofía y comunidad.
+            </p>
+            
+            <div class="flex justify-center gap-6 mb-12 animate-fade-in-up delay-500">
+                <a 
+                    href="https://www.instagram.com/saitone_____/" 
+                    class="cta-liminal" 
+                    target="_blank" 
+                    rel="noopener" 
+                    aria-label="Instagram de Juan Ignacio"
+                >
+                    Instagram
+                </a>
+                <span class="opacity-20">•</span>
+                <a 
+                    href="https://www.instagram.com/liminal.ar/" 
+                    class="cta-liminal" 
+                    target="_blank" 
+                    rel="noopener" 
+                    aria-label="Instagram de LIMINAL"
+                >
+                    LIMINAL
+                </a>
+            </div>
+            
+            <a 
+                href="../home.html" 
+                class="font-mono-liminal text-xs opacity-40 hover:opacity-100 back-link animate-fade-in-up delay-500"
+            >
+                <span>← Volver a LIMINAL</span>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Reset inicial para animación limpia
+            document.querySelectorAll('[class*="animate-"]').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+            });
+            
+            // Trigger animación después de un frame
+            requestAnimationFrame(() => {
+                document.querySelectorAll('[class*="animate-"]').forEach(el => {
+                    el.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translate(0) scale(1)';
+                });
+            });
+            
+            // Scroll fade
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const scrolled = window.pageYOffset;
+                        
+                        const main = document.querySelector('main');
+                        if (main) {
+                            const opacity = Math.max(0, 1 - (scrolled / 800));
+                            main.style.opacity = opacity;
+                        }
+                        
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+            
+            // Efectos de mouse tracking
+            const imageContainer = document.querySelector('.image-container');
+            if (imageContainer) {
+                imageContainer.addEventListener('mousemove', (e) => {
+                    const rect = imageContainer.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    
+                    const image = imageContainer.querySelector('.artist-image');
+                    image.style.transform = `scale(1.05) rotateX(${y * 2}deg) rotateY(${x * 2}deg)`;
+                });
+                
+                imageContainer.addEventListener('mouseleave', () => {
+                    const image = imageContainer.querySelector('.artist-image');
+                    image.style.transform = 'scale(1.02) rotateX(0deg) rotateY(0deg)';
+                });
+            }
+            
+            // Smooth navigation
+            document.querySelectorAll('a[href="../home.html"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (!link.target || link.target === '_self') {
+                        e.preventDefault();
+                        document.querySelector('main').style.opacity = '0';
+                        document.querySelector('main').style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            window.location.href = link.href;
+                        }, 300);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
