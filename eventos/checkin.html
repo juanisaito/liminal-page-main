@@ -93,20 +93,36 @@
     }
     .hidden { display: none !important; }
 
-    /* Estilos del Pop-Up Modal de Alerta */
+    /* Contador de entradas abajo del lector */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+      text-align: center;
+    }
+    .stat-box {
+      background: #0a0a0a;
+      border: 1px solid #222;
+      padding: 10px 6px;
+      border-radius: 4px;
+    }
+    .stat-box strong { display: block; font-size: 16px; margin-top: 2px; font-weight: 500; }
+
+    /* Pop-Up Modal Gigante Bloqueante (Tapa todo con z-index alto) */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(4px);
-      z-index: 999;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(6px);
+      z-index: 99999;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.15s ease;
     }
     .modal-overlay.active {
       opacity: 1;
@@ -114,29 +130,29 @@
     }
     .modal-card {
       width: 100%;
-      max-width: 400px;
-      padding: 32px 24px;
+      max-width: 420px;
+      padding: 36px 24px;
       border-radius: 8px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      transform: scale(0.95);
-      transition: transform 0.2s ease;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+      transform: scale(0.9);
+      transition: transform 0.15s ease;
     }
     .modal-overlay.active .modal-card {
       transform: scale(1);
     }
-    .modal-card.success { background: #0f2d1e; border: 2px solid #2d6a4f; color: #d8f3dc; }
-    .modal-card.warning { background: #332705; border: 2px solid #b5830d; color: #fffaa0; }
-    .modal-card.error { background: #3d0c11; border: 2px solid #a4161a; color: #ffccd5; }
+    .modal-card.success { background: #0b291a; border: 2px solid #2d6a4f; color: #d8f3dc; }
+    .modal-card.warning { background: #2e2404; border: 2px solid #b5830d; color: #fffaa0; }
+    .modal-card.error { background: #330a0e; border: 2px solid #a4161a; color: #ffccd5; }
 
-    .modal-title { font-size: 20px; font-weight: 600; margin: 10px 0; letter-spacing: -.02em; }
-    .modal-subtitle { font-size: 13px; margin-bottom: 24px; opacity: 0.9; word-break: break-all; }
+    .modal-title { font-size: 22px; font-weight: 600; margin: 10px 0; letter-spacing: -.02em; }
+    .modal-subtitle { font-size: 14px; margin-bottom: 28px; opacity: 0.95; word-break: break-all; line-height: 1.4; }
     .modal-btn {
       background: #fff;
       color: #000;
       border: none;
-      padding: 12px 24px;
-      font: 11px 'IBM Plex Mono', monospace;
+      padding: 14px 24px;
+      font: 12px 'IBM Plex Mono', monospace;
       letter-spacing: .12em;
       text-transform: uppercase;
       cursor: pointer;
@@ -188,7 +204,23 @@
       
       <div id="reader"></div>
 
-      <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 16px;">
+      <!-- Barra de Contador de Entradas Abajo del Lector -->
+      <div class="stats-bar">
+        <div class="stat-box">
+          <span class="eyebrow">Total</span>
+          <strong id="stat-reserved">—</strong>
+        </div>
+        <div class="stat-box">
+          <span class="eyebrow">Ingresaron</span>
+          <strong id="stat-checked" style="color:#52b788">—</strong>
+        </div>
+        <div class="stat-box">
+          <span class="eyebrow">Quedan</span>
+          <strong id="stat-remaining" style="color:#d4a373">—</strong>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; border-top: 1px solid #222; paddingTop: 16px;">
         <input id="manual-token" class="input" placeholder="O ingresá el código manual..." style="margin-bottom:8px;">
         <button id="manual-check" class="btn">Validar Código Manual</button>
       </div>
@@ -196,7 +228,7 @@
   </section>
 </main>
 
-<!-- Pop-Up Modal de Validación -->
+<!-- Pop-Up Modal Gigante Bloqueante (Tapa toda la pantalla y la cámara) -->
 <div id="popup-modal" class="modal-overlay">
   <div id="modal-card" class="modal-card success">
     <div id="modal-eyebrow" class="eyebrow" style="letter-spacing: .25em; opacity: 0.8;">ESTADO</div>
@@ -224,6 +256,7 @@ if (authToken) {
   loginScreen.classList.add('hidden');
   dashboard.classList.remove('hidden');
   initScanner();
+  loadStats();
 }
 
 // Mostrar / Ocultar contraseña
@@ -260,10 +293,28 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     loginScreen.classList.add('hidden');
     dashboard.classList.remove('hidden');
     initScanner();
+    loadStats();
   } catch (err) {
     msg.textContent = err.message;
   }
 });
+
+// Cargar contadores en tiempo real
+async function loadStats() {
+  try {
+    const res = await fetch('/api/admin/event-tickets', {
+      headers: { Authorization: `Bearer ${authToken}` }
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('stat-reserved').textContent = data.reserved;
+      document.getElementById('stat-checked').textContent = data.checkedIn;
+      document.getElementById('stat-remaining').textContent = data.remaining;
+    }
+  } catch (err) {
+    console.error('Error al actualizar contadores:', err);
+  }
+}
 
 async function checkIn(rawValue) {
   if (isProcessing) return;
@@ -308,6 +359,9 @@ async function checkIn(rawValue) {
     } else {
       showPopup('success', '✓ ACCESO CONCEDIDO', escapeHtml(data.ticket.name), 'OK');
     }
+    
+    // Actualizar contadores por debajo
+    await loadStats();
   } catch (err) {
     showPopup('error', '❌ ERROR / NO VÁLIDA', escapeHtml(err.message), 'DENEGADO');
   }
