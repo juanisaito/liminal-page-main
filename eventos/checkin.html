@@ -1,31 +1,434 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acceso · THIS IS TOBBA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#0a0a0a;color:#f5f5f5;font-family:'IBM Plex Mono',monospace}.wrap{max-width:900px;margin:0 auto;padding:32px 22px 60px}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #292929;padding-bottom:18px}.eyebrow{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#777}.title{font:500 clamp(28px,6vw,52px)/.95 system-ui,sans-serif;letter-spacing:-.06em;margin:42px 0 10px}.sub{color:#888;font-size:11px;line-height:1.7}.box{border:1px solid #292929;padding:20px;margin-top:24px}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.input{background:transparent;border:1px solid #383838;color:#fff;padding:12px;font:12px 'IBM Plex Mono',monospace;min-height:42px}.input:focus{outline:1px solid #aaa}.btn{border:1px solid #aaa;background:transparent;color:#fff;padding:12px 16px;font:10px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.btn:hover{background:#fff;color:#000}.btn:disabled{opacity:.4}.message{min-height:22px;margin-top:14px;font-size:12px;color:#c6d5ce}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}.stat{padding:14px;border:1px solid #292929}.stat strong{display:block;font-size:22px;font-weight:400}.stat span{color:#777;font-size:9px;text-transform:uppercase;letter-spacing:.12em}.list{margin-top:24px;border-top:1px solid #292929}.ticket{display:grid;grid-template-columns:1.4fr 1.4fr .8fr .8fr;gap:12px;padding:13px 0;border-bottom:1px solid #222;font-size:10px;align-items:center}.ticket.head{color:#777;text-transform:uppercase;font-size:8px;letter-spacing:.1em}.arrived{color:#a9d3bd}.pending{color:#d3c7a9}.hidden{display:none!important}#reader{width:min(100%,420px);margin:18px auto 0}.scanner{text-align:center}.scanner .row{justify-content:center}@media(max-width:600px){.ticket{grid-template-columns:1.2fr 1.2fr .8fr}.ticket>*:nth-child(3){display:none}.stats{grid-template-columns:1fr}.input{flex:1;min-width:100%}}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background-color: #0a0a0a;
+      color: #f5f5f5;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 22px 60px;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #222;
+      padding-bottom: 18px;
+    }
+    .eyebrow {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #777;
+    }
+    .title {
+      font: 500 clamp(26px, 5vw, 42px)/1 system-ui, sans-serif;
+      letter-spacing: -.04em;
+      margin: 32px 0 8px;
+    }
+    .sub {
+      color: #888;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .box {
+      border: 1px solid #222;
+      background: rgba(255, 255, 255, 0.01);
+      padding: 24px;
+      margin-top: 24px;
+      border-radius: 4px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .input {
+      background: #111;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 12px;
+      font: 12px 'IBM Plex Mono', monospace;
+      min-height: 42px;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input:focus {
+      border-color: #888;
+    }
+    .btn {
+      border: 1px solid #444;
+      background: transparent;
+      color: #fff;
+      padding: 12px 18px;
+      font: 10px 'IBM Plex Mono', monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+    .btn-primary {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: #e0e0e0;
+    }
+    .btn:disabled {
+      opacity: .3;
+      cursor: not-allowed;
+    }
+    .message {
+      margin-top: 14px;
+      font-size: 11px;
+      padding: 12px;
+      border-radius: 2px;
+      background: #121212;
+      border: 1px solid #222;
+      display: none;
+    }
+    .message.success { background: rgba(45, 106, 79, 0.2); border-color: #2d6a4f; color: #d8f3dc; display: block; }
+    .message.warning { background: rgba(133, 100, 4, 0.2); border-color: #856404; color: #fff3cd; display: block; }
+    .message.error { background: rgba(164, 22, 26, 0.2); border-color: #a4161a; color: #ffccd5; display: block; }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .stat {
+      padding: 16px;
+      border: 1px solid #222;
+      background: #111;
+    }
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+    .stat span {
+      color: #777;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .list {
+      margin-top: 24px;
+      border-top: 1px solid #222;
+    }
+    .ticket {
+      display: grid;
+      grid-template-columns: 1.5fr 1.5fr 1fr 0.8fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #181818;
+      font-size: 10px;
+      align-items: center;
+    }
+    .ticket.head {
+      color: #666;
+      text-transform: uppercase;
+      font-size: 8px;
+      letter-spacing: .1em;
+      border-bottom: 1px solid #222;
+    }
+    .arrived { color: #52b788; }
+    .pending { color: #d4a373; }
+    .hidden { display: none !important; }
+    
+    #reader {
+      width: 100%;
+      max-width: 360px;
+      margin: 16px auto 0;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+    .scanner { text-align: center; }
+    .scanner .row { justify-content: center; }
+
+    @media(max-width: 600px) {
+      .ticket { grid-template-columns: 1fr 1.2fr .8fr; }
+      .ticket > *:nth-child(3) { display: none; }
+      .stats { grid-template-columns: 1fr; }
+      .input { width: 100%; }
+    }
   </style>
 </head>
-<body><main class="wrap">
-  <div class="top"><a href="../home.html" style="color:#f5f5f5;text-decoration:none;font-size:11px;letter-spacing:.15em">LIMINAL RECORDS</a><span class="eyebrow">Acceso · 25.11.2026</span></div>
-  <section id="login" class="box" style="max-width:420px;margin:70px auto"><div class="eyebrow">THIS IS TOBBA</div><h1 class="title" style="font-size:32px;margin:16px 0">Control de acceso</h1><form id="login-form"><input id="password" class="input" type="password" required placeholder="Contraseña del panel" style="width:100%"><button class="btn" style="width:100%;margin-top:12px">Ingresar</button></form><div class="message" id="login-message"></div></section>
-  <section id="dashboard" class="hidden"><div class="eyebrow">THIS IS TOBBA / YUNTA BAR</div><h1 class="title">Ingreso de invitados</h1><div class="sub">Escaneá cada entrada una vez. El sistema indica si ya fue utilizada.</div>
-    <div class="stats"><div class="stat"><strong id="reserved">—</strong><span>Entradas reservadas</span></div><div class="stat"><strong id="checked-in">—</strong><span>Ingresaron</span></div><div class="stat"><strong id="remaining">—</strong><span>Disponibles</span></div></div>
-    <div class="box scanner"><div class="eyebrow">Escanear QR</div><div class="row" style="margin-top:14px"><button class="btn" id="start-camera">Abrir cámara</button><button class="btn" id="stop-camera" disabled>Cerrar cámara</button></div><div id="reader"></div><div class="row" style="margin-top:18px"><input id="manual-token" class="input" placeholder="O ingresá el código de la entrada"><button id="manual-check" class="btn">Validar</button></div><div class="message" id="scan-message" aria-live="polite"></div></div>
-    <div class="row" style="justify-content:space-between;margin-top:28px"><div class="eyebrow">Entradas</div><button id="refresh" class="btn">Actualizar lista</button></div><div class="list" id="ticket-list"></div>
+<body>
+<main class="wrap">
+  <div class="top">
+    <a href="/admin" style="color:#f5f5f5; text-decoration:none; font-size:10px; letter-spacing:.15em;">← VOLVER AL PANEL</a>
+    <span class="eyebrow">THIS IS TOBBA · ACCESO</span>
+  </div>
+
+  <!-- Pantalla de Login -->
+  <section id="login" class="box" style="max-width:400px; margin:60px auto;">
+    <div class="eyebrow">AUTENTICACIÓN REQUERIDA</div>
+    <h1 class="title" style="font-size:24px; margin:12px 0;">Control de acceso</h1>
+    <form id="login-form">
+      <input id="password" class="input" type="password" required placeholder="Contraseña de admin" style="width:100%; margin-bottom:12px;">
+      <button class="btn btn-primary" style="width:100%;">Ingresar al sistema</button>
+    </form>
+    <div class="message" id="login-message" style="margin-top:12px;"></div>
+  </section>
+
+  <!-- Panel de Control / Escáner -->
+  <section id="dashboard" class="hidden">
+    <div style="margin-top: 24px;">
+      <div class="eyebrow">OPERACIÓN EN PUERTA</div>
+      <h1 class="title">Escáner y Validación</h1>
+      <div class="sub">Apunta con la cámara al código QR de la entrada o ingresa el código alfanumérico manualmente.</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="eyebrow">Reservas</span><strong id="reserved">—</strong></div>
+      <div class="stat"><span class="eyebrow">Ingresaron</span><strong id="checked-in" style="color:#52b788">—</strong></div>
+      <div class="stat"><span class="eyebrow">Disponibles</span><strong id="remaining">—</strong></div>
+    </div>
+
+    <div class="box scanner">
+      <div class="eyebrow" style="margin-bottom: 8px;">Cámara de Dispositivo</div>
+      <div class="row">
+        <button class="btn btn-primary" id="start-camera">Abrir cámara</button>
+        <button class="btn" id="stop-camera" disabled>Cerrar cámara</button>
+      </div>
+      <div id="reader"></div>
+      
+      <div class="row" style="margin-top: 20px;">
+        <input id="manual-token" class="input" placeholder="Ej: a1b2c3d4..." style="flex: 1;">
+        <button id="manual-check" class="btn">Validar código</button>
+      </div>
+      <div class="message" id="scan-message" aria-live="polite"></div>
+    </div>
+
+    <div class="row" style="justify-content:space-between; margin-top:32px; align-items:flex-end;">
+      <div>
+        <div class="eyebrow">Registro general</div>
+        <h3 style="font-size:14px; margin:4px 0 0 0; font-weight:500;">Listado de asistentes</h3>
+      </div>
+      <button id="refresh" class="btn">Actualizar lista</button>
+    </div>
+    
+    <div class="list" id="ticket-list">
+      <div class="ticket head"><span>Asistente</span><span>Correo</span><span>Código</span><span>Estado</span></div>
+    </div>
   </section>
 </main>
-<script src="../node_modules/html5-qrcode/html5-qrcode.min.js"></script>
+
 <script>
-let token='';let scanner;
-const login=document.getElementById('login'),dashboard=document.getElementById('dashboard');
-document.getElementById('login-form').addEventListener('submit',async e=>{e.preventDefault();const out=document.getElementById('login-message');try{const r=await fetch('/api/admin-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('password').value})});const d=await r.json();if(!r.ok)throw new Error(d.error||'No se pudo ingresar');token=d.token;login.classList.add('hidden');dashboard.classList.remove('hidden');await loadTickets()}catch(err){out.textContent=err.message}});
-async function loadTickets(){const r=await fetch('/api/admin/event-tickets',{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok)throw new Error(d.error||'No se pudo cargar');document.getElementById('reserved').textContent=d.reserved;document.getElementById('checked-in').textContent=d.checkedIn;document.getElementById('remaining').textContent=d.remaining;const list=document.getElementById('ticket-list');list.innerHTML='<div class="ticket head"><span>Asistente</span><span>Correo</span><span>Código</span><span>Estado</span></div>'+d.tickets.map(t=>`<div class="ticket"><span>${escapeHtml(t.name)}</span><span>${escapeHtml(t.email)}</span><span>${escapeHtml(t.code)}</span><span class="${t.checkedInAt?'arrived':'pending'}">${t.checkedInAt?'Ingresó':'Pendiente'}</span></div>`).join('')}
-function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function checkIn(value){const out=document.getElementById('scan-message');const raw=String(value||'').trim();let ticketToken=raw;if(raw.includes('token=')){try{ticketToken=new URL(raw,location.href).searchParams.get('token')}catch(_){}}if(!ticketToken){out.textContent='No se encontró el código de la entrada.';return}out.textContent='Validando…';try{const r=await fetch('/api/admin/event-check-in',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({token:ticketToken})});const d=await r.json();if(!r.ok)throw new Error(d.error||'No se pudo validar');out.textContent=d.alreadyCheckedIn?`Ya ingresó: ${d.ticket.name}`:`Ingreso validado: ${d.ticket.name}`;await loadTickets()}catch(err){out.textContent=err.message}}
-document.getElementById('manual-check').addEventListener('click',()=>checkIn(document.getElementById('manual-token').value));document.getElementById('manual-token').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkIn(e.currentTarget.value)}});document.getElementById('refresh').addEventListener('click',loadTickets);
-document.getElementById('start-camera').addEventListener('click',async()=>{const out=document.getElementById('scan-message');try{scanner=new Html5Qrcode('reader');await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},text=>{scanner.pause(true);checkIn(text).finally(()=>setTimeout(()=>scanner&&scanner.resume(),1800))});document.getElementById('start-camera').disabled=true;document.getElementById('stop-camera').disabled=false;out.textContent='Cámara activa. Enfocá el QR.'}catch(e){out.textContent='No se pudo abrir la cámara. Revisá el permiso del navegador o usá el campo manual.'}});
-document.getElementById('stop-camera').addEventListener('click',async()=>{if(scanner){await scanner.stop();scanner.clear();scanner=null}document.getElementById('start-camera').disabled=false;document.getElementById('stop-camera').disabled=true});
-</script></body></html>
+let authToken = '';
+let scanner = null;
+
+const loginScreen = document.getElementById('login');
+const dashboard = document.getElementById('dashboard');
+const loginForm = document.getElementById('login-form');
+const loginMessage = document.getElementById('login-message');
+
+// Login Admin
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const pass = document.getElementById('password').value;
+  loginMessage.className = 'message';
+  loginMessage.style.display = 'block';
+  loginMessage.textContent = 'Verificando credenciales...';
+
+  try {
+    const res = await fetch('/api/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Contraseña incorrecta');
+    
+    authToken = data.token;
+    loginScreen.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    await loadTickets();
+  } catch (err) {
+    loginMessage.className = 'message error';
+    loginMessage.textContent = err.message;
+  }
+});
+
+// Cargar métricas y listado
+async function loadTickets() {
+  try {
+    const res = await fetch('/api/admin/event-tickets', {
+      headers: { Authorization: `Bearer ${authToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al sincronizar datos');
+
+    document.getElementById('reserved').textContent = data.reserved;
+    document.getElementById('checked-in').textContent = data.checkedIn;
+    document.getElementById('remaining').textContent = data.remaining;
+
+    const list = document.getElementById('ticket-list');
+    const headerHtml = '<div class="ticket head"><span>Asistente</span><span>Correo</span><span>Código</span><span>Estado</span></div>';
+    
+    if (!data.tickets || data.tickets.length === 0) {
+      list.innerHTML = headerHtml + '<div style="padding:20px; text-align:center; color:#666; font-size:11px;">No hay registros todavía.</div>';
+      return;
+    }
+
+    list.innerHTML = headerHtml + data.tickets.map(t => `
+      <div class="ticket">
+        <span style="font-weight:500;">${escapeHtml(t.name)}</span>
+        <span style="color:#888;">${escapeHtml(t.email)}</span>
+        <span style="color:#aaa; font-family:monospace;">${escapeHtml(t.code)}</span>
+        <span class="${t.checkedInAt ? 'arrived' : 'pending'}">${t.checkedInAt ? '✓ Ingresó' : '• Pendiente'}</span>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+}
+
+// Función robusta de validación y limpieza de token leídos por QR o input
+async function checkIn(rawValue) {
+  const msgBox = document.getElementById('scan-message');
+  msgBox.className = 'message';
+  const cleanVal = String(rawValue || '').trim();
+  
+  if (!cleanVal) {
+    msgBox.className = 'message error';
+    msgBox.textContent = 'Código vacío o inválido.';
+    return;
+  }
+
+  // Extraer token de forma segura si la cámara lee una URL o un texto plano
+  let ticketToken = cleanVal;
+  if (cleanVal.includes('http://') || cleanVal.includes('https://')) {
+    try {
+      const parsedUrl = new URL(cleanVal);
+      // Busca si viene como query param ?token= o en el path
+      const paramToken = parsedUrl.searchParams.get('token');
+      if (paramToken) {
+        ticketToken = paramToken;
+      } else {
+        const segments = parsedUrl.pathname.split('/').filter(Boolean);
+        ticketToken = segments[segments.length - 1];
+      }
+    } catch (_) {}
+  }
+
+  msgBox.className = 'message warning';
+  msgBox.textContent = 'Validando acceso...';
+
+  try {
+    const res = await fetch('/api/admin/event-check-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ token: ticketToken })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Entrada no reconocida');
+
+    if (data.alreadyCheckedIn) {
+      msgBox.className = 'message warning';
+      msgBox.innerHTML = `⚠️ <strong>ATENCIÓN: ENTRADA YA UTILIZADA</strong><br>Titular: ${escapeHtml(data.ticket.name)}<br>Registrado previamente.`;
+    } else {
+      msgBox.className = 'message success';
+      msgBox.innerHTML = `✅ <strong>ACCESO CONCEDIDO</strong><br>Titular: ${escapeHtml(data.ticket.name)}<br>Código: ${escapeHtml(data.ticket.code)}`;
+    }
+
+    // Limpiar input manual y actualizar tabla de métricas en tiempo real
+    document.getElementById('manual-token').value = '';
+    await loadTickets();
+  } catch (err) {
+    msgBox.className = 'message error';
+    msgBox.innerHTML = `❌ <strong>ERROR:</strong> ${err.message}`;
+  }
+}
+
+// Eventos de validación manual
+document.getElementById('manual-check').addEventListener('click', () => {
+  checkIn(document.getElementById('manual-token').value);
+});
+document.getElementById('manual-token').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    checkIn(e.currentTarget.value);
+  }
+});
+
+document.getElementById('refresh').addEventListener('click', loadTickets);
+
+// Control de la Cámara (Html5Qrcode)
+document.getElementById('start-camera').addEventListener('click', async () => {
+  const msgBox = document.getElementById('scan-message');
+  try {
+    scanner = new Html5Qrcode('reader');
+    await scanner.start(
+      { facingMode: 'environment' },
+      { fps: 15, qrbox: { width: 220, height: 220 } },
+      async (decodedText) => {
+        // Pausa breve para evitar lecturas duplicadas continuas
+        try { await scanner.pause(true); } catch(_){}
+        await checkIn(decodedText);
+        setTimeout(() => {
+          try { if (scanner) scanner.resume(); } catch(_) {}
+        }, 2500);
+      },
+      () => {} // Ignorar errores menores de cuadro por segundo
+    );
+    document.getElementById('start-camera').disabled = true;
+    document.getElementById('stop-camera').disabled = false;
+    msgBox.className = 'message';
+    msgBox.style.display = 'block';
+    msgBox.textContent = 'Cámara activa. Enfocá el código QR.';
+  } catch (e) {
+    msgBox.className = 'message error';
+    msgBox.textContent = 'No se pudo iniciar la cámara. Verificá los permisos del navegador.';
+  }
+});
+
+document.getElementById('stop-camera').addEventListener('click', async () => {
+  if (scanner) {
+    try {
+      await scanner.stop();
+      await scanner.clear();
+    } catch(_) {}
+    scanner = null;
+  }
+  document.getElementById('start-camera').disabled = false;
+  document.getElementById('stop-camera').disabled = true;
+  document.getElementById('scan-message').style.display = 'none';
+});
+</script>
+</body>
+</html>
