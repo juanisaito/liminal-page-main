@@ -15,7 +15,8 @@ const HOST = process.env.HOST || '0.0.0.0';
 const DATA_DIR = path.join(__dirname, 'data');
 const NEWSLETTER_FILE = path.join(DATA_DIR, 'newsletter.json');
 const EVENT_TICKETS_FILE = path.join(DATA_DIR, 'event-tickets.json');
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const USERS_FILE = path.join(__dirname, 'admin-users.json');
+
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
 const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
 const MAILERLITE_API_URL = 'https://connect.mailerlite.com/api/subscribers';
@@ -29,8 +30,8 @@ const EVENT_DATE = new Date('2026-11-25T00:00:00.000Z');
 
 // Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máx 5 intentos
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: 'Demasiados intentos de suscripción. Intenta más tarde.',
   skip: (req) => req.path === '/api/health'
 });
@@ -115,10 +116,6 @@ function escapeHtml(value) {
   }[character]));
 }
 
-function getPublicUrl(req) {
-  return (PUBLIC_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
-}
-
 async function sendEventConfirmation(email, tickets) {
   if (!resend || !RESEND_FROM) {
     console.error('Event confirmation email is not configured: set RESEND_API_KEY and RESEND_FROM.');
@@ -174,10 +171,26 @@ async function sendEventConfirmation(email, tickets) {
   }
 }
 
+// Validación de Token basada en el archivo admin-users.json
 function isValidAdminToken(req) {
-  if (!ADMIN_PASSWORD) return false;
   const token = req.headers.authorization?.split(' ')[1];
-  return Boolean(token && Buffer.from(token, 'base64').toString().includes(ADMIN_PASSWORD));
+  if (!token) return false;
+
+  try {
+    const decoded = Buffer.from(token, 'base64').toString();
+    const [username, password] = decoded.split(':');
+    
+    if (!username || !password) return false;
+
+    if (!fs.existsSync(USERS_FILE)) return false;
+    const rawData = fs.readFileSync(USERS_FILE, 'utf8');
+    const data = JSON.parse(rawData);
+    const users = data.users || [];
+
+    return users.some(u => u.username === username && u.password === password);
+  } catch (err) {
+    return false;
+  }
 }
 
 async function addToMailerLite(email, name) {
@@ -214,8 +227,6 @@ async function addToMailerLite(email, name) {
 }
 
 app.use(helmet({
-  // Local Safari testing on 127.0.0.1 must stay on HTTP; HSTS would force
-  // media requests to HTTPS even when the HTML is served over plain HTTP.
   strictTransportSecurity: process.env.NODE_ENV === 'production' ? undefined : false,
   contentSecurityPolicy: {
     directives: {
@@ -237,7 +248,6 @@ app.use(helmet({
 }));
 app.use(cors());
 app.use(express.json());
-// Defense in depth: personal records must never be served as static files.
 app.use('/data', (_req, res) => res.sendStatus(404));
 app.use(express.static(path.join(__dirname)));
 
@@ -300,7 +310,6 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
     newsletterConsentAt: new Date().toISOString()
   }));
 
-  // Emit and persist first, so an external API outage never loses a valid reservation.
   saveEventTickets([...tickets, ...createdTickets]);
   const mailerlite = await addToMailerLite(email, name);
   if (!mailerlite.synced) console.error('MailerLite event opt-in error:', mailerlite.reason);
@@ -344,7 +353,7 @@ app.post('/api/admin/event-check-in', (req, res) => {
   res.json({ alreadyCheckedIn: false, ticket: { name: ticket.name, code: ticket.code, checkedInAt: ticket.checkedInAt } });
 });
 
-// Newsletter Subscription (con rate limit)
+// Newsletter Subscription
 app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
   const email = sanitizeString(req.body.email).toLowerCase();
   const name = sanitizeString(req.body.name);
@@ -365,7 +374,6 @@ app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
     return res.status(200).json({ message: 'Este correo ya está suscripto.', subscriber: existing });
   }
 
-  // Sincronizar con MailerLite
   const mailerliteSyncResult = await addToMailerLite(email, name);
 
   const subscriber = {
@@ -389,33 +397,41 @@ app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
   });
 });
 
-// Admin Panel - Verify Password
+// Admin Panel - Verify Multiple Users from JSON
 app.post('/api/admin-login', (req, res) => {
-  const { password } = req.body;
+  const { username, password } = req.body;
 
-  if (!ADMIN_PASSWORD) {
-    return res.status(503).json({ error: 'El acceso admin no está configurado.' });
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Usuario y contraseña requeridos.' });
   }
 
-  if (!password) {
-    return res.status(400).json({ error: 'Contraseña requerida.' });
-  }
+  try {
+    if (!fs.existsSync(USERS_FILE)) {
+      return res.status(500).json({ error: 'Archivo de usuarios no configurado en el servidor.' });
+    }
 
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Contraseña incorrecta.' });
-  }
+    const rawData = fs.readFileSync(USERS_FILE, 'utf8');
+    const data = JSON.parse(rawData);
+    const users = data.users || [];
 
-  // Devuelve un token simple (en producción usar JWT)
-  const token = Buffer.from(password + Date.now()).toString('base64');
-  res.json({ token, message: 'Acceso concedido.' });
+    const foundUser = users.find(u => u.username === username && u.password === password);
+
+    if (!foundUser) {
+      return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
+    }
+
+    // Token codificado con usuario y contraseña para validación posterior
+    const token = Buffer.from(`${foundUser.username}:${foundUser.password}:${Date.now()}`).toString('base64');
+    res.json({ token, name: foundUser.name, message: 'Acceso concedido.' });
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(500).json({ error: 'Error interno al procesar el acceso.' });
+  }
 });
 
-// Admin Panel - Get Subscribers (requiere token)
+// Admin Panel - Get Subscribers
 app.get('/api/admin/subscribers', (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  const isValid = token && Buffer.from(token, 'base64').toString().includes(ADMIN_PASSWORD);
-
-  if (!isValid) {
+  if (!isValidAdminToken(req)) {
     return res.status(403).json({ error: 'Acceso denegado.' });
   }
 
@@ -429,10 +445,7 @@ app.get('/api/admin/subscribers', (req, res) => {
 
 // Admin Panel - Export CSV
 app.get('/api/admin/export-csv', (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  const isValid = token && Buffer.from(token, 'base64').toString().includes(ADMIN_PASSWORD);
-
-  if (!isValid) {
+  if (!isValidAdminToken(req)) {
     return res.status(403).json({ error: 'Acceso denegado.' });
   }
 
