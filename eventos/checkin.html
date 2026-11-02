@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Acceso · THIS IS TOBBA</title>
+  <title>Check-in · THIS IS TOBBA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -11,251 +11,166 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background-color: #0a0a0a;
+      background-color: #070707;
       color: #f5f5f5;
       font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     .wrap {
-      max-width: 900px;
+      max-width: 500px;
       margin: 0 auto;
-      padding: 32px 22px 60px;
+      padding: 24px;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #222;
-      padding-bottom: 18px;
+      border-bottom: 1px solid #1f1f1f;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
     }
     .eyebrow {
       font-size: 9px;
       letter-spacing: .2em;
       text-transform: uppercase;
-      color: #777;
+      color: #666;
     }
     .title {
-      font: 500 clamp(26px, 5vw, 42px)/1 system-ui, sans-serif;
-      letter-spacing: -.04em;
-      margin: 32px 0 8px;
-    }
-    .sub {
-      color: #888;
-      font-size: 11px;
-      line-height: 1.6;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -.03em;
+      margin: 0 0 6px;
     }
     .box {
       border: 1px solid #222;
-      background: rgba(255, 255, 255, 0.01);
-      padding: 24px;
-      margin-top: 24px;
-      border-radius: 4px;
-    }
-    .row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
+      background: #111;
+      padding: 20px;
+      border-radius: 6px;
     }
     .input {
-      background: #111;
+      background: #0a0a0a;
       border: 1px solid #333;
       color: #fff;
       padding: 12px;
       font: 12px 'IBM Plex Mono', monospace;
-      min-height: 42px;
-      border-radius: 2px;
+      width: 100%;
+      border-radius: 4px;
       outline: none;
-      transition: border-color 0.2s;
+      margin-bottom: 12px;
     }
-    .input:focus {
-      border-color: #888;
-    }
+    .input:focus { border-color: #777; }
     .btn {
       border: 1px solid #444;
       background: transparent;
       color: #fff;
-      padding: 12px 18px;
+      padding: 12px 16px;
       font: 10px 'IBM Plex Mono', monospace;
       letter-spacing: .12em;
       text-transform: uppercase;
       cursor: pointer;
-      border-radius: 2px;
+      border-radius: 4px;
       transition: all 0.2s;
+      width: 100%;
     }
-    .btn:hover {
-      background: #fff;
-      color: #000;
-      border-color: #fff;
-    }
-    .btn-primary {
-      background: #fff;
-      color: #000;
-      border-color: #fff;
-      font-weight: 600;
-    }
-    .btn-primary:hover {
-      background: #e0e0e0;
-    }
-    .btn:disabled {
-      opacity: .3;
-      cursor: not-allowed;
-    }
-    .message {
-      margin-top: 14px;
-      font-size: 11px;
-      padding: 12px;
-      border-radius: 2px;
-      background: #121212;
-      border: 1px solid #222;
+    .btn:hover { background: #fff; color: #000; border-color: #fff; }
+    .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+    .btn-primary:hover { background: #e0e0e0; }
+    
+    /* Pantalla de Feedback Gigante para el Staff */
+    #scan-result {
+      margin-top: 20px;
+      padding: 24px;
+      border-radius: 6px;
+      text-align: center;
       display: none;
     }
-    .message.success { background: rgba(45, 106, 79, 0.2); border-color: #2d6a4f; color: #d8f3dc; display: block; }
-    .message.warning { background: rgba(133, 100, 4, 0.2); border-color: #856404; color: #fff3cd; display: block; }
-    .message.error { background: rgba(164, 22, 26, 0.2); border-color: #a4161a; color: #ffccd5; display: block; }
-    
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .stat {
-      padding: 16px;
-      border: 1px solid #222;
-      background: #111;
-    }
-    .stat strong {
-      display: block;
-      font-size: 24px;
-      font-weight: 400;
-      margin-top: 4px;
-    }
-    .stat span {
-      color: #777;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-    }
-    .list {
-      margin-top: 24px;
-      border-top: 1px solid #222;
-    }
-    .ticket {
-      display: grid;
-      grid-template-columns: 1.5fr 1.5fr 1fr 0.8fr;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #181818;
-      font-size: 10px;
-      align-items: center;
-    }
-    .ticket.head {
-      color: #666;
-      text-transform: uppercase;
-      font-size: 8px;
-      letter-spacing: .1em;
-      border-bottom: 1px solid #222;
-    }
-    .arrived { color: #52b788; }
-    .pending { color: #d4a373; }
-    .hidden { display: none !important; }
+    #scan-result.success { background: #0f2d1e; border: 2px solid #2d6a4f; color: #d8f3dc; display: block; }
+    #scan-result.warning { background: #332705; border: 2px solid #b5830d; color: #fffaa0; display: block; }
+    #scan-result.error { background: #3d0c11; border: 2px solid #a4161a; color: #ffccd5; display: block; }
     
     #reader {
       width: 100%;
-      max-width: 360px;
-      margin: 16px auto 0;
       border-radius: 4px;
       overflow: hidden;
-      border: 1px solid #333;
+      border: 1px solid #222;
+      background: #000;
+      margin-top: 14px;
     }
-    .scanner { text-align: center; }
-    .scanner .row { justify-content: center; }
-
-    @media(max-width: 600px) {
-      .ticket { grid-template-columns: 1fr 1.2fr .8fr; }
-      .ticket > *:nth-child(3) { display: none; }
-      .stats { grid-template-columns: 1fr; }
-      .input { width: 100%; }
-    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 <main class="wrap">
   <div class="top">
-    <a href="/admin" style="color:#f5f5f5; text-decoration:none; font-size:10px; letter-spacing:.15em;">← VOLVER AL PANEL</a>
-    <span class="eyebrow">THIS IS TOBBA · ACCESO</span>
+    <a href="/admin" style="color:#aaa; text-decoration:none; font-size:10px; letter-spacing:.15em;">← VOLVER AL ADMIN</a>
+    <span class="eyebrow">PUERTA · THIS IS TOBBA</span>
   </div>
 
-  <!-- Pantalla de Login -->
-  <section id="login" class="box" style="max-width:400px; margin:60px auto;">
-    <div class="eyebrow">AUTENTICACIÓN REQUERIDA</div>
-    <h1 class="title" style="font-size:24px; margin:12px 0;">Control de acceso</h1>
+  <!-- Login (Solo si no hay token guardado) -->
+  <section id="login" class="box">
+    <div class="eyebrow">SEGURIDAD</div>
+    <h1 class="title" style="margin-top:6px;">Acceso Staff</h1>
+    <p style="color:#888; font-size:11px; margin-bottom:16px;">Ingresá la contraseña de administración una sola vez.</p>
     <form id="login-form">
-      <input id="password" class="input" type="password" required placeholder="Contraseña de admin" style="width:100%; margin-bottom:12px;">
-      <button class="btn btn-primary" style="width:100%;">Ingresar al sistema</button>
+      <input id="password" class="input" type="password" required placeholder="Contraseña">
+      <button class="btn btn-primary">Ingresar</button>
     </form>
-    <div class="message" id="login-message" style="margin-top:12px;"></div>
+    <div id="login-message" style="margin-top:12px; font-size:11px; color:#ffccd5;"></div>
   </section>
 
-  <!-- Panel de Control / Escáner -->
+  <!-- Escáner Activo -->
   <section id="dashboard" class="hidden">
-    <div style="margin-top: 24px;">
-      <div class="eyebrow">OPERACIÓN EN PUERTA</div>
-      <h1 class="title">Escáner y Validación</h1>
-      <div class="sub">Apunta con la cámara al código QR de la entrada o ingresa el código alfanumérico manualmente.</div>
+    <div>
+      <h1 class="title">Escáner de Entradas</h1>
+      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apunta la cámara al QR del asistente o ingresa el código manual.</p>
     </div>
 
-    <div class="stats">
-      <div class="stat"><span class="eyebrow">Reservas</span><strong id="reserved">—</strong></div>
-      <div class="stat"><span class="eyebrow">Ingresaron</span><strong id="checked-in" style="color:#52b788">—</strong></div>
-      <div class="stat"><span class="eyebrow">Disponibles</span><strong id="remaining">—</strong></div>
-    </div>
-
-    <div class="box scanner">
-      <div class="eyebrow" style="margin-bottom: 8px;">Cámara de Dispositivo</div>
-      <div class="row">
-        <button class="btn btn-primary" id="start-camera">Abrir cámara</button>
-        <button class="btn" id="stop-camera" disabled>Cerrar cámara</button>
+    <div class="box">
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary" id="start-camera">Activar Cámara</button>
+        <button class="btn" id="stop-camera" disabled>Detener</button>
       </div>
-      <div id="reader"></div>
       
-      <div class="row" style="margin-top: 20px;">
-        <input id="manual-token" class="input" placeholder="Ej: a1b2c3d4..." style="flex: 1;">
-        <button id="manual-check" class="btn">Validar código</button>
-      </div>
-      <div class="message" id="scan-message" aria-live="polite"></div>
-    </div>
+      <div id="reader"></div>
 
-    <div class="row" style="justify-content:space-between; margin-top:32px; align-items:flex-end;">
-      <div>
-        <div class="eyebrow">Registro general</div>
-        <h3 style="font-size:14px; margin:4px 0 0 0; font-weight:500;">Listado de asistentes</h3>
+      <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 16px;">
+        <input id="manual-token" class="input" placeholder="O ingresá el código manual..." style="margin-bottom:8px;">
+        <button id="manual-check" class="btn">Validar Código Manual</button>
       </div>
-      <button id="refresh" class="btn">Actualizar lista</button>
-    </div>
-    
-    <div class="list" id="ticket-list">
-      <div class="ticket head"><span>Asistente</span><span>Correo</span><span>Código</span><span>Estado</span></div>
+
+      <!-- Tarjeta de Feedback Visual Grande -->
+      <div id="scan-result"></div>
     </div>
   </section>
 </main>
 
 <script>
-let authToken = '';
+let authToken = localStorage.getItem('liminal_admin_token') || '';
 let scanner = null;
+let isProcessing = false;
 
 const loginScreen = document.getElementById('login');
 const dashboard = document.getElementById('dashboard');
-const loginForm = document.getElementById('login-form');
-const loginMessage = document.getElementById('login-message');
 
-// Login Admin
-loginForm.addEventListener('submit', async e => {
+// Auto-login si ya existía token guardado
+if (authToken) {
+  loginScreen.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+  initScanner();
+}
+
+document.getElementById('login-form').addEventListener('submit', async e => {
   e.preventDefault();
   const pass = document.getElementById('password').value;
-  loginMessage.className = 'message';
-  loginMessage.style.display = 'block';
-  loginMessage.textContent = 'Verificando credenciales...';
+  const msg = document.getElementById('login-message');
+  msg.textContent = 'Verificando...';
 
   try {
     const res = await fetch('/api/admin-login', {
@@ -265,73 +180,34 @@ loginForm.addEventListener('submit', async e => {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Contraseña incorrecta');
-    
+
     authToken = data.token;
+    localStorage.setItem('liminal_admin_token', authToken);
     loginScreen.classList.add('hidden');
     dashboard.classList.remove('hidden');
-    await loadTickets();
+    initScanner();
   } catch (err) {
-    loginMessage.className = 'message error';
-    loginMessage.textContent = err.message;
+    msg.textContent = err.message;
   }
 });
 
-// Cargar métricas y listado
-async function loadTickets() {
-  try {
-    const res = await fetch('/api/admin/event-tickets', {
-      headers: { Authorization: `Bearer ${authToken}` }
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al sincronizar datos');
-
-    document.getElementById('reserved').textContent = data.reserved;
-    document.getElementById('checked-in').textContent = data.checkedIn;
-    document.getElementById('remaining').textContent = data.remaining;
-
-    const list = document.getElementById('ticket-list');
-    const headerHtml = '<div class="ticket head"><span>Asistente</span><span>Correo</span><span>Código</span><span>Estado</span></div>';
-    
-    if (!data.tickets || data.tickets.length === 0) {
-      list.innerHTML = headerHtml + '<div style="padding:20px; text-align:center; color:#666; font-size:11px;">No hay registros todavía.</div>';
-      return;
-    }
-
-    list.innerHTML = headerHtml + data.tickets.map(t => `
-      <div class="ticket">
-        <span style="font-weight:500;">${escapeHtml(t.name)}</span>
-        <span style="color:#888;">${escapeHtml(t.email)}</span>
-        <span style="color:#aaa; font-family:monospace;">${escapeHtml(t.code)}</span>
-        <span class="${t.checkedInAt ? 'arrived' : 'pending'}">${t.checkedInAt ? '✓ Ingresó' : '• Pendiente'}</span>
-      </div>
-    `).join('');
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-function escapeHtml(str) {
-  return String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
-}
-
-// Función robusta de validación y limpieza de token leídos por QR o input
 async function checkIn(rawValue) {
-  const msgBox = document.getElementById('scan-message');
-  msgBox.className = 'message';
+  if (isProcessing) return;
+  isProcessing = true;
+
+  const resultBox = document.getElementById('scan-result');
   const cleanVal = String(rawValue || '').trim();
   
   if (!cleanVal) {
-    msgBox.className = 'message error';
-    msgBox.textContent = 'Código vacío o inválido.';
+    isProcessing = false;
     return;
   }
 
-  // Extraer token de forma segura si la cámara lee una URL o un texto plano
+  // Extraer token si la cámara lee una URL completa
   let ticketToken = cleanVal;
   if (cleanVal.includes('http://') || cleanVal.includes('https://')) {
     try {
       const parsedUrl = new URL(cleanVal);
-      // Busca si viene como query param ?token= o en el path
       const paramToken = parsedUrl.searchParams.get('token');
       if (paramToken) {
         ticketToken = paramToken;
@@ -342,8 +218,8 @@ async function checkIn(rawValue) {
     } catch (_) {}
   }
 
-  msgBox.className = 'message warning';
-  msgBox.textContent = 'Validando acceso...';
+  resultBox.className = 'warning';
+  resultBox.innerHTML = '<span style="font-size:12px;">Verificando entrada...</span>';
 
   try {
     const res = await fetch('/api/admin/event-check-in', {
@@ -356,79 +232,76 @@ async function checkIn(rawValue) {
     });
     
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Entrada no reconocida');
+    if (!res.ok) throw new Error(data.error || 'Entrada no válida');
 
     if (data.alreadyCheckedIn) {
-      msgBox.className = 'message warning';
-      msgBox.innerHTML = `⚠️ <strong>ATENCIÓN: ENTRADA YA UTILIZADA</strong><br>Titular: ${escapeHtml(data.ticket.name)}<br>Registrado previamente.`;
+      resultBox.className = 'warning';
+      resultBox.innerHTML = `
+        <div style="font-size:10px; letter-spacing:.15em; margin-bottom:4px;">⚠️ ATENCIÓN</div>
+        <div style="font-size:18px; font-weight:600; margin-bottom:6px;">YA FUE UTILIZADA</div>
+        <div style="font-size:13px;">${escapeHtml(data.ticket.name)}</div>
+      `;
     } else {
-      msgBox.className = 'message success';
-      msgBox.innerHTML = `✅ <strong>ACCESO CONCEDIDO</strong><br>Titular: ${escapeHtml(data.ticket.name)}<br>Código: ${escapeHtml(data.ticket.code)}`;
+      resultBox.className = 'success';
+      resultBox.innerHTML = `
+        <div style="font-size:10px; letter-spacing:.15em; margin-bottom:4px;">✅ ACCESO CONCEDIDO</div>
+        <div style="font-size:22px; font-weight:600; margin-bottom:6px;">${escapeHtml(data.ticket.name)}</div>
+        <div style="font-size:11px; opacity:0.8;">Código: ${escapeHtml(data.ticket.code)}</div>
+      `;
     }
-
-    // Limpiar input manual y actualizar tabla de métricas en tiempo real
-    document.getElementById('manual-token').value = '';
-    await loadTickets();
   } catch (err) {
-    msgBox.className = 'message error';
-    msgBox.innerHTML = `❌ <strong>ERROR:</strong> ${err.message}`;
+    resultBox.className = 'error';
+    resultBox.innerHTML = `
+      <div style="font-size:10px; letter-spacing:.15em; margin-bottom:4px;">❌ ERROR</div>
+      <div style="font-size:16px; font-weight:600;">${escapeHtml(err.message)}</div>
+    `;
   }
+
+  document.getElementById('manual-token').value = '';
+  
+  // Permitir nuevo escaneo tras 3.5 segundos
+  setTimeout(() => {
+    isProcessing = false;
+  }, 3500);
 }
 
-// Eventos de validación manual
-document.getElementById('manual-check').addEventListener('click', () => {
-  checkIn(document.getElementById('manual-token').value);
-});
+document.getElementById('manual-check').addEventListener('click', () => checkIn(document.getElementById('manual-token').value));
 document.getElementById('manual-token').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    checkIn(e.currentTarget.value);
-  }
+  if (e.key === 'Enter') { e.preventDefault(); checkIn(e.currentTarget.value); }
 });
 
-document.getElementById('refresh').addEventListener('click', loadTickets);
-
-// Control de la Cámara (Html5Qrcode)
-document.getElementById('start-camera').addEventListener('click', async () => {
-  const msgBox = document.getElementById('scan-message');
+async function initScanner() {
   try {
     scanner = new Html5Qrcode('reader');
     await scanner.start(
       { facingMode: 'environment' },
-      { fps: 15, qrbox: { width: 220, height: 220 } },
+      { fps: 20, qrbox: { width: 250, height: 250 } },
       async (decodedText) => {
-        // Pausa breve para evitar lecturas duplicadas continuas
-        try { await scanner.pause(true); } catch(_){}
-        await checkIn(decodedText);
-        setTimeout(() => {
-          try { if (scanner) scanner.resume(); } catch(_) {}
-        }, 2500);
+        if (!isProcessing) {
+          await checkIn(decodedText);
+        }
       },
-      () => {} // Ignorar errores menores de cuadro por segundo
+      () => {}
     );
     document.getElementById('start-camera').disabled = true;
     document.getElementById('stop-camera').disabled = false;
-    msgBox.className = 'message';
-    msgBox.style.display = 'block';
-    msgBox.textContent = 'Cámara activa. Enfocá el código QR.';
   } catch (e) {
-    msgBox.className = 'message error';
-    msgBox.textContent = 'No se pudo iniciar la cámara. Verificá los permisos del navegador.';
+    console.error('Error al iniciar cámara:', e);
   }
-});
+}
 
 document.getElementById('stop-camera').addEventListener('click', async () => {
   if (scanner) {
-    try {
-      await scanner.stop();
-      await scanner.clear();
-    } catch(_) {}
+    try { await scanner.stop(); await scanner.clear(); } catch(_){}
     scanner = null;
   }
   document.getElementById('start-camera').disabled = false;
   document.getElementById('stop-camera').disabled = true;
-  document.getElementById('scan-message').style.display = 'none';
 });
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+}
 </script>
 </body>
 </html>

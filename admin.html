@@ -4,138 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liminal Records - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; }
         body {
-            background-color: #0a0a0a;
+            background-color: #070707;
             color: #f5f5f5;
             font-family: 'IBM Plex Mono', monospace;
+            margin: 0;
+            padding: 24px;
         }
-        .admin-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        .container { max-width: 1100px; margin: 0 auto; }
         .login-box {
-            max-width: 400px;
-            margin: 5rem auto;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
+            max-width: 380px;
+            margin: 80px auto;
+            padding: 32px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
         }
-        .subscriber-row {
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 1rem;
-            align-items: center;
-            font-size: 0.85rem;
+        .eyebrow { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #666; }
+        .input {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            font: 12px 'IBM Plex Mono', monospace;
+            width: 100%;
+            border-radius: 4px;
+            outline: none;
+            margin-top: 8px;
+            margin-bottom: 16px;
         }
-        .status-synced { color: #90EE90; }
-        .status-error { color: #FFB6B6; }
+        .input:focus { border-color: #777; }
         .btn {
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #f5f5f5;
-            border-radius: 0.4rem;
+            border: 1px solid #444;
+            background: transparent;
+            color: #fff;
+            padding: 10px 16px;
+            font: 10px 'IBM Plex Mono', monospace;
+            letter-spacing: .12em;
+            text-transform: uppercase;
             cursor: pointer;
+            border-radius: 4px;
             transition: all 0.2s;
         }
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .btn:hover { background: #fff; color: #000; border-color: #fff; }
+        .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+        .btn-primary:hover { background: #e0e0e0; }
+        
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
         }
-        .btn-primary {
-            background: white;
-            color: #0a0a0a;
-            font-weight: bold;
+        .stat-card {
+            background: #111;
+            border: 1px solid #222;
+            padding: 20px;
+            border-radius: 6px;
         }
-        .btn-primary:hover {
-            background: #f0f0f0;
+        .stat-card strong { display: block; font-size: 28px; font-weight: 400; margin-top: 6px; }
+        
+        .section-box {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            margin-bottom: 32px;
+            overflow: hidden;
         }
+        .section-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .row-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #181818;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 12px;
+            font-size: 11px;
+            align-items: center;
+        }
+        .row-item.head { color: #666; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
+        .status-yes { color: #52b788; }
+        .status-no { color: #d4a373; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <div class="admin-container">
+    <div class="container">
         <!-- Login Screen -->
         <div id="login-screen" class="login-box">
-            <h1 class="text-2xl font-bold mb-6 text-center">Liminal Admin</h1>
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label class="text-xs uppercase opacity-60">Contraseña</label>
-                    <input type="password" id="admin-password" placeholder="••••••••" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 text-sm outline-none focus:border-white/30 transition">
-                </div>
-                <button type="submit" class="btn btn-primary w-full">Entrar</button>
-                <div id="login-error" class="text-xs text-red-400 text-center opacity-0 transition-opacity"></div>
+            <div class="eyebrow">ADMINISTRACIÓN</div>
+            <h1 style="font-size: 22px; margin: 8px 0 20px 0;">Liminal Access</h1>
+            <form id="login-form">
+                <label class="eyebrow">Contraseña</label>
+                <input type="password" id="admin-password" required class="input" placeholder="••••••••">
+                <button type="submit" class="btn btn-primary" style="width:100%;">Ingresar</button>
+                <div id="login-error" style="color: #ffccd5; font-size: 11px; margin-top: 12px; text-align: center;"></div>
             </form>
         </div>
 
         <!-- Dashboard -->
         <div id="dashboard" class="hidden">
-            <div class="flex justify-between items-center mb-8">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #222; padding-bottom: 16px;">
                 <div>
-                    <h1 class="text-3xl font-bold">Panel de Suscriptores</h1>
-                    <p class="text-xs opacity-40 mt-1">Liminal Records Newsletter</p>
+                    <span class="eyebrow">PANEL GENERAL</span>
+                    <h1 style="font-size: 24px; margin: 4px 0 0 0;">Liminal Records & Eventos</h1>
                 </div>
-                <button id="logout-btn" class="btn">Salir</button>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/eventos/checkin.html" target="_blank" style="text-decoration: none;">
+                        <button class="btn btn-primary">📷 Abrir Escáner de Puerta</button>
+                    </a>
+                    <button id="logout-btn" class="btn">Salir</button>
+                </div>
             </div>
 
             <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="p-4 bg-white/5 border border-white/10 rounded">
-                    <p class="text-xs opacity-40 uppercase">Total Suscriptores</p>
-                    <p class="text-2xl font-bold mt-2" id="total-count">0</p>
+            <div class="grid-stats">
+                <div class="stat-card">
+                    <span class="eyebrow">Total Suscriptores</span>
+                    <strong id="total-count">0</strong>
                 </div>
-                <div class="p-4 bg-white/5 border border-white/10 rounded">
-                    <p class="text-xs opacity-40 uppercase">Sincronizados MailerLite</p>
-                    <p class="text-2xl font-bold mt-2" id="synced-count">0</p>
+                <div class="stat-card">
+                    <span class="eyebrow">Sincronizados MailerLite</span>
+                    <strong id="synced-count">0</strong>
                 </div>
-                <div class="p-4 bg-white/5 border border-white/10 rounded">
-                    <p class="text-xs opacity-40 uppercase">Acciones / Evento</p>
-                    <div class="mt-2 space-y-2 flex flex-col">
-                        <div class="space-x-2 flex">
-                            <button id="refresh-btn" class="btn text-xs">Recargar</button>
-                            <button id="export-btn" class="btn text-xs">Descargar CSV</button>
-                        </div>
-                        <a href="/eventos/checkin.html" target="_blank" class="w-full">
-                            <button class="btn btn-primary text-xs w-full py-2">📷 Abrir Escáner QR</button>
-                        </a>
+                <div class="stat-card">
+                    <span class="eyebrow">Acciones</span>
+                    <div style="margin-top: 10px; display: flex; gap: 8px;">
+                        <button id="refresh-btn" class="btn" style="font-size: 9px;">Recargar</button>
+                        <button id="export-btn" class="btn" style="font-size: 9px;">Descargar CSV</button>
                     </div>
                 </div>
             </div>
 
             <!-- Subscribers List -->
-            <div class="bg-white/2 border border-white/10 rounded">
-                <div class="p-4 border-b border-white/10">
-                    <h2 class="text-lg font-bold">Suscriptores</h2>
+            <div class="section-box">
+                <div class="section-header">
+                    <span style="font-size: 13px; font-weight: 500;">Suscriptores del Newsletter</span>
                 </div>
-                <div id="subscribers-list" class="max-h-[600px] overflow-y-auto">
-                    <p class="p-4 text-xs opacity-50 text-center">Cargando...</p>
+                <div id="subscribers-list">
+                    <p style="padding: 24px; text-align: center; color: #666; font-size: 11px;">Cargando registros...</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        let authToken = localStorage.getItem('liminal_admin_token') || '';
+
         const loginScreen = document.getElementById('login-screen');
         const dashboard = document.getElementById('dashboard');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const logoutBtn = document.getElementById('logout-btn');
-        const refreshBtn = document.getElementById('refresh-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const subscribersList = document.getElementById('subscribers-list');
-        const totalCount = document.getElementById('total-count');
-        const syncedCount = document.getElementById('synced-count');
 
-        let authToken = null;
+        if (authToken) {
+            loginScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            loadSubscribers();
+        }
 
-        loginForm.addEventListener('submit', async (e) => {
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('admin-password').value;
+            const errBox = document.getElementById('login-error');
+            errBox.textContent = 'Verificando...';
 
             try {
                 const response = await fetch('/api/admin-login', {
@@ -145,27 +183,24 @@
                 });
 
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error);
-                }
+                if (!response.ok) throw new Error(data.error || 'Credenciales inválidas');
 
                 authToken = data.token;
+                localStorage.setItem('liminal_admin_token', authToken);
                 loginScreen.classList.add('hidden');
                 dashboard.classList.remove('hidden');
                 loadSubscribers();
             } catch (error) {
-                loginError.textContent = error.message;
-                loginError.style.opacity = '1';
+                errBox.textContent = error.message;
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            authToken = null;
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            authToken = '';
+            localStorage.removeItem('liminal_admin_token');
             loginScreen.classList.remove('hidden');
             dashboard.classList.add('hidden');
             document.getElementById('admin-password').value = '';
-            loginError.style.opacity = '0';
         });
 
         async function loadSubscribers() {
@@ -174,45 +209,40 @@
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
 
-                if (!response.ok) throw new Error('Acceso denegado');
+                if (!response.ok) throw new Error('Sesión expirada o denegada');
 
                 const data = await response.json();
-                totalCount.textContent = data.count;
-                syncedCount.textContent = data.mailerliteSyncedCount;
+                document.getElementById('total-count').textContent = data.count;
+                document.getElementById('synced-count').textContent = data.mailerliteSyncedCount;
 
-                const html = data.subscribers.length === 0
-                    ? '<p class="p-4 text-xs opacity-50 text-center">No hay suscriptores aún.</p>'
-                    : `
-                        <div class="text-xs uppercase opacity-40 p-4 border-b border-white/10 grid grid-cols-4 gap-1">
-                            <div>Email</div>
-                            <div>Nombre</div>
-                            <div>Fecha</div>
-                            <div>MailerLite</div>
-                        </div>
-                        ${data.subscribers.map(s => `
-                            <div class="subscriber-row">
-                                <div>${s.email}</div>
-                                <div>${s.name}</div>
-                                <div class="text-xs opacity-60">${new Date(s.createdAt).toLocaleDateString('es-AR')}</div>
-                                <div class="${s.mailerliteSynced ? 'status-synced' : 'status-error'}">${s.mailerliteSynced ? '✓ Sí' : '✗ No'}</div>
-                            </div>
-                        `).join('')}
-                    `;
+                const list = document.getElementById('subscribers-list');
+                const headHtml = '<div class="row-item head"><div>Email</div><div>Nombre</div><div>Fecha</div><div>MailerLite</div></div>';
+                
+                if (!data.subscribers || data.subscribers.length === 0) {
+                    list.innerHTML = headHtml + '<div style="padding: 24px; text-align: center; color: #666; font-size: 11px;">No hay suscriptores aún.</div>';
+                    return;
+                }
 
-                subscribersList.innerHTML = html;
+                list.innerHTML = headHtml + data.subscribers.map(s => `
+                    <div class="row-item">
+                        <div style="word-break: break-all;">${escapeHtml(s.email)}</div>
+                        <div>${escapeHtml(s.name)}</div>
+                        <div style="color: #666;">${new Date(s.createdAt).toLocaleDateString('es-AR')}</div>
+                        <div class="${s.mailerliteSynced ? 'status-yes' : 'status-no'}">${s.mailerliteSynced ? '✓ Sí' : '• Pendiente'}</div>
+                    </div>
+                `).join('');
             } catch (error) {
-                subscribersList.innerHTML = `<p class="p-4 text-xs text-red-400">${error.message}</p>`;
+                document.getElementById('subscribers-list').innerHTML = `<p style="padding: 24px; text-align: center; color: #ffccd5; font-size: 11px;">${error.message}</p>`;
             }
         }
 
-        refreshBtn.addEventListener('click', loadSubscribers);
+        document.getElementById('refresh-btn').addEventListener('click', loadSubscribers);
 
-        exportBtn.addEventListener('click', async () => {
+        document.getElementById('export-btn').addEventListener('click', async () => {
             try {
                 const response = await fetch('/api/admin/export-csv', {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
-
                 if (!response.ok) throw new Error('Error al exportar');
 
                 const blob = await response.blob();
@@ -228,6 +258,10 @@
                 alert('Error al descargar: ' + error.message);
             }
         });
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+        }
     </script>
 </body>
 </html>
