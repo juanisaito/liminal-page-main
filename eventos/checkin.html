@@ -83,18 +83,6 @@
     .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
     .btn-primary:hover { background: #e0e0e0; }
     
-    /* Pantalla de Feedback Gigante para el Staff */
-    #scan-result {
-      margin-top: 20px;
-      padding: 24px;
-      border-radius: 6px;
-      text-align: center;
-      display: none;
-    }
-    #scan-result.success { background: #0f2d1e; border: 2px solid #2d6a4f; color: #d8f3dc; display: block; }
-    #scan-result.warning { background: #332705; border: 2px solid #b5830d; color: #fffaa0; display: block; }
-    #scan-result.error { background: #3d0c11; border: 2px solid #a4161a; color: #ffccd5; display: block; }
-    
     #reader {
       width: 100%;
       border-radius: 4px;
@@ -104,6 +92,58 @@
       margin-top: 14px;
     }
     .hidden { display: none !important; }
+
+    /* Estilos del Pop-Up Modal de Alerta */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 32px 24px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+    .modal-card.success { background: #0f2d1e; border: 2px solid #2d6a4f; color: #d8f3dc; }
+    .modal-card.warning { background: #332705; border: 2px solid #b5830d; color: #fffaa0; }
+    .modal-card.error { background: #3d0c11; border: 2px solid #a4161a; color: #ffccd5; }
+
+    .modal-title { font-size: 20px; font-weight: 600; margin: 10px 0; letter-spacing: -.02em; }
+    .modal-subtitle { font-size: 13px; margin-bottom: 24px; opacity: 0.9; word-break: break-all; }
+    .modal-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      font: 11px 'IBM Plex Mono', monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: 600;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -113,23 +153,31 @@
     <span class="eyebrow">PUERTA · THIS IS TOBBA</span>
   </div>
 
-  <!-- Login (Solo si no hay token guardado) -->
+  <!-- Login (Multi-usuario con localStorage) -->
   <section id="login" class="box">
     <div class="eyebrow">SEGURIDAD</div>
     <h1 class="title" style="margin-top:6px;">Acceso Staff</h1>
-    <p style="color:#888; font-size:11px; margin-bottom:16px;">Ingresá la contraseña de administración una sola vez.</p>
+    <p style="color:#888; font-size:11px; margin-bottom:16px;">Ingresá tus credenciales de operador.</p>
     <form id="login-form">
-      <input id="password" class="input" type="password" required placeholder="Contraseña">
-      <button class="btn btn-primary">Ingresar</button>
+      <label class="eyebrow">Usuario</label>
+      <input id="admin-user" class="input" type="text" required placeholder="ej: puerta" autocomplete="username">
+      
+      <label class="eyebrow">Contraseña</label>
+      <div style="position: relative;">
+        <input id="admin-password" class="input" type="password" required placeholder="••••••••" autocomplete="current-password" style="padding-right: 40px; margin-bottom: 0;">
+        <button type="button" id="toggle-pass" style="position: absolute; right: 10px; top: 40%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 14px;" title="Ver contraseña">👁️</button>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top: 18px;">Ingresar</button>
+      <div id="login-message" style="margin-top:12px; font-size:11px; color:#ffccd5; text-align:center;"></div>
     </form>
-    <div id="login-message" style="margin-top:12px; font-size:11px; color:#ffccd5;"></div>
   </section>
 
   <!-- Escáner Activo -->
   <section id="dashboard" class="hidden">
     <div>
       <h1 class="title">Escáner de Entradas</h1>
-      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apunta la cámara al QR del asistente o ingresa el código manual.</p>
+      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apunta la cámara al QR o ingresa el código manual.</p>
     </div>
 
     <div class="box">
@@ -144,12 +192,19 @@
         <input id="manual-token" class="input" placeholder="O ingresá el código manual..." style="margin-bottom:8px;">
         <button id="manual-check" class="btn">Validar Código Manual</button>
       </div>
-
-      <!-- Tarjeta de Feedback Visual Grande -->
-      <div id="scan-result"></div>
     </div>
   </section>
 </main>
+
+<!-- Pop-Up Modal de Validación -->
+<div id="popup-modal" class="modal-overlay">
+  <div id="modal-card" class="modal-card success">
+    <div id="modal-eyebrow" class="eyebrow" style="letter-spacing: .25em; opacity: 0.8;">ESTADO</div>
+    <div id="modal-title" class="modal-title">ACCESO CONCEDIDO</div>
+    <div id="modal-subtitle" class="modal-subtitle">Nombre del asistente</div>
+    <button class="modal-btn" id="close-popup">Siguiente (OK)</button>
+  </div>
+</div>
 
 <script>
 let authToken = localStorage.getItem('liminal_admin_token') || '';
@@ -158,6 +213,11 @@ let isProcessing = false;
 
 const loginScreen = document.getElementById('login');
 const dashboard = document.getElementById('dashboard');
+const modalOverlay = document.getElementById('popup-modal');
+const modalCard = document.getElementById('modal-card');
+const modalTitle = document.getElementById('modal-title');
+const modalSubtitle = document.getElementById('modal-subtitle');
+const modalEyebrow = document.getElementById('modal-eyebrow');
 
 // Auto-login si ya existía token guardado
 if (authToken) {
@@ -166,9 +226,23 @@ if (authToken) {
   initScanner();
 }
 
+// Mostrar / Ocultar contraseña
+document.getElementById('toggle-pass').addEventListener('click', () => {
+  const passInput = document.getElementById('admin-password');
+  const toggleBtn = document.getElementById('toggle-pass');
+  if (passInput.type === 'password') {
+    passInput.type = 'text';
+    toggleBtn.textContent = '🔒';
+  } else {
+    passInput.type = 'password';
+    toggleBtn.textContent = '👁️';
+  }
+});
+
 document.getElementById('login-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const pass = document.getElementById('password').value;
+  const username = document.getElementById('admin-user').value.trim();
+  const password = document.getElementById('admin-password').value;
   const msg = document.getElementById('login-message');
   msg.textContent = 'Verificando...';
 
@@ -176,10 +250,10 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     const res = await fetch('/api/admin-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pass })
+      body: JSON.stringify({ username, password })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Contraseña incorrecta');
+    if (!res.ok) throw new Error(data.error || 'Credenciales incorrectas');
 
     authToken = data.token;
     localStorage.setItem('liminal_admin_token', authToken);
@@ -195,9 +269,7 @@ async function checkIn(rawValue) {
   if (isProcessing) return;
   isProcessing = true;
 
-  const resultBox = document.getElementById('scan-result');
   const cleanVal = String(rawValue || '').trim();
-  
   if (!cleanVal) {
     isProcessing = false;
     return;
@@ -218,9 +290,6 @@ async function checkIn(rawValue) {
     } catch (_) {}
   }
 
-  resultBox.className = 'warning';
-  resultBox.innerHTML = '<span style="font-size:12px;">Verificando entrada...</span>';
-
   try {
     const res = await fetch('/api/admin/event-check-in', {
       method: 'POST',
@@ -235,35 +304,31 @@ async function checkIn(rawValue) {
     if (!res.ok) throw new Error(data.error || 'Entrada no válida');
 
     if (data.alreadyCheckedIn) {
-      resultBox.className = 'warning';
-      resultBox.innerHTML = `
-        <div style="font-size:10px; letter-spacing:.15em; margin-bottom:4px;">⚠️ ATENCIÓN</div>
-        <div style="font-size:18px; font-weight:600; margin-bottom:6px;">YA FUE UTILIZADA</div>
-        <div style="font-size:13px;">${escapeHtml(data.ticket.name)}</div>
-      `;
+      showPopup('warning', '⚠️ YA FUE UTILIZADA', escapeHtml(data.ticket.name), 'ATENCIÓN');
     } else {
-      resultBox.className = 'success';
-      resultBox.innerHTML = `
-        <div style="font-size:10px; letter-spacing:.15em; margin-bottom:4px;">✅ ACCESO CONCEDIDO</div>
-        <div style="font-size:22px; font-weight:600; margin-bottom:6px;">${escapeHtml(data.ticket.name)}</div>
-        <div style="font-size:11px; opacity:0.8;">Código: ${escapeHtml(data.ticket.code)}</div>
-      `;
+      showPopup('success', '✓ ACCESO CONCEDIDO', escapeHtml(data.ticket.name), 'OK');
     }
   } catch (err) {
-    resultBox.className = 'error';
-    resultBox.innerHTML = `
-      <div style="font-size:10px; letter-spacing:.15em; margin-bottom:4px;">❌ ERROR</div>
-      <div style="font-size:16px; font-weight:600;">${escapeHtml(err.message)}</div>
-    `;
+    showPopup('error', '❌ ERROR / NO VÁLIDA', escapeHtml(err.message), 'DENEGADO');
   }
 
   document.getElementById('manual-token').value = '';
-  
-  // Permitir nuevo escaneo tras 3.5 segundos
-  setTimeout(() => {
-    isProcessing = false;
-  }, 3500);
 }
+
+function showPopup(type, title, subtitle, eyebrowText) {
+  modalCard.className = `modal-card ${type}`;
+  modalTitle.textContent = title;
+  modalSubtitle.textContent = subtitle;
+  modalEyebrow.textContent = eyebrowText;
+  modalOverlay.classList.add('active');
+}
+
+function closePopupModal() {
+  modalOverlay.classList.remove('active');
+  isProcessing = false;
+}
+
+document.getElementById('close-popup').addEventListener('click', closePopupModal);
 
 document.getElementById('manual-check').addEventListener('click', () => checkIn(document.getElementById('manual-token').value));
 document.getElementById('manual-token').addEventListener('keydown', e => {
