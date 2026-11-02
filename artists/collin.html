@@ -89,6 +89,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center 18%;
             display: block;
             filter: grayscale(100%) contrast(1.15);
             transition: filter 0.4s ease, transform 0.4s ease;
@@ -154,33 +155,6 @@
             opacity: 0.7;
         }
 
-        .social-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.85rem;
-            justify-content: center;
-            margin-top: 0.5rem;
-        }
-
-        .social-link {
-            border: 1px solid rgba(245,245,245,0.12);
-            color: var(--text);
-            background: rgba(245,245,245,0.06);
-            padding: 0.85rem 1.2rem;
-            border-radius: 999px;
-            text-decoration: none;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.22em;
-            transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .social-link:hover {
-            transform: translateY(-1px);
-            background: rgba(245,245,245,0.12);
-            color: #ffffff;
-        }
-
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -214,6 +188,30 @@
             transform: translateY(-1px);
             background: rgba(245,245,245,0.16);
             color: #ffffff;
+        }
+
+        .back-fab {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 20;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 999px;
+            border: 1px solid rgba(245,245,245,0.14);
+            background: rgba(10,10,10,0.72);
+            color: #f5f5f5;
+            text-decoration: none;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-fab:hover {
+            transform: translateX(-2px);
+            background: rgba(245,245,245,0.12);
         }
 
         .back-link {
@@ -303,6 +301,7 @@
     </style>
 </head>
 <body>
+    <a href="../home.html" class="back-fab" aria-label="Volver a Liminal" title="Volver a Liminal">&larr;</a>
     <main>
         <div class="hero-card">
             <div class="hero-image">
@@ -312,16 +311,7 @@
             <h1 class="artist-name">COLLIN</h1>
             <p class="artist-headline">Sanar, sentir, volver a empezar</p>
             <div class="divider-line"></div>
-            <p class="artist-copy">Collin7 explora los Corridos Tumbados como herramienta terapéutica, transformando el dolor en armonía. Su música busca sanar, permitir sentir y facilitar nuevos comienzos.</p>
-            <div class="artist-bio">
-                <h2>Bio</h2>
-                <p class="artist-bio-copy">Collin7 trae el espíritu del corrido tumbado a la escena contemporánea con melodías nocturnas y letras que hablan de resistencia y renacimiento. Su proyecto crea una atmósfera íntima y poderosa, ideal para quienes buscan música emocional, cruda y transformadora.</p>
-            </div>
-            <div class="social-links">
-                <a href="https://www.instagram.com/collin7._/" class="social-link" target="_blank" rel="noopener">Instagram</a>
-                <a href="#" class="social-link" target="_blank" rel="noopener">TikTok</a>
-                <a href="#" class="social-link" target="_blank" rel="noopener">Spotify</a>
-            </div>
+            <p class="artist-copy">Collin7 explora los Corridos Tumbados como herramienta terapéutica, transformando el dolor en armonía. Su música busca sanar, permitir sentir y facilitar nuevos comienzos. Collin7 trae el espíritu del corrido tumbado a la escena contemporánea con melodías nocturnas y letras que hablan de resistencia y renacimiento. Su proyecto crea una atmósfera íntima y poderosa, ideal para quienes buscan música emocional, cruda y transformadora.</p>
             <div class="actions">
                 <a href="../home.html" class="back-link">← Volver a LIMINAL</a>
             </div>

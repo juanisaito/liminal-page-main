@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Verificá tu correo — THIS IS TOBBA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0a0a0a;--paper:#f5f5f5;--muted:rgba(245,245,245,.58);--mono:'IBM Plex Mono',monospace;--sans:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--paper)}
+    body{min-height:100svh;font-family:var(--sans);display:grid;place-items:center;padding:24px}
+    main{width:min(100%,620px);text-align:center}
+    .brand{font:9px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+    h1{font-size:clamp(42px,10vw,74px);line-height:.82;letter-spacing:-.1em;margin:26px 0 22px}
+    p{font-size:15px;line-height:1.55;color:var(--muted);margin:0 auto;max-width:42ch}
+    button{margin-top:28px;min-height:48px;border:1px solid rgba(245,245,245,.58);border-radius:999px;padding:0 26px;background:var(--paper);color:var(--bg);font:10px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer}
+    button:disabled{opacity:.55;cursor:wait}
+    .ticket-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px;margin-top:26px;text-align:left}
+    .ticket{display:flex;gap:12px;align-items:center;border-top:1px solid rgba(245,245,245,.18);padding-top:12px;min-width:0}
+    .ticket img{width:88px;height:88px;background:white;padding:5px;flex:0 0 88px}
+    .ticket strong{font:11px var(--mono);text-transform:uppercase;overflow-wrap:anywhere}
+    .ticket small{display:block;margin-top:6px;font:9px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+    #status{min-height:24px;margin-top:20px;font:12px/1.5 var(--mono);color:var(--muted)}
+    a{color:var(--paper)}
+    @media(max-width:420px){body{padding:18px}.ticket-list{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">Liminal Records presenta</div>
+    <h1>THIS IS<br>TOBBA</h1>
+    <p id="intro">Confirmá que este correo es tuyo para recibir tu entrada.</p>
+    <p id="qr-reminder" hidden style="margin-top:12px">Acordate de mostrar este QR al llegar. Si sacaste dos entradas, cada persona presenta su QR.</p>
+    <button id="confirm" type="button">Verificar correo</button>
+    <div id="status" role="status" aria-live="polite"></div>
+    <div class="ticket-list" id="tickets"></div>
+  </main>
+  <script>
+    const token = new URLSearchParams(location.search).get('token');
+    const button = document.getElementById('confirm');
+    const status = document.getElementById('status');
+    if (!token) {
+      button.hidden = true;
+      status.textContent = 'El enlace no es válido. Volvé a solicitar tu entrada.';
+    }
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Verificando…';
+      status.textContent = '';
+      try {
+        const response = await fetch('/api/event-confirm', {
+          method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token})
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'No pudimos verificar el correo.');
+        button.hidden = true;
+        document.getElementById('intro').textContent = result.emailSent
+          ? `¡Gracias por sacar tu entrada! Te la enviamos por mail junto con la información del evento. Te esperamos.`
+          : `¡Gracias por sacar tu entrada! No pudimos enviar el mail a ${result.email}. Guardá los QRs que aparecen abajo; el evento es el 25 nov. a las 19 hs en Yunta Bar, Lavalle 3491.`;
+        document.getElementById('qr-reminder').hidden = false;
+        const list = document.getElementById('tickets');
+        for (const ticket of result.tickets) {
+          const card = document.createElement('div'); card.className = 'ticket';
+          const qr = document.createElement('img'); qr.alt = `QR de entrada para ${ticket.name}`;
+          qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(ticket.token)}`;
+          const copy = document.createElement('div');
+          const name = document.createElement('strong'); name.textContent = ticket.name;
+          const code = document.createElement('small'); code.textContent = `Entrada ${ticket.code}`;
+          copy.append(name, code); card.append(qr, copy); list.append(card);
+        }
+      } catch (error) {
+        status.textContent = error.message;
+        button.disabled = false;
+        button.textContent = 'Volver a intentar';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -33,6 +33,7 @@
 
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 6rem;
             scrollbar-width: none;
         }
 
@@ -115,7 +116,7 @@
         .release-cta { display:flex; align-items:center; gap:1.5rem; }
         .release-item .cta-liminal { font-size:11px; }
 
-        .art-image { filter: grayscale(100%) contrast(1.15); transition: filter 0.6s ease, opacity 0.6s ease; }
+        .art-image { filter: grayscale(100%) contrast(1.15); transition: filter 0.6s ease, opacity 0.6s ease; object-position: center 18%; }
         .art-image:hover, .art-image:focus { filter: grayscale(40%) contrast(1.15); opacity: 0.95; }
 
         .staff-image { filter: grayscale(100%) contrast(1.15); transition: filter 0.6s ease, opacity 0.6s ease; }
@@ -156,6 +157,7 @@
                     <span class="w-[1px] h-2 bg-white/20"></span>
                     <span class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-40">Buenos Aires</span>
                 </div>
+                <a href="eventos/this-is-tobba.html" class="mt-5 font-mono-liminal text-[9px] tracking-[0.25em] uppercase opacity-50 hover:opacity-100 transition-opacity">Evento activo — This Is Tobba ↗</a>
             </div>
         </div>
 
@@ -267,29 +269,13 @@
             transform: translateY(-2px);
         }
         .card-link .cta-liminal { display: none; }
+        .newsletter-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.72); backdrop-filter: blur(10px); z-index: 60; padding: 1rem; }
+        .newsletter-modal.open { display: flex; }
+        .newsletter-card { width: min(100%, 420px); background: rgba(10,10,10,0.96); border: 1px solid rgba(255,255,255,0.09); border-radius: 1.25rem; padding: 1.25rem; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+        .newsletter-card .close-modal { position: absolute; top: 0.75rem; right: 0.75rem; background: transparent; border: 0; color: #fff; font-size: 1rem; cursor: pointer; }
         #particlesCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; opacity: 0.13; }
     </style>
     
-    <!-- Galería -->
-    <section id="gallery" class="py-40 px-6 md:px-32 bg-[#0a0a0a]">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex items-center gap-4 mb-16 reveal">
-                <span class="font-mono-liminal text-[10px] opacity-30">03/</span>
-                <h3 class="text-[10px] tracking-[0.5em] uppercase opacity-40">Galería — Shows & Eventos</h3>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                <div class="aspect-square overflow-hidden bg-zinc-900 reveal group"><img src="assets/gallery/show-01.jpg" alt="Show" class="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy"></div>
-                <div class="aspect-square overflow-hidden bg-zinc-900 reveal group" style="transition-delay: 40ms;"><img src="assets/gallery/show-02.jpg" alt="Evento" class="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy"></div>
-                <div class="aspect-square overflow-hidden bg-zinc-900 reveal group" style="transition-delay: 80ms;"><img src="assets/gallery/show-03.jpg" alt="Presentación" class="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy"></div>
-                <div class="aspect-square overflow-hidden bg-zinc-900 reveal group relative" style="transition-delay: 120ms;">
-                    <video src="assets/gallery/clip-01.mp4" class="w-full h-full object-cover" controls muted loading="lazy"></video>
-                </div>
-                <div class="aspect-square overflow-hidden bg-zinc-900 reveal group" style="transition-delay: 160ms;"><img src="assets/gallery/show-05.jpg" alt="Evento" class="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy"></div>
-            </div>
-        </div>
-    </section>
-
     <!-- Sobre nosotros -->
     <section class="py-56 px-6 md:px-32 relative overflow-hidden">
         <div class="blur-sphere" style="bottom: -10%; left: -10%;"></div>
@@ -346,6 +332,21 @@
         </div>
     </section>
 
+    <aside class="newsletter-modal" id="newsletter-modal" aria-label="Newsletter">
+        <div class="newsletter-card relative">
+            <button type="button" class="close-modal" id="close-newsletter-modal" aria-label="Cerrar">×</button>
+            <p class="font-mono-liminal text-[10px] tracking-[0.4em] uppercase opacity-30">Newsletter</p>
+            <h3 class="text-xl md:text-2xl font-bold tracking-tight mt-2">Forma parte de la lista de LIMINAL.</h3>
+            <p class="text-sm opacity-70 mt-3">Recibí lanzamientos, shows y noticias del sello en una sola línea de luz.</p>
+            <form id="newsletter-form-modal" class="space-y-3 mt-4">
+                <input type="email" name="email" placeholder="tu@mail.com" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/30 transition" aria-label="Correo electrónico">
+                <input type="text" name="name" placeholder="Nombre" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/30 transition" aria-label="Nombre">
+                <button type="submit" class="w-full px-3 py-2 bg-white text-black font-mono-liminal text-xs font-bold tracking-wide hover:bg-gray-200 transition">SUSCRIBIR</button>
+            </form>
+            <div id="newsletter-message-modal" class="font-mono-liminal text-xs opacity-0 transition-opacity h-4 mt-2"></div>
+        </div>
+    </aside>
+
     <!-- Footer Minimal -->
     <footer class="py-12 px-6 md:px-32 flex flex-col md:flex-row justify-between items-center border-t border-white/5 gap-6">
         <div class="font-mono-liminal text-[9px] tracking-[0.3em] uppercase opacity-30">
@@ -370,18 +371,109 @@
 
             // Formulario Newsletter
             const newsletterForm = document.getElementById('newsletter-form-client');
+            const newsletterModalForm = document.getElementById('newsletter-form-modal');
             const messageDiv = document.getElementById('newsletter-message');
-            if (newsletterForm) {
-                newsletterForm.addEventListener('submit', (e) => {
+            const modalMessageDiv = document.getElementById('newsletter-message-modal');
+            const newsletterModal = document.getElementById('newsletter-modal');
+            const closeNewsletterModal = document.getElementById('close-newsletter-modal');
+
+            const NEWSLETTER_KEY = 'liminal-newsletter-seen';
+            const NEWSLETTER_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 días
+            const NEWSLETTER_API = '/api/newsletter-subscribe';
+            const params = new URLSearchParams(window.location.search);
+            const forceShowNewsletter = params.get('newsletter') === 'preview' || params.get('admin') === '1';
+
+            const getNewsletterTimestamp = () => {
+                const value = localStorage.getItem(NEWSLETTER_KEY);
+                return value ? Number(value) : 0;
+            };
+
+            const hasSeenNewsletter = () => {
+                const timestamp = getNewsletterTimestamp();
+                return timestamp > 0 && (Date.now() - timestamp) < NEWSLETTER_EXPIRY_MS;
+            };
+
+            const markNewsletterSeen = () => {
+                localStorage.setItem(NEWSLETTER_KEY, Date.now().toString());
+            };
+
+            const showStatus = (statusEl, message, isError = false) => {
+                statusEl.textContent = message;
+                statusEl.style.opacity = '1';
+                statusEl.style.color = isError ? 'rgba(255,170,170,1)' : 'rgba(245,245,245,1)';
+                if (!isError) {
+                    setTimeout(() => {
+                        statusEl.style.opacity = '0';
+                    }, 3200);
+                }
+            };
+
+            const submitNewsletter = (form, statusEl) => {
+                form.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const email = newsletterForm.querySelector('input[name="email"]').value;
-                    const name = newsletterForm.querySelector('input[name="name"]').value;
-                    messageDiv.textContent = `✓ ¡Gracias ${name}! Te agregamos a la lista.`;
-                    messageDiv.style.opacity = '1';
-                    newsletterForm.reset();
-                    setTimeout(() => { messageDiv.style.opacity = '0'; }, 4000);
+
+                    const emailInput = form.querySelector('input[name="email"]');
+                    const nameInput = form.querySelector('input[name="name"]');
+                    const email = emailInput.value.trim();
+                    const name = nameInput.value.trim();
+
+                    if (!email || !name) {
+                        showStatus(statusEl, 'Completá nombre y correo.', true);
+                        return;
+                    }
+
+                    showStatus(statusEl, 'Enviando...', false);
+
+                    try {
+                        const response = await fetch(NEWSLETTER_API, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, name, source: window.location.pathname })
+                        });
+                        const payload = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(payload.error || 'Error en la suscripción.');
+                        }
+
+                        showStatus(statusEl, `✓ ¡Gracias ${name}! Te agregamos a la lista.`, false);
+                        emailInput.value = '';
+                        nameInput.value = '';
+                        markNewsletterSeen();
+
+                        setTimeout(() => {
+                            if (newsletterModal) newsletterModal.classList.remove('open');
+                        }, 1400);
+                    } catch (error) {
+                        showStatus(statusEl, error.message, true);
+                    }
+                });
+            };
+
+            if (!hasSeenNewsletter() || forceShowNewsletter) {
+                setTimeout(() => {
+                    if (newsletterModal) newsletterModal.classList.add('open');
+                }, 700);
+            }
+
+            if (closeNewsletterModal && newsletterModal) {
+                closeNewsletterModal.addEventListener('click', () => {
+                    newsletterModal.classList.remove('open');
+                    markNewsletterSeen();
                 });
             }
+
+            if (newsletterModal) {
+                newsletterModal.addEventListener('click', (event) => {
+                    if (event.target === newsletterModal) {
+                        newsletterModal.classList.remove('open');
+                        markNewsletterSeen();
+                    }
+                });
+            }
+
+            if (newsletterForm && messageDiv) submitNewsletter(newsletterForm, messageDiv);
+            if (newsletterModalForm && modalMessageDiv) submitNewsletter(newsletterModalForm, modalMessageDiv);
 
             // Fondo de partículas sutiles
             if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -418,7 +510,7 @@
             document.querySelectorAll('img').forEach(img => {
                 img.addEventListener('error', () => {
                     img.style.display = 'none';
-                    const wrapper = img.closest('.aspect-[3/4], .hero-image');
+                    const wrapper = img.parentElement;
                     if (wrapper) {
                         wrapper.classList.add('image-missing');
                     }

@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="THIS IS TOBBA — 25 nov. · 19 hs · Yunta Bar. Entrada gratuita.">
+  <title>THIS IS TOBBA — Liminal Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://db.onlinewebfonts.com/c/19e33c3c6b9c3b3c3c3b3c3c3b3c3c3b?family=Neue+Montreal" rel="stylesheet" type="text/css">
+  <style>
+    :root{--bg:#0a0a0a;--paper:#f5f5f5;--muted:rgba(245,245,245,.52);--line:rgba(245,245,245,.18);--mono:'IBM Plex Mono',monospace;--sans:'Neue Montreal',system-ui,sans-serif;--ui:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background-color:var(--bg);color:var(--paper)}
+    body{min-height:100svh;font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;background:var(--bg)}
+    body::before{content:'';position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+    .mono{font-family:var(--mono)}
+    .video-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--bg)}
+    .background-video{width:100%;height:100%;display:block;object-fit:cover;opacity:.7;filter:brightness(.62) saturate(.78) blur(1.2px);transform:scale(1.025)}
+    .video-backdrop::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.12;mix-blend-mode:soft-light;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E")}
+    .video-backdrop::after{content:'';position:absolute;inset:0;z-index:2;background:rgba(5,6,9,.24)}
+    .page{position:relative;z-index:1;isolation:isolate;min-height:100svh;max-width:1500px;margin:0 auto;padding:20px clamp(20px,5vw,76px) 16px;display:grid;place-items:center}
+    .doodle-stars{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .doodle-star{position:absolute;fill:#fff;opacity:.35}
+    .doodle-star.one{width:42px;right:16%;top:22%;transform:rotate(-8deg)}
+    .doodle-star.two{width:30px;left:17%;bottom:16%;transform:rotate(9deg);opacity:.27}
+    .doodle-star.three{width:20px;right:27%;bottom:23%;transform:rotate(5deg);opacity:.22}
+    .content{position:relative;z-index:1;width:100%}
+    .eyebrow{font:9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+    .content{display:grid;place-items:center;text-align:center}
+    .event-info{position:relative;padding:6px 0;display:flex;flex-direction:column;align-items:center}
+    .event-presents{margin-bottom:4px;color:#fff}
+    .event-title{font:700 clamp(68px,11vw,150px)/.78 var(--sans);letter-spacing:-.10em;word-spacing:.04em;margin:24px 0;filter:blur(.4px);text-shadow:0 0 3px rgba(255,255,255,.55),0 0 10px rgba(255,255,255,.18)}
+    .event-title span{display:block;margin-left:.12em;letter-spacing:-.12em}
+    .event-title .title-first{position:relative;margin-left:0;letter-spacing:inherit;animation:title-glitch 8s infinite}
+    .event-title .title-first::before,.event-title .title-first::after{content:attr(data-text);position:absolute;inset:0;pointer-events:none;opacity:0}
+    .event-title .title-first::before{clip-path:inset(0 0 51% 0);text-shadow:-1px 0 rgba(109,141,255,.38),1px 0 rgba(255,255,255,.32);animation:title-slice-top 8s infinite}
+    .event-title .title-first::after{clip-path:inset(55% 0 0 0);text-shadow:1px 0 rgba(109,141,255,.34),-1px 0 rgba(255,255,255,.3);animation:title-slice-bottom 8s infinite}
+    @keyframes title-glitch{
+      0%,82%,100%{transform:translate(0,0);text-shadow:inherit}
+      84%{transform:translate(-1px,0) skewX(-.4deg);text-shadow:-1px 0 rgba(109,141,255,.32),1px 0 rgba(255,255,255,.3)}
+      88%{transform:translate(1px,.5px) skewX(.4deg);text-shadow:1px 0 rgba(109,141,255,.3),-1px 0 rgba(255,255,255,.28)}
+      92%{transform:translate(-.5px,0);text-shadow:inherit}
+      96%{transform:translate(0,0);text-shadow:inherit}
+    }
+    @keyframes title-slice-top{
+      0%,82%,100%{opacity:0;transform:translateX(0)}
+      84%{opacity:.7;transform:translateX(-2.5px)}
+      88%{opacity:.8;transform:translateX(3px)}
+      92%{opacity:.55;transform:translateX(-1.5px)}
+      96%{opacity:0;transform:translateX(0)}
+    }
+    @keyframes title-slice-bottom{
+      0%,82%,100%{opacity:0;transform:translateX(0)}
+      84%{opacity:.65;transform:translateX(2.5px)}
+      88%{opacity:.75;transform:translateX(-3px)}
+      92%{opacity:.5;transform:translateX(1.5px)}
+      96%{opacity:0;transform:translateX(0)}
+    }
+    .event-meta{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:clamp(24px,4vw,42px);font:13px/1.6 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .event-meta strong{font-weight:400;color:var(--paper)}
+    .event-time{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .clock-doodle{width:20px;height:20px;overflow:visible;transform:rotate(-5deg)}
+    .clock-doodle path,.clock-doodle circle{fill:none;stroke:#6d8dff;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+    .clock-doodle path+path{stroke-width:1;opacity:.7;transform:translate(1px,-.5px)}
+    .event-meta a{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+    .location-doodle{width:18px;height:20px;flex:0 0 18px;overflow:visible;transform:rotate(4deg)}
+    .location-doodle path,.location-doodle circle{fill:none;stroke:#6d8dff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    .access-note{position:relative;margin-top:16px;font:10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--paper)}
+    .access-note::after{content:'';position:absolute;left:13%;right:8%;height:5px;bottom:-7px;border-bottom:1.5px solid #6d8dff;border-radius:50%;transform:rotate(-2deg);opacity:.82}
+    .access-note strong{font-weight:400;color:var(--paper)}
+    .ticket-cta{appearance:none;margin-top:clamp(24px,4vh,38px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+    .ticket-cta:hover{background:transparent;color:var(--paper)}
+    .booking{width:min(100%,560px);max-height:min(88vh,760px);max-height:min(88svh,760px);max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:auto;border:0;border-radius:12px;padding:clamp(20px,4vw,34px);background:#101010;color:var(--paper);text-align:left}
+    .booking::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}
+    .booking[open]::backdrop{animation:backdrop-in 360ms ease-out both}
+    @keyframes backdrop-in{from{background:rgba(0,0,0,0);backdrop-filter:blur(0)}to{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}}
+    .modal-head{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:26px;text-align:center}
+    .modal-kicker{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 9px}
+    .modal-head h2{font:500 clamp(24px,3vw,32px)/1 var(--ui);letter-spacing:-.045em;margin:0}
+    .modal-head>div{width:100%}
+    .modal-description{width:100%;margin:12px 0 0;color:rgba(245,245,245,.68);font:12px/1.5 var(--ui);letter-spacing:0;text-align:center;text-wrap:balance}
+    .modal-description span{display:block;white-space:nowrap}
+    .modal-kicker{position:relative;display:inline-block}
+    .modal-kicker::after{content:'';position:absolute;left:0;right:14%;bottom:-4px;border-bottom:1.5px solid #6d8dff;border-radius:50%;transform:rotate(-2deg)}
+    .modal-close{position:absolute;right:0;top:0;appearance:none;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:0;background:transparent;color:rgba(245,245,245,.68);font:300 16px/1 var(--ui);cursor:pointer;flex:0 0 auto;transition:color .18s ease}
+    .modal-close:hover{color:#fff}
+    .modal-close:focus-visible{outline:1px solid rgba(245,245,245,.5);outline-offset:2px}
+    form{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+    .field{min-width:0;display:flex;flex-direction:column;gap:6px}
+    .field[hidden]{display:none!important}
+    .field.full{grid-column:1/-1}
+    label{font:13px/1.35 var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.78);text-align:left}
+    label .optional{font:10px var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.42);margin-left:4px}
+    input,select{width:100%;min-width:0;min-height:42px;border:0;border-bottom:1px solid rgba(245,245,245,.22);border-radius:0;padding:7px 0 8px;background:transparent;color:var(--paper);font:16px var(--ui);outline:none;text-align:left}
+    input:focus,select:focus{border-color:rgba(245,245,245,.78)}
+    input::placeholder{color:rgba(245,245,245,.3)}
+    select{color-scheme:dark}
+    select option{background:#171a20;color:#f5f5f5}
+    .checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;color:var(--muted);font:12px/1.45 var(--ui);text-align:left}
+    .checkrow input{appearance:auto;width:16px;min-height:16px;flex:0 0 16px;margin:1px 0 0;padding:0;border:0;background:transparent;accent-color:#6d8dff}
+    .checkrow label{font:inherit;letter-spacing:0;text-transform:none;color:inherit}
+    .form-submit{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px}
+    .form-submit button{appearance:none;min-height:48px;border:1px solid rgba(245,245,245,.58);border-radius:999px;padding:0 26px;background:var(--paper);color:var(--bg);font:10px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+    .form-submit button:hover{background:transparent;color:var(--paper);transform:translateY(-1px)}
+    .form-submit button:disabled{opacity:.55;cursor:wait}
+    .hint{display:none}
+    .message{grid-column:1/-1;min-height:15px;color:rgba(245,245,245,.72);font:10px var(--mono)}
+    .ticket-result{display:none;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+    .ticket-result h3{font:500 20px/1.1 var(--sans);letter-spacing:-.04em;margin:0 0 5px}
+    .ticket-result p{font:10px/1.45 var(--sans);color:var(--muted);margin:0}
+    .ticket-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+    .ticket-item{min-width:0;display:flex;align-items:center;gap:9px;border-top:1px solid var(--line);padding-top:9px}
+    .qr{display:block;width:72px;height:72px;object-fit:contain;background:#fff;padding:5px;flex:0 0 72px}
+    .ticket-item strong{font:10px var(--mono);letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere}
+    .ticket-item small{display:block;color:var(--muted);font:7px/1.3 var(--mono);margin-top:5px;overflow-wrap:anywhere;word-break:break-all}
+    @media(max-width:760px){
+      .page{padding:12px max(18px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-bottom));gap:8px}
+      .eyebrow{font-size:8px}
+      .content{align-content:center}
+      .event-info{padding:0}
+      .event-title{font-size:clamp(44px,12vw,66px);line-height:.78;margin:14px 0}
+      .event-meta{gap:7px 14px;margin-top:20px;font-size:10px;line-height:1.5}
+      .access-note{margin-top:10px;font-size:9px}
+      .ticket-cta{margin-top:24px;min-height:42px;padding:0 19px;font-size:8px}
+      .doodle-star.one{width:28px;right:8%;top:16%}
+      .doodle-star.two{width:23px;left:8%;bottom:10%}
+      .doodle-star.three{display:none}
+      .booking{width:calc(100% - 24px);padding:22px 18px;border-radius:14px}
+      .modal-head{margin-bottom:22px}.modal-head h2{font-size:25px}
+      .modal-description span{white-space:normal;text-wrap:balance}
+      form{gap:12px 12px}.field{gap:5px}label{font-size:13px}input,select{min-height:40px;padding:6px 0 7px;font-size:16px}
+      .checkrow{gap:9px;font-size:12px;line-height:1.4}.form-submit button{min-height:46px;padding:0 24px;font-size:10px}
+    }
+    @media(max-width:380px){
+      .page{padding-top:9px;gap:5px}
+      .content{gap:11px}
+      .event-title{font-size:44px;margin:7px 0 8px}
+      .event-meta{margin-top:10px}
+      .booking{padding:20px 15px}
+      .ticket-list{grid-template-columns:1fr}
+      form{gap:7px 10px}
+    }
+    @media(max-height:700px) and (max-width:760px){
+      .page{padding-top:7px;padding-bottom:max(7px,env(safe-area-inset-bottom));gap:4px}
+      .content{gap:8px}
+      .event-title{font-size:45px;margin:5px 0 6px}
+      .event-meta{margin-top:7px}
+      .access-note{margin-top:5px}
+      .booking{padding:16px 14px}
+      form{gap:8px 10px}
+      .form-submit button{min-height:44px}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.event-title .title-first,.event-title .title-first::before,.event-title .title-first::after{animation:none!important}}
+    @media(prefers-reduced-motion:reduce){.booking[open]::backdrop{animation:none!important}}
+  </style>
+</head>
+<body>
+  <div class="video-backdrop" aria-hidden="true">
+    <video class="background-video" id="event-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="../assets/this-is-tobba-desktop-poster.jpg"></video>
+  </div>
+  <main class="page">
+    <div class="doodle-stars" aria-hidden="true">
+      <svg class="doodle-star one" viewBox="0 0 64 64"><path d="M32 2 L36 22 L57 8 L43 29 L62 32 L43 36 L57 56 L36 42 L32 62 L28 42 L7 56 L21 36 L2 32 L21 29 L7 8 L28 22 Z"/></svg>
+      <svg class="doodle-star two" viewBox="0 0 64 64"><path d="M32 2 L36 22 L57 8 L43 29 L62 32 L43 36 L57 56 L36 42 L32 62 L28 42 L7 56 L21 36 L2 32 L21 29 L7 8 L28 22 Z"/></svg>
+      <svg class="doodle-star three" viewBox="0 0 64 64"><path d="M32 2 L36 22 L57 8 L43 29 L62 32 L43 36 L57 56 L36 42 L32 62 L28 42 L7 56 L21 36 L2 32 L21 29 L7 8 L28 22 Z"/></svg>
+    </div>
+    <div class="content">
+      <section class="event-info" aria-labelledby="event-title">
+        <div class="event-presents eyebrow mono">Liminal Records presenta</div>
+        <h1 class="event-title" id="event-title"><span class="title-first" data-text="THIS IS">THIS IS</span><span>TOBBA</span></h1>
+        <div class="event-meta mono">
+          <strong class="event-time">
+            <svg class="clock-doodle" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+              <circle cx="20" cy="20" r="15.5"/><path d="M20 4.7 C28.4 4.2 35.2 10.3 35.4 19.2 C35.8 28.2 29.2 35.1 20.4 35.5 C11.8 35.8 4.8 29.2 4.6 20 C4.4 11.4 10.6 5.2 20 4.7Z"/>
+              <path d="M20 10.5 L19.4 20.4 L26.5 16.3"/><path d="M19 10 L19.2 20 L27 15.6"/>
+            </svg>
+            25 NOV. — 19 HS
+          </strong>
+          <a href="https://maps.app.goo.gl/BiRVcGNssrcxe2WD9" target="_blank" rel="noreferrer"><svg class="location-doodle" viewBox="0 0 40 48" aria-hidden="true" focusable="false"><path d="M20 45 C15 36 5 25 5 17 C5 8.5 11.4 3 20 3 C28.2 3 35 8.6 35 17 C35 25 25 37 20 45Z"/><path d="M20 43 C14 34 7 25 7 17 C7 9.5 13 5 20 5 C27.4 5 33 10 33 17 C33 25 25 36 20 43Z"/><circle cx="20" cy="17" r="5.5"/></svg>Yunta Bar · Lavalle 3491 · Almagro ↗</a>
+        </div>
+        <div class="access-note mono"><strong>Entrada gratuita</strong></div>
+        <button class="ticket-cta mono" id="open-booking" type="button">Sacar mi entrada <span aria-hidden="true">↗</span></button>
+      </section>
+      <dialog class="booking" id="booking-modal" aria-labelledby="booking-title">
+        <div class="modal-head">
+          <div><p class="modal-kicker">Reserva gratuita</p><h2 id="booking-title">Completá tus datos</h2><p class="modal-description"><span>Vení a cerrar el año con nosotros.</span><span>Proyectamos el videoclip de nuestro último tema:</span><span>«Me sale natural». También tocamos en vivo y hay más sorpresas.</span><span>Reservá tu entrada completando el formulario.</span></p></div>
+          <button class="modal-close" id="close-booking" type="button" aria-label="Cerrar">×</button>
+        </div>
+        <form id="registration-form">
+          <div class="field full"><label for="name">Tu nombre</label><input id="name" name="name" autocomplete="name" maxlength="100" required placeholder="Nombre y apellido"></div>
+          <div class="field full"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" autocomplete="email" maxlength="250" required placeholder="nombre@correo.com"></div>
+          <div class="field full"><label for="city">Ciudad</label><select id="city" name="city" autocomplete="address-level2" required><option value="" disabled selected>Elegí tu ciudad</option><option>Ciudad Autónoma de Buenos Aires</option><option>Tigre</option><option>San Fernando</option><option>San Isidro</option><option>Vicente López</option><option>General San Martín</option><option>Tres de Febrero</option><option>Morón</option><option>Hurlingham</option><option>Ituzaingó</option><option>La Matanza</option><option>Lomas de Zamora</option><option>Lanús</option><option>Avellaneda</option><option>Quilmes</option><option>Berazategui</option><option>Florencio Varela</option><option>Almirante Brown</option><option>Esteban Echeverría</option><option>Ezeiza</option><option>Pilar</option><option>Escobar</option><option>Malvinas Argentinas</option><option>José C. Paz</option><option>San Miguel</option><option>Moreno</option><option>General Rodríguez</option><option>La Plata</option><option>Mar del Plata</option><option value="__other">Otra localidad</option></select></div>
+          <div class="field full" id="other-city-field" hidden><label for="city-other">Escribí tu ciudad</label><input id="city-other" name="cityOther" maxlength="100" autocomplete="address-level2" placeholder="Ciudad, provincia o país"></div>
+          <div class="field full"><label for="birth-date">Fecha de nacimiento <span class="optional">(opcional)</span></label><input id="birth-date" name="birthDate" type="date" max="2026-11-25" autocomplete="bday"></div>
+          <div class="field full"><label for="quantity">Entradas</label><select id="quantity" name="quantity"><option value="1">1 persona</option><option value="2">2 personas · vos + acompañante</option></select></div>
+          <div class="field full" id="guest-field" hidden><label for="guest-name">Nombre de tu acompañante</label><input id="guest-name" name="guestName" maxlength="100" placeholder="Nombre y apellido"></div>
+          <div class="checkrow"><input id="privacy" type="checkbox" required><label for="privacy">Acepto que Liminal use estos datos para gestionar mi entrada.</label></div>
+          <div class="checkrow"><input id="newsletter-consent" name="newsletterConsent" type="checkbox" required><label for="newsletter-consent">Quiero recibir novedades de Liminal Records por correo. Puedo darme de baja cuando quiera.</label></div>
+          <div class="form-submit"><button id="submit-button" type="submit">Continuar <span aria-hidden="true">↗</span></button></div>
+          <div class="message" id="form-message" role="status" aria-live="polite"></div>
+        </form>
+        <div class="ticket-result" id="ticket-result" aria-live="polite">
+          <h3 id="success-title">Tu lugar está reservado.</h3>
+          <p id="success-copy"></p>
+          <div class="ticket-list" id="ticket-list"></div>
+        </div>
+      </dialog>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById('registration-form');
+    const modal = document.getElementById('booking-modal');
+    const openBooking = document.getElementById('open-booking');
+    const closeBooking = document.getElementById('close-booking');
+    const quantity = document.getElementById('quantity');
+    const guestField = document.getElementById('guest-field');
+    const guestInput = document.getElementById('guest-name');
+    const citySelect = document.getElementById('city');
+    const otherCityField = document.getElementById('other-city-field');
+    const otherCityInput = document.getElementById('city-other');
+    const message = document.getElementById('form-message');
+    const submitButton = document.getElementById('submit-button');
+    const ticketResult = document.getElementById('ticket-result');
+    function updateGuestField() {
+      const hasGuest = quantity.value === '2';
+      guestField.hidden = !hasGuest;
+      guestInput.required = hasGuest;
+    }
+    quantity.addEventListener('change', updateGuestField);
+    updateGuestField();
+    function updateOtherCityField() {
+      const needsOtherCity = citySelect.value === '__other';
+      otherCityField.hidden = !needsOtherCity;
+      otherCityInput.required = needsOtherCity;
+    }
+    citySelect.addEventListener('change', updateOtherCityField);
+    updateOtherCityField();
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function openBookingModal() {
+      modal.showModal();
+      if (!reducedMotion && typeof modal.animate === 'function') modal.animate([
+        {opacity: 0, transform: 'translateY(7px) scale(.985)'},
+        {opacity: 1, transform: 'translateY(0) scale(1)'}
+      ], {duration: 360, easing: 'cubic-bezier(.16,1,.3,1)'});
+    }
+    function closeBookingModal() {
+      if (!modal.open) return;
+      if (reducedMotion || typeof modal.animate !== 'function') return modal.close();
+      const closing = modal.animate([
+        {opacity: 1, transform: 'translateY(0) scale(1)'},
+        {opacity: 0, transform: 'translateY(5px) scale(.995)'}
+      ], {duration: 210, easing: 'cubic-bezier(.4,0,.2,1)'});
+      closing.onfinish = () => modal.close();
+    }
+    openBooking.addEventListener('click', openBookingModal);
+    closeBooking.addEventListener('click', closeBookingModal);
+    modal.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeBookingModal();
+    });
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) closeBookingModal();
+    });
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      message.textContent = '';
+      submitButton.disabled = true;
+      submitButton.textContent = 'Procesando…';
+      const payload = Object.fromEntries(new FormData(form).entries());
+      payload.quantity = Number(payload.quantity);
+      payload.city = citySelect.value === '__other' ? otherCityInput.value.trim() : citySelect.value;
+      delete payload.cityOther;
+      payload.privacy = document.getElementById('privacy').checked;
+      payload.newsletterConsent = document.getElementById('newsletter-consent').checked;
+      try {
+        const response = await fetch('/api/event-registration', {
+          method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'No pudimos completar la reserva.');
+        form.style.display = 'none';
+        document.getElementById('success-title').textContent = result.emailSent ? 'Ya tenés tu entrada.' : 'Reserva registrada.';
+        document.getElementById('success-copy').textContent = result.emailSent
+          ? `Enviamos ${result.tickets.length === 2 ? 'las entradas' : 'la entrada'} a ${result.email}. Cada QR es individual.`
+          : 'El envío por correo todavía no está configurado. Guardá esta página con tus QRs.';
+        const list = document.getElementById('ticket-list');
+        list.replaceChildren();
+        for (const ticket of result.tickets) {
+          const item = document.createElement('div'); item.className = 'ticket-item';
+          const qr = document.createElement('img'); qr.className = 'qr'; qr.alt = `QR de entrada para ${ticket.name}`; qr.loading = 'eager';
+          qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(ticket.token)}`;
+          const copy = document.createElement('div');
+          const title = document.createElement('strong'); title.textContent = ticket.name;
+          const note = document.createElement('small'); note.textContent = `Entrada ${ticket.code} · ${ticket.token}`;
+          copy.append(title, note); item.append(qr, copy); list.append(item);
+        }
+        ticketResult.style.display = 'block';
+        submitButton.textContent = result.emailSent ? 'Entradas enviadas' : 'Reserva registrada';
+        message.textContent = '';
+      } catch (error) {
+        message.textContent = error.message;
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Continuar <span aria-hidden="true">↗</span>';
+      }
+    });
+  </script>
+  <script>
+    (() => {
+      const video = document.getElementById('event-background-video');
+      const mobileViewport = window.matchMedia('(max-width: 760px)');
+      const sources = {
+        mobile: '../assets/this-is-tobba-mobile.mp4',
+        desktop: '../assets/this-is-tobba-desktop.mp4'
+      };
+      const posters = {
+        mobile: '../assets/this-is-tobba-mobile-poster.jpg',
+        desktop: '../assets/this-is-tobba-desktop-poster.jpg'
+      };
+      function syncBackgroundVideo() {
+        const variant = mobileViewport.matches ? 'mobile' : 'desktop';
+        video.poster = posters[variant];
+        if (video.dataset.variant === variant) return;
+        video.pause();
+        video.dataset.variant = variant;
+        video.src = sources[variant];
+        video.load();
+        video.playbackRate = 0.75;
+        const playback = video.play();
+        if (playback && typeof playback.catch === 'function') playback.catch(() => {});
+      }
+      syncBackgroundVideo();
+      const listen = (query) => {
+        if (typeof query.addEventListener === 'function') query.addEventListener('change', syncBackgroundVideo);
+        else if (typeof query.addListener === 'function') query.addListener(syncBackgroundVideo);
+      };
+      listen(mobileViewport);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) video.pause();
+        else syncBackgroundVideo();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "liminal-page-backend",
+  "version": "0.2.0",
+  "description": "Backend for Liminal Records newsletter signup with MailerLite integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.4",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.0.0",
+    "html5-qrcode": "^2.3.8",
+    "qrcode": "^1.5.4",
+    "resend": "^6.37.0"
+  }
+}
