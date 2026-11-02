@@ -85,19 +85,16 @@
 
             <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="p-4 bg-white/5 border border-white/10 rounded">
-                    <p class="text-xs opacity-40 uppercase">Total Suscriptores</p>
-                    <p class="text-2xl font-bold mt-2" id="total-count">0</p>
-                </div>
-                <div class="p-4 bg-white/5 border border-white/10 rounded">
-                    <p class="text-xs opacity-40 uppercase">Sincronizados MailerLite</p>
-                    <p class="text-2xl font-bold mt-2" id="synced-count">0</p>
-                </div>
-                <div class="p-4 bg-white/5 border border-white/10 rounded">
-                    <p class="text-xs opacity-40 uppercase">Acciones</p>
-                    <div class="mt-2 space-x-2 flex">
-                        <button id="refresh-btn" class="btn text-xs">Recargar</button>
-                        <button id="export-btn" class="btn text-xs">Descargar CSV</button>
+                              <div class="p-4 bg-white/5 border border-white/10 rounded">
+                    <p class="text-xs opacity-40 uppercase">Acciones / Evento</p>
+                    <div class="mt-2 space-y-2 flex flex-col">
+                        <div class="space-x-2 flex">
+                            <button id="refresh-btn" class="btn text-xs">Recargar</button>
+                            <button id="export-btn" class="btn text-xs">Descargar CSV</button>
+                        </div>
+                        <a href="/eventos/checkin.html" target="_blank" class="w-full">
+                            <button class="btn btn-primary text-xs w-full py-2">📷 Abrir Escáner QR</button>
+                        </a>
                     </div>
                 </div>
             </div>
