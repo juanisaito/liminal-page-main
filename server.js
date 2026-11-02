@@ -241,6 +241,10 @@ app.use(express.json());
 app.use('/data', (_req, res) => res.sendStatus(404));
 app.use(express.static(path.join(__dirname)));
 
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'eventos', 'this-is-tobba.html'));
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
