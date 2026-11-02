@@ -34,8 +34,8 @@
             width: 100%;
             border-radius: 4px;
             outline: none;
-            margin-top: 8px;
-            margin-bottom: 16px;
+            margin-top: 6px;
+            margin-bottom: 14px;
         }
         .input:focus { border-color: #777; }
         .btn {
@@ -101,12 +101,19 @@
     <div class="container">
         <!-- Login Screen -->
         <div id="login-screen" class="login-box">
-            <div class="eyebrow">ADMINISTRACIÓN</div>
+            <div class="eyebrow">ACCESO RESTRINGIDO</div>
             <h1 style="font-size: 22px; margin: 8px 0 20px 0;">Liminal Access</h1>
             <form id="login-form">
+                <label class="eyebrow">Usuario</label>
+                <input type="text" id="admin-user" required class="input" placeholder="ej: saito" autocomplete="username">
+                
                 <label class="eyebrow">Contraseña</label>
-                <input type="password" id="admin-password" required class="input" placeholder="••••••••">
-                <button type="submit" class="btn btn-primary" style="width:100%;">Ingresar</button>
+                <div style="position: relative;">
+                    <input type="password" id="admin-password" required class="input" placeholder="••••••••" autocomplete="current-password" style="padding-right: 40px; margin-bottom: 0;">
+                    <button type="button" id="toggle-pass" style="position: absolute; right: 10px; top: 40%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 14px;" title="Ver contraseña">👁️</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 18px;">Ingresar</button>
                 <div id="login-error" style="color: #ffccd5; font-size: 11px; margin-top: 12px; text-align: center;"></div>
             </form>
         </div>
@@ -169,8 +176,22 @@
             loadSubscribers();
         }
 
+        // Mostrar / Ocultar contraseña
+        document.getElementById('toggle-pass').addEventListener('click', () => {
+            const passInput = document.getElementById('admin-password');
+            const toggleBtn = document.getElementById('toggle-pass');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleBtn.textContent = '🔒';
+            } else {
+                passInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        });
+
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const username = document.getElementById('admin-user').value.trim();
             const password = document.getElementById('admin-password').value;
             const errBox = document.getElementById('login-error');
             errBox.textContent = 'Verificando...';
@@ -179,7 +200,7 @@
                 const response = await fetch('/api/admin-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ username, password })
                 });
 
                 const data = await response.json();
@@ -198,8 +219,9 @@
         document.getElementById('logout-btn').addEventListener('click', () => {
             authToken = '';
             localStorage.removeItem('liminal_admin_token');
-            loginScreen.classList.remove('hidden');
+            loginScreen.classList.add('hidden');
             dashboard.classList.add('hidden');
+            document.getElementById('admin-user').value = '';
             document.getElementById('admin-password').value = '';
         });
 
