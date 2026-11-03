@@ -188,7 +188,15 @@
 </head>
 <body>
   <div class="video-backdrop" aria-hidden="true">
-    <video class="background-video" id="event-background-video" autoplay muted loop playsinline webkit-playsinline x5-playsinline preload="auto" poster="../assets/this-is-tobba-desktop-poster.jpg"></video>
+    <video class="background-video" id="event-background-video" 
+           autoplay 
+           muted 
+           loop 
+           playsinline 
+           webkit-playsinline 
+           x5-playsinline 
+           preload="auto" 
+           poster="../assets/this-is-tobba-desktop-poster.jpg"></video>
   </div>
   <main class="page">
     <!-- Estrellas limpias, blancas y rectas sin glow -->
@@ -255,6 +263,7 @@
       </dialog>
     </div>
   </main>
+
   <script>
     const form = document.getElementById('registration-form');
     const modal = document.getElementById('booking-modal');
@@ -351,6 +360,77 @@
         submitButton.innerHTML = 'Continuar <span aria-hidden="true">↗</span>';
       }
     });
+  </script>
+
+  <!-- Script optimizado para forzar reproducción en Safari/iOS -->
+  <script>
+    (() => {
+      const video = document.getElementById('event-background-video');
+      const mobileViewport = window.matchMedia('(max-width: 760px)');
+      
+      const sources = {
+        mobile: '../assets/this-is-tobba-mobile.mp4',
+        desktop: '../assets/this-is-tobba-desktop.mp4'
+      };
+      const posters = {
+        mobile: '../assets/this-is-tobba-desktop-poster.jpg',
+        desktop: '../assets/this-is-tobba-desktop-poster.jpg'
+      };
+
+      function forcePlayVideo() {
+        video.muted = true;
+        video.defaultMuted = true;
+        
+        const promise = video.play();
+        if (promise !== undefined) {
+          promise.catch(error => {
+            console.warn('Autoplay bloqueado por Safari:', error);
+            const enablePlay = () => {
+              video.play().catch(() => {});
+              document.removeEventListener('touchstart', enablePlay);
+              document.removeEventListener('click', enablePlay);
+            };
+            document.addEventListener('touchstart', enablePlay, { once: true });
+            document.addEventListener('click', enablePlay, { once: true });
+          });
+        }
+      }
+
+      function syncBackgroundVideo() {
+        const variant = mobileViewport.matches ? 'mobile' : 'desktop';
+        video.poster = posters[variant];
+
+        if (video.dataset.variant === variant && video.src) {
+          if (video.paused) forcePlayVideo();
+          return;
+        }
+
+        video.dataset.variant = variant;
+        video.src = sources[variant];
+        video.load();
+        forcePlayVideo();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncBackgroundVideo);
+      } else {
+        syncBackgroundVideo();
+      }
+
+      const listen = (query) => {
+        if (typeof query.addEventListener === 'function') query.addEventListener('change', syncBackgroundVideo);
+        else if (typeof query.addListener === 'function') query.addListener(syncBackgroundVideo);
+      };
+      listen(mobileViewport);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          video.pause();
+        } else {
+          forcePlayVideo();
+        }
+      });
+    })();
   </script>
 </body>
 </html>
