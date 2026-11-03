@@ -100,21 +100,24 @@
     .access-note strong{font-weight:400;color:var(--paper)}
     .ticket-cta{appearance:none;margin-top:clamp(24px,4vh,38px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
     .ticket-cta:hover{background:transparent;color:var(--paper)}
-    .booking{width:min(100%,560px);max-height:min(88vh,760px);max-height:min(88svh,760px);max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:auto;border:0;border-radius:12px;padding:clamp(20px,4vw,34px);background:#101010;color:var(--paper);text-align:left}
+    
+    /* Modal estilizado con altura controlada y scroll prolijo */
+    .booking{width:min(100%,520px);max-height:85vh;max-height:85svh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:auto;border:0;border-radius:12px;padding:clamp(20px,4vw,32px);background:#101010;color:var(--paper);text-align:left}
+    .booking::-webkit-scrollbar{width:4px}
+    .booking::-webkit-scrollbar-thumb{background:rgba(245,245,245,0.2);border-radius:2px}
+    
     .booking::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}
     .booking[open]::backdrop{animation:backdrop-in 360ms ease-out both}
     @keyframes backdrop-in{from{background:rgba(0,0,0,0);backdrop-filter:blur(0)}to{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}}
-    .modal-head{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:26px;text-align:center}
-    .modal-kicker{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 9px}
-    .modal-head h2{font:500 clamp(24px,3vw,32px)/1 var(--ui);letter-spacing:-.045em;margin:0}
-    .modal-head>div{width:100%}
-    .modal-description{width:100%;margin:12px 0 0;color:rgba(245,245,245,.68);font:12px/1.5 var(--ui);letter-spacing:0;text-align:center;text-wrap:balance}
-    .modal-description span{display:block;white-space:nowrap}
-    .modal-kicker{position:relative;display:inline-block}
-    .modal-kicker::after{content:'';position:absolute;left:0;right:14%;bottom:-4px;border-bottom:1.5px solid #6d8dff;border-radius:50%;transform:rotate(-2deg)}
-    .modal-close{position:absolute;right:0;top:0;appearance:none;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:0;background:transparent;color:rgba(245,245,245,.68);font:300 16px/1 var(--ui);cursor:pointer;flex:0 0 auto;transition:color .18s ease}
+    
+    .modal-head{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;text-align:left;border-bottom:1px solid rgba(245,245,245,.1);padding-bottom:16px}
+    .modal-kicker{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+    .modal-head h2{font:500 clamp(20px,2.5vw,26px)/1 var(--ui);letter-spacing:-.045em;margin:0 0 8px}
+    .modal-description{width:100%;margin:0;color:rgba(245,245,245,.72);font:12px/1.55 var(--ui);letter-spacing:0}
+    
+    .modal-close{position:sticky;top:0;appearance:none;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;background:transparent;color:rgba(245,245,245,.68);font:300 18px/1 var(--ui);cursor:pointer;flex:0 0 auto;transition:color .18s ease}
     .modal-close:hover{color:#fff}
-    .modal-close:focus-visible{outline:1px solid rgba(245,245,245,.5);outline-offset:2px}
+    
     form{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
     .field{min-width:0;display:flex;flex-direction:column;gap:6px}
     .field[hidden]{display:none!important}
@@ -155,9 +158,9 @@
       .doodle-star.one{width:32px;right:8%;top:16%}
       .doodle-star.two{width:26px;left:8%;bottom:10%}
       .doodle-star.three{display:none}
-      .booking{width:calc(100% - 24px);padding:22px 18px;border-radius:14px}
-      .modal-head{margin-bottom:22px}.modal-head h2{font-size:25px}
-      .modal-description span{white-space:normal;text-wrap:balance}
+      .booking{width:calc(100% - 20px);padding:20px 16px;border-radius:14px}
+      .modal-head{margin-bottom:16px;padding-bottom:12px}
+      .modal-head h2{font-size:22px}
       form{gap:12px 12px}.field{gap:5px}label{font-size:13px}input,select{min-height:40px;padding:6px 0 7px;font-size:16px}
       .checkrow{gap:9px;font-size:12px;line-height:1.4}.form-submit button{min-height:46px;padding:0 24px;font-size:10px}
     }
@@ -166,7 +169,6 @@
       .content{gap:11px}
       .event-title{font-size:44px;margin:7px 0 8px}
       .event-meta{margin-top:10px}
-      .booking{padding:20px 15px}
       .ticket-list{grid-template-columns:1fr}
       form{gap:7px 10px}
     }
@@ -220,15 +222,14 @@
         <button class="ticket-cta mono" id="open-booking" type="button">Sacar mi entrada <span aria-hidden="true">↗</span></button>
       </section>
       
-      <!-- Modal con la info de prensa integrada -->
+      <!-- Modal con diseño compacto y scroll interno -->
       <dialog class="booking" id="booking-modal" aria-labelledby="booking-title">
         <div class="modal-head">
           <div>
             <p class="modal-kicker">Reserva gratuita</p>
             <h2 id="booking-title">Completá tus datos</h2>
-            <p class="modal-description" style="text-transform: none; line-height: 1.55; margin-top: 14px;">
-              <span>El 25 de noviembre nos encontramos en Yunta Bar para ver en exclusiva dos nuevos videoclips de Tobba: <strong>«&lt;3»</strong> y <strong>«Me sale natural»</strong>, que no estarán disponibles públicamente hasta el año que viene.</span>
-              <span style="margin-top: 8px;">Reservá tu entrada completando el formulario.</span>
+            <p class="modal-description">
+              El 25 de noviembre nos encontramos en Yunta Bar para ver en exclusiva dos nuevos videoclips de Tobba: <strong>«&lt;3»</strong> y <strong>«Me sale natural»</strong>, que no estarán disponibles públicamente hasta el año que viene.
             </p>
           </div>
           <button class="modal-close" id="close-booking" type="button" aria-label="Cerrar">×</button>
@@ -350,46 +351,6 @@
         submitButton.innerHTML = 'Continuar <span aria-hidden="true">↗</span>';
       }
     });
-  </script>
-  <script>
-    (() => {
-      const video = document.getElementById('event-background-video');
-      const mobileViewport = window.matchMedia('(max-width: 760px)');
-      const sources = {
-        mobile: '../assets/this-is-tobba-mobile.mp4',
-        desktop: '../assets/this-is-tobba-desktop.mp4'
-      };
-      const posters = {
-        mobile: '../assets/this-is-tobba-desktop-poster.jpg',
-        desktop: '../assets/this-is-tobba-desktop-poster.jpg'
-      };
-      function syncBackgroundVideo() {
-        const variant = mobileViewport.matches ? 'mobile' : 'desktop';
-        video.poster = posters[variant];
-        if (video.dataset.variant === variant) return;
-        video.pause();
-        video.dataset.variant = variant;
-        video.src = sources[variant];
-        video.load();
-        video.playbackRate = 1;
-        const playback = video.play();
-        if (playback && typeof playback.catch === 'function') playback.catch(() => {});
-      }
-      syncBackgroundVideo();
-      const listen = (query) => {
-        if (typeof query.addEventListener === 'function') query.addEventListener('change', syncBackgroundVideo);
-        else if (typeof query.addListener === 'function') query.addListener(syncBackgroundVideo);
-      };
-      listen(mobileViewport);
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) video.pause();
-        else syncBackgroundVideo();
-      });
-      // Forzar reproducción en primer toque si iOS bloquea el autoplay por políticas extremas de batería
-      document.addEventListener('touchstart', () => {
-        if (video.paused) video.play().catch(() => {});
-      }, { once: true });
-    })();
   </script>
 </body>
 </html>
