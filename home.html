@@ -5,52 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liminal Records</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts: Neue Montreal (main), IBM Plex Mono (mono), Blur (logo) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link href="https://db.onlinewebfonts.com/c/19e33c3c6b9c3b3c3c3b3c3c3b3c3c3b?family=Neue+Montreal" rel="stylesheet" type="text/css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Grotesk:wght@300;400;500;700&display=swap');
         @font-face {
             font-family: 'Blur';
             src: url('https://cdn.jsdelivr.net/npm/@typelabs/blur@latest/blur.woff2') format('woff2');
         }
     </style>
-    <!-- Favicon star (data svg) -->
     <link id="favicon" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon fill='%23F5F5F5' points='12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9'/%3E%3C/svg%3E">
     
     <style>
         :root {
             --bg-deep: #0a0a0a;
             --off-white: #f5f5f5;
-            --accent: #4a5d6a;
             --muted: rgba(245,245,245,0.28);
-            --font-main: 'Neue Montreal', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            --font-main: Arial, Helvetica, sans-serif;
             --font-mono: 'IBM Plex Mono', monospace;
             --font-logo: 'Blur', serif;
         }
 
-        html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 6rem;
-            scrollbar-width: none;
-        }
-
-        body {
+        /* Pantalla fija sin scroll con animación de carga super smooth */
+        html, body {
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
             background-color: var(--bg-deep);
             color: var(--off-white);
             font-family: var(--font-main);
             margin: 0;
-            overflow-x: hidden;
-            overflow-y: overlay;
-            scroll-behavior: smooth;
             -webkit-font-smoothing: antialiased;
-            transition: opacity 0.27s ease;
+            opacity: 0;
+            animation: smoothFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Responsive headline scale for better impact in first 5s */
-        h2.hero-headline { font-size: clamp(2.25rem, 8vw, 6rem); line-height: 0.9; }
+        @keyframes smoothFadeIn {
+            0% { opacity: 0; transform: scale(0.99); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Título ultra compacto: interlineado y letras súper pegados con glow blanco */
+        h2.hero-headline {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: clamp(2.75rem, 8vw, 6rem);
+            font-weight: 800;
+            line-height: 0.72; 
+            letter-spacing: -0.09em; 
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.25), 0 0 80px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enlace de evento en blanco brillante, con pulso sutil y elegante */
+        .event-link {
+            color: var(--off-white);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            animation: whitePulse 3s infinite ease-in-out;
+            position: relative;
+            display: inline-block;
+        }
+
+        .event-link:hover {
+            opacity: 1;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 35px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        @keyframes whitePulse {
+            0%, 100% { opacity: 0.75; }
+            50% { opacity: 1; }
+        }
 
         .font-mono-liminal { font-family: var(--font-mono); }
         .font-logo-liminal { font-family: var(--font-logo); }
@@ -65,427 +88,175 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* Animaciones sutiles */
-        .reveal {
-            opacity: 0;
-            transform: translateY(15px);
-            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        .blur-sphere {
+            position: absolute; width: 60vw; height: 60vw; 
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, rgba(10, 10, 10, 0) 75%);
+            z-index: -1; filter: blur(120px); will-change: transform; animation: float 25s infinite alternate;
         }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .line-draw { width: 0; height: 1px; background-color: rgba(245, 245, 245, 0.15); transition: width 1.5s ease; }
-        .line-draw.active { width: 100%; }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
-            white-space: nowrap;
-        }
-
-        .cta-liminal {
-            font-family: var(--font-main);
-            font-size: 11px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            position: relative;
-            padding-bottom: 4px;
-        }
-
-        .cta-liminal::after {
-            content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: 0; left: 0; background-color: var(--off-white); transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
-        }
-
-        .cta-liminal:hover::after { transform: scaleX(1); transform-origin: bottom left; }
-
-        .release-number { font-family: var(--font-mono); font-size: 14px; opacity: 0.4; }
-
-        .releases-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 5rem; }
-        .release-item { display: flex; flex-direction: column; gap: 1.25rem; }
-        @media (min-width: 768px) { .release-item { flex-direction: row; align-items: end; justify-content: space-between; } }
-        .release-meta { display:flex; align-items:center; gap:1rem; }
-        .release-cta { display:flex; align-items:center; gap:1.5rem; }
-        .release-item .cta-liminal { font-size:11px; }
-
-        .art-image { filter: grayscale(100%) contrast(1.15); transition: filter 0.6s ease, opacity 0.6s ease; object-position: center 18%; }
-        .art-image:hover, .art-image:focus { filter: grayscale(40%) contrast(1.15); opacity: 0.95; }
-
-        .staff-image { filter: grayscale(100%) contrast(1.15); transition: filter 0.6s ease, opacity 0.6s ease; }
-        .staff-image:hover, .staff-image:focus { filter: grayscale(100%) contrast(1.15); opacity: 0.95; }
-
-        ::-webkit-scrollbar { width: 0; }
-        html { scrollbar-width: none; }
-        body { -ms-overflow-style: none; }
-
-        .blur-sphere { position: absolute; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(10, 10, 10, 0) 70%); z-index: -1; filter: blur(100px); will-change: transform; animation: float 25s infinite alternate; }
-
-        #artists { scroll-margin-top: 6rem; }
 
         @keyframes float { from { transform: translate(-5%, -5%); } to { transform: translate(5%, 5%); } }
 
-        @media (prefers-reduced-motion: reduce) { .blur-sphere, .grain, .reveal { animation: none !important; transition: none !important; } }
+        /* Pop-up inicial de comunidad */
+        .newsletter-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.85); backdrop-filter: blur(12px); z-index: 100; padding: 1rem; opacity: 0; transition: opacity 0.35s ease; }
+        .newsletter-modal.open { display: flex; opacity: 1; }
+        .newsletter-card { width: min(100%, 420px); background: rgba(14,14,14,0.98); border: 1px solid rgba(255,255,255,0.12); border-radius: 1.25rem; padding: 1.75rem; box-shadow: 0 24px 50px rgba(0,0,0,0.5); position: relative; }
+        .newsletter-card .close-modal { position: absolute; top: 1rem; right: 1rem; background: transparent; border: 0; color: #fff; font-size: 1.25rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+        .newsletter-card .close-modal:hover { opacity: 1; }
+        
+        #particlesCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; opacity: 0.13; }
     </style>
 </head>
 <body>
     <div class="grain"></div>
-    <!-- Subtle particle layer for atmosphere -->
     <canvas id="particlesCanvas" aria-hidden="true"></canvas>
 
-    <!-- Hero: Logo y Headline -->
-    <header class="relative h-screen flex flex-col items-center justify-between py-12 px-6 overflow-hidden">
-        <div class="blur-sphere" style="top: -10%; right: -10%;"></div>
-
-        <!-- Logo -->
-        <div class="z-10 text-center reveal">
-            <div class="flex flex-col items-center">
-                <span class="text-xl mb-1 font-light">*</span>
-
-                <img id="site-logo" src="assets/logo.svg" alt="Liminal" class="h-12 mb-1" onerror="this.style.display='none'" decoding="async" loading="eager" style="background-color: transparent !important; mix-blend-mode: screen;">
-                <span class="sr-only">Liminal Records</span>
-
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-40">Records</span>
-                    <span class="w-[1px] h-2 bg-white/20"></span>
-                    <span class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-40">Buenos Aires</span>
-                </div>
-                <a href="eventos/this-is-tobba.html" class="mt-5 font-mono-liminal text-[9px] tracking-[0.25em] uppercase opacity-50 hover:opacity-100 transition-opacity">Evento activo — This Is Tobba ↗</a>
-            </div>
-        </div>
-
-        <div class="z-10 text-center max-w-5xl px-4">
-            <h2 class="hero-headline text-5xl md:text-8xl font-bold tracking-tighter leading-[0.85] mb-10 reveal" style="transition-delay: 200ms;">
-                MÚSICA ANTES<br><span style="font-weight:600;opacity:0.9">que todo.</span>
-            </h2>
-            <p class="font-mono-liminal text-[10px] md:text-[12px] tracking-widest opacity-40 reveal uppercase" style="transition-delay: 400ms;">
-                sello discográfico 
-            </p>
-        </div>
-
-        <div class="z-10 reveal" style="transition-delay: 600ms;">
-            <a href="#artists" class="cta-liminal" aria-label="Explorar artistas">EXPLORAR ARTISTAS</a>
-        </div>
-    </header>
-
-    <!-- Artistas con Tipografía Corregida -->
-    <section id="artists" class="py-40 px-6 md:px-32 bg-[#0a0a0a]">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex items-center gap-4 mb-24 reveal">
-                <span class="font-mono-liminal text-[10px] opacity-30">02/</span>
-                <h3 class="text-[10px] tracking-[0.5em] uppercase opacity-40">Artistas</h3>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-                <!-- TYSAN -->
-                <a href="artists/tysan.html" class="group block reveal card-link" tabindex="0" aria-label="Ver perfil de TYSAN">
-                    <div class="aspect-[3/4] overflow-hidden bg-zinc-900 mb-6">
-                        <img src="assets/artists/tysan.jpg" alt="TYSAN" class="w-full h-full object-cover art-image transition-opacity group-hover:opacity-90" loading="lazy" decoding="async" width="1000" height="1333">
-                    </div>
-                    <h4 class="text-3xl font-bold tracking-tighter">TYSAN</h4>
-                    <p class="font-mono-liminal text-[10px] opacity-30 uppercase">Artista — BA, ARG</p>
-                    <div class="mt-6"><span class="cta-liminal">Ver perfil</span></div>
-                </a>
-
-                <!-- JAKA -->
-                <a href="artists/jaka.html" class="group block reveal card-link" tabindex="0" aria-label="Ver perfil de JAKA" style="transition-delay: 80ms;">
-                    <div class="aspect-[3/4] overflow-hidden bg-zinc-900 mb-6">
-                        <img src="assets/artists/jaka.jpg" alt="JAKA" class="w-full h-full object-cover art-image transition-opacity group-hover:opacity-90" loading="lazy" decoding="async" width="1000" height="1333">
-                    </div>
-                    <h4 class="text-3xl font-bold tracking-tighter">JAKA</h4>
-                    <p class="font-mono-liminal text-[10px] opacity-30 uppercase">Artista</p>
-                    <div class="mt-6"><span class="cta-liminal">Ver perfil</span></div>
-                </a>
-
-                <!-- TOBBA -->
-                <a href="artists/tobba.html" class="group block reveal card-link" tabindex="0" aria-label="Ver perfil de TOBBA" style="transition-delay: 160ms;">
-                    <div class="aspect-[3/4] overflow-hidden bg-zinc-900 mb-6">
-                        <img src="assets/artists/tobba.jpg" alt="TOBBA" class="w-full h-full object-cover art-image transition-opacity group-hover:opacity-90" loading="lazy" decoding="async" width="1000" height="1333">
-                    </div>
-                    <h4 class="text-3xl font-bold tracking-tighter">TOBBA</h4>
-                    <p class="font-mono-liminal text-[10px] opacity-30 uppercase">Artista</p>
-                    <div class="mt-6"><span class="cta-liminal">Ver perfil</span></div>
-                </a>
-
-                <!-- COLLIN -->
-                <a href="artists/collin.html" class="group block reveal card-link" tabindex="0" aria-label="Ver perfil de COLLIN" style="transition-delay: 200ms;">
-                    <div class="aspect-[3/4] overflow-hidden bg-zinc-900 mb-6">
-                        <img src="assets/artists/collin.jpg" alt="COLLIN" class="w-full h-full object-cover art-image transition-opacity group-hover:opacity-90" loading="lazy" decoding="async" width="1000" height="1333">
-                    </div>
-                    <h4 class="text-3xl font-bold tracking-tighter">COLLIN</h4>
-                    <p class="font-mono-liminal text-[10px] opacity-30 uppercase">Artista</p>
-                    <div class="mt-6"><span class="cta-liminal">Ver perfil</span></div>
-                </a>
-
-                <!-- N30N -->
-                <a href="artists/n30n.html" class="group block reveal card-link" tabindex="0" aria-label="Ver perfil de N30N" style="transition-delay: 260ms;">
-                    <div class="aspect-[3/4] overflow-hidden bg-zinc-900 mb-6">
-                        <img src="assets/artists/n30n.jpg" alt="N30N" class="w-full h-full object-cover art-image transition-opacity group-hover:opacity-90" loading="lazy" decoding="async" width="1000" height="1333">
-                    </div>
-                    <h4 class="text-3xl font-bold tracking-tighter">N30N</h4>
-                    <p class="font-mono-liminal text-[10px] opacity-30 uppercase">Productor</p>
-                    <div class="mt-6"><span class="cta-liminal">Ver perfil</span></div>
-                </a>
-
-                <!-- SAITO -->
-                <a href="artists/saito.html" class="group block reveal card-link" tabindex="0" aria-label="Ver perfil de SAITO" style="transition-delay: 320ms;">
-                    <div class="aspect-[3/4] overflow-hidden bg-zinc-900 mb-6">
-                        <img src="assets/artists/saito.jpg" alt="SAITO" class="w-full h-full object-cover art-image transition-opacity group-hover:opacity-90" loading="lazy" decoding="async" width="1000" height="1333">
-                    </div>
-                    <h4 class="text-3xl font-bold tracking-tighter">SAITO</h4>
-                    <p class="font-mono-liminal text-[10px] opacity-30 uppercase">Productor</p>
-                    <div class="mt-6"><span class="cta-liminal">Ver perfil</span></div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <style>
-        .card-link { position: relative; cursor: pointer; border-radius: 1.2rem; transition: box-shadow 0.18s, background 0.18s; }
-        .card-link:focus { outline: 2px solid rgba(245,245,245,0.13); outline-offset: 2px; background: rgba(245,245,245,0.01); box-shadow: 0 0 0 2px rgba(245,245,245,0.08); }
-        .card-link:hover { background: rgba(245,245,245,0.01); box-shadow: 0 2px 16px 0 rgba(0,0,0,0.08); }
-        .card-link::after {
-            content: 'Ver perfil';
-            position: absolute;
-            right: 1.3rem;
-            bottom: 1.4rem;
-            font-family: var(--font-main);
-            font-size: 0.72rem;
-            letter-spacing: 0.24em;
-            text-transform: uppercase;
-            color: rgba(245,245,245,0.68);
-            transition: opacity 0.25s ease, transform 0.25s ease;
-            pointer-events: none;
-        }
-        .card-link:hover::after {
-            opacity: 1;
-            transform: translateY(-2px);
-        }
-        .card-link .cta-liminal { display: none; }
-        .newsletter-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.72); backdrop-filter: blur(10px); z-index: 60; padding: 1rem; }
-        .newsletter-modal.open { display: flex; }
-        .newsletter-card { width: min(100%, 420px); background: rgba(10,10,10,0.96); border: 1px solid rgba(255,255,255,0.09); border-radius: 1.25rem; padding: 1.25rem; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
-        .newsletter-card .close-modal { position: absolute; top: 0.75rem; right: 0.75rem; background: transparent; border: 0; color: #fff; font-size: 1rem; cursor: pointer; }
-        #particlesCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; opacity: 0.13; }
-    </style>
-    
-    <!-- Sobre nosotros -->
-    <section class="py-56 px-6 md:px-32 relative overflow-hidden">
-        <div class="blur-sphere" style="bottom: -10%; left: -10%;"></div>
-        <div class="max-w-4xl mx-auto">
-            <div class="flex items-center gap-4 mb-16 reveal">
-                <span class="font-mono-liminal text-[10px] opacity-30">03/</span>
-                <h3 class="text-[10px] tracking-[0.5em] uppercase opacity-40">Sobre nosotros</h3>
-            </div>
-            <div class="space-y-10 text-2xl md:text-4xl font-light tracking-tight leading-[1.2] reveal">
-                <p>Liminal Records es un estudio que busca potenciar proyectos musicales con cuidado y atención.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Cierre / Estructura Reorganizada -->
-    <section class="flex flex-col items-center justify-center px-6 text-center relative py-32">
-        <div class="space-y-6 mb-24 reveal">
-            <h2 class="text-3xl md:text-7xl font-bold tracking-tighter uppercase leading-[0.9]">
-                ENTRE DONDE ESTABAS <br>
-                Y A DONDE VAS <br>
-                AHÍ ESTÁ <span class="font-logo-liminal lowercase italic font-normal px-2">liminal.</span>
-            </h2>
-        </div>
-
-        <!-- Bloque superior: Contacto y Ubicación -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-32 reveal max-w-3xl mx-auto mb-24" style="transition-delay: 200ms;">
-            <!-- Contacto -->
-            <div class="space-y-4">
-                <p class="font-mono-liminal text-[10px] tracking-[0.4em] uppercase opacity-30">Contacto</p>
-                <a href="mailto:hello@liminal.ar?subject=Quiero+trabajar+con+Liminal" class="cta-liminal block" style="letter-spacing:0.25em;">TRABAJA CON NOSOTROS</a>
-                <div class="text-xs opacity-60">hello@liminal.ar</div>
-            </div>
-
-            <!-- Ubicación -->
-            <div class="space-y-4">
-                <p class="font-mono-liminal text-[10px] tracking-[0.4em] uppercase opacity-30">Ubicación</p>
-                <p class="text-xs uppercase tracking-widest opacity-60">Buenos Aires, Argentina</p>
-            </div>
-        </div>
-
-        <!-- Bloque Inferior Centrado: Newsletter abajo -->
-        <div class="reveal max-w-md w-full mx-auto border-t border-white/5 pt-16" style="transition-delay: 400ms;">
-            <div class="space-y-4">
-                <p class="font-mono-liminal text-[10px] tracking-[0.4em] uppercase opacity-30">Newsletter</p>
-                <form id="newsletter-form-client" class="space-y-3">
-                    <input type="email" name="email" placeholder="tu@mail.com" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/30 transition" aria-label="Correo electrónico">
-                    <input type="text" name="name" placeholder="Nombre" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/30 transition" aria-label="Nombre">
-                    <button type="submit" class="w-full px-3 py-2 bg-white text-black font-mono-liminal text-xs font-bold tracking-wide hover:bg-gray-200 transition">
-                        SUSCRIBIR
-                    </button>
-                </form>
-                <div id="newsletter-message" class="font-mono-liminal text-xs opacity-0 transition-opacity h-4"></div>
-            </div>
-        </div>
-    </section>
-
+    <!-- POP-UP INICIAL DE COMUNIDAD -->
     <aside class="newsletter-modal" id="newsletter-modal" aria-label="Newsletter">
-        <div class="newsletter-card relative">
+        <div class="newsletter-card">
             <button type="button" class="close-modal" id="close-newsletter-modal" aria-label="Cerrar">×</button>
-            <p class="font-mono-liminal text-[10px] tracking-[0.4em] uppercase opacity-30">Newsletter</p>
-            <h3 class="text-xl md:text-2xl font-bold tracking-tight mt-2">Forma parte de la lista de LIMINAL.</h3>
-            <p class="text-sm opacity-70 mt-3">Recibí lanzamientos, shows y noticias del sello en una sola línea de luz.</p>
+            <p class="font-mono-liminal text-[10px] tracking-[0.4em] uppercase opacity-40 mb-2">Comunidad Liminal</p>
+            <h3 class="text-xl font-bold tracking-tight">Sé parte de la comunidad.</h3>
+            <p class="text-xs opacity-70 mt-2 leading-relaxed">Sé parte de la comunidad liminal y recibí descuentos y tickets a eventos antes que nadie.</p>
             <form id="newsletter-form-modal" class="space-y-3 mt-4">
-                <input type="email" name="email" placeholder="tu@mail.com" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/30 transition" aria-label="Correo electrónico">
-                <input type="text" name="name" placeholder="Nombre" required class="w-full bg-zinc-900 border border-white/10 px-3 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/30 transition" aria-label="Nombre">
-                <button type="submit" class="w-full px-3 py-2 bg-white text-black font-mono-liminal text-xs font-bold tracking-wide hover:bg-gray-200 transition">SUSCRIBIR</button>
+                <input type="email" name="email" placeholder="tu@mail.com" required class="w-full bg-zinc-900 border border-white/15 px-3.5 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/40 transition rounded-none">
+                <input type="text" name="name" placeholder="Nombre" required class="w-full bg-zinc-900 border border-white/15 px-3.5 py-2 font-mono-liminal text-xs placeholder-gray-500 outline-none focus:border-white/40 transition rounded-none">
+                <button type="submit" class="w-full px-4 py-2.5 bg-white text-black font-mono-liminal text-xs font-bold tracking-widest uppercase hover:bg-gray-200 transition">
+                    Unirme a la lista
+                </button>
             </form>
-            <div id="newsletter-message-modal" class="font-mono-liminal text-xs opacity-0 transition-opacity h-4 mt-2"></div>
+            <div id="newsletter-message-modal" class="font-mono-liminal text-xs opacity-0 transition-opacity h-4 mt-2 text-center"></div>
         </div>
     </aside>
 
-    <!-- Footer Minimal -->
-    <footer class="py-12 px-6 md:px-32 flex flex-col md:flex-row justify-between items-center border-t border-white/5 gap-6">
-        <div class="font-mono-liminal text-[9px] tracking-[0.3em] uppercase opacity-30">
-            Liminal Records &copy; 2026 // Todos los derechos reservados
-        </div>
-        <div class="flex gap-10">
-            <a href="https://instagram.com/liminalrecords" target="_blank" class="font-mono-liminal text-[9px] tracking-[0.3em] uppercase opacity-30 hover:opacity-100 transition-opacity">Instagram</a>
-            <a href="https://open.spotify.com/playlist/liminal" target="_blank" class="font-mono-liminal text-[9px] tracking-[0.3em] uppercase opacity-30 hover:opacity-100 transition-opacity">Spotify</a>
-        </div>
-    </footer>
+    <!-- Landing Screen fija -->
+    <main class="h-screen w-screen flex flex-col justify-between items-center py-8 px-6 overflow-hidden relative">
+        <div class="blur-sphere" style="top: 20%; right: 25%;"></div>
 
+        <!-- Logo superior -->
+        <div class="text-center z-10">
+            <span class="text-lg mb-1 font-light block">*</span>
+            <img id="site-logo" src="assets/logo.svg" alt="Liminal" class="h-10 mb-1 mx-auto" onerror="this.style.display='none'" decoding="async" loading="eager" style="background-color: transparent !important; mix-blend-mode: screen;">
+            <span class="sr-only">Liminal Records</span>
+            <div class="flex items-center justify-center gap-2 mt-1">
+                <span class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-40">Records</span>
+                <span class="w-[1px] h-2 bg-white/20"></span>
+                <span class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-40">Buenos Aires</span>
+            </div>
+        </div>
+
+        <!-- Título central -->
+        <div class="text-center max-w-5xl px-4 z-10 my-auto">
+            <h2 class="hero-headline mb-8">
+                MÚSICA <span style="font-weight:800;">ANTES</span><br><span style="font-weight:800; opacity:0.88; text-transform: lowercase;">que todo.</span>
+            </h2>
+            
+            <div class="flex flex-col items-center gap-3">
+                <p class="font-mono-liminal text-[10px] tracking-[0.3em] opacity-40 uppercase">
+                    Sello discográfico
+                </p>
+                <!-- This Is Tobba en blanco elegante con enlace a eventos/this-is-tobba.html -->
+                <a href="eventos/this-is-tobba.html" class="event-link font-mono-liminal text-[12px] md:text-[13px] tracking-[0.3em] uppercase transition-all duration-300 mt-2">
+                    This Is Tobba - LIVE EVENT ↗
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-center border-t border-white/5 pt-4 gap-4 z-10 text-center">
+            <div class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-30">
+                Liminal Records &copy; 2026 // Todos los derechos reservados
+            </div>
+            <div class="flex gap-8">
+                <a href="https://instagram.com/liminalrecords" target="_blank" class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-30 hover:opacity-100 transition-opacity">Instagram</a>
+                <a href="https://open.spotify.com/playlist/liminal" target="_blank" class="font-mono-liminal text-[8px] tracking-[0.3em] uppercase opacity-30 hover:opacity-100 transition-opacity">Spotify</a>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animaciones de entrada (Intersection Observer)
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('active');
+            // Transición suave de salida al hacer clic en el evento
+            const fadeNavigate = (url) => {
+                document.body.style.transition = 'opacity 0.4s ease';
+                document.body.style.opacity = '0';
+                setTimeout(() => { window.location.href = url; }, 400);
+            };
+
+            document.querySelectorAll('.event-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fadeNavigate(link.getAttribute('href'));
                 });
-            }, { threshold: 0.1 });
+            });
 
-            document.querySelectorAll('.reveal, .line-draw').forEach(el => observer.observe(el));
-
-            // Formulario Newsletter
-            const newsletterForm = document.getElementById('newsletter-form-client');
-            const newsletterModalForm = document.getElementById('newsletter-form-modal');
-            const messageDiv = document.getElementById('newsletter-message');
-            const modalMessageDiv = document.getElementById('newsletter-message-modal');
+            // Pop-up con SessionStorage
             const newsletterModal = document.getElementById('newsletter-modal');
             const closeNewsletterModal = document.getElementById('close-newsletter-modal');
+            const newsletterModalForm = document.getElementById('newsletter-form-modal');
+            const modalMessageDiv = document.getElementById('newsletter-message-modal');
+            const NEWSLETTER_KEY = 'liminal-community-session-seen';
 
-            const NEWSLETTER_KEY = 'liminal-newsletter-seen';
-            const NEWSLETTER_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 días
-            const NEWSLETTER_API = '/api/newsletter-subscribe';
-            const params = new URLSearchParams(window.location.search);
-            const forceShowNewsletter = params.get('newsletter') === 'preview' || params.get('admin') === '1';
+            if (!sessionStorage.getItem(NEWSLETTER_KEY)) {
+                setTimeout(() => {
+                    if (newsletterModal) newsletterModal.classList.add('open');
+                }, 400);
+            }
 
-            const getNewsletterTimestamp = () => {
-                const value = localStorage.getItem(NEWSLETTER_KEY);
-                return value ? Number(value) : 0;
+            const closeModalAction = () => {
+                if (newsletterModal) newsletterModal.classList.remove('open');
+                sessionStorage.setItem(NEWSLETTER_KEY, 'true');
             };
 
-            const hasSeenNewsletter = () => {
-                const timestamp = getNewsletterTimestamp();
-                return timestamp > 0 && (Date.now() - timestamp) < NEWSLETTER_EXPIRY_MS;
-            };
+            if (closeNewsletterModal) {
+                closeNewsletterModal.addEventListener('click', closeModalAction);
+                newsletterModal.addEventListener('click', (e) => {
+                    if (e.target === newsletterModal) closeModalAction();
+                });
+            }
 
-            const markNewsletterSeen = () => {
-                localStorage.setItem(NEWSLETTER_KEY, Date.now().toString());
-            };
-
-            const showStatus = (statusEl, message, isError = false) => {
-                statusEl.textContent = message;
-                statusEl.style.opacity = '1';
-                statusEl.style.color = isError ? 'rgba(255,170,170,1)' : 'rgba(245,245,245,1)';
-                if (!isError) {
-                    setTimeout(() => {
-                        statusEl.style.opacity = '0';
-                    }, 3200);
-                }
-            };
-
-            const submitNewsletter = (form, statusEl) => {
-                form.addEventListener('submit', async (e) => {
+            if (newsletterModalForm && modalMessageDiv) {
+                newsletterModalForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-
-                    const emailInput = form.querySelector('input[name="email"]');
-                    const nameInput = form.querySelector('input[name="name"]');
+                    const emailInput = newsletterModalForm.querySelector('input[name="email"]');
+                    const nameInput = newsletterModalForm.querySelector('input[name="name"]');
                     const email = emailInput.value.trim();
                     const name = nameInput.value.trim();
 
-                    if (!email || !name) {
-                        showStatus(statusEl, 'Completá nombre y correo.', true);
-                        return;
-                    }
+                    if (!email || !name) return;
 
-                    showStatus(statusEl, 'Enviando...', false);
+                    modalMessageDiv.textContent = 'Enviando...';
+                    modalMessageDiv.style.opacity = '1';
 
                     try {
-                        const response = await fetch(NEWSLETTER_API, {
+                        const response = await fetch('/api/newsletter-subscribe', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email, name, source: window.location.pathname })
                         });
                         const payload = await response.json();
 
-                        if (!response.ok) {
-                            throw new Error(payload.error || 'Error en la suscripción.');
-                        }
+                        if (!response.ok) throw new Error(payload.error || 'Error en la suscripción.');
 
-                        showStatus(statusEl, `✓ ¡Gracias ${name}! Te agregamos a la lista.`, false);
-                        emailInput.value = '';
-                        nameInput.value = '';
-                        markNewsletterSeen();
-
-                        setTimeout(() => {
-                            if (newsletterModal) newsletterModal.classList.remove('open');
-                        }, 1400);
+                        modalMessageDiv.textContent = `✓ ¡Gracias ${name}! Ya estás en la comunidad.`;
+                        setTimeout(() => { closeModalAction(); }, 1600);
                     } catch (error) {
-                        showStatus(statusEl, error.message, true);
-                    }
-                });
-            };
-
-            if (!hasSeenNewsletter() || forceShowNewsletter) {
-                setTimeout(() => {
-                    if (newsletterModal) newsletterModal.classList.add('open');
-                }, 700);
-            }
-
-            if (closeNewsletterModal && newsletterModal) {
-                closeNewsletterModal.addEventListener('click', () => {
-                    newsletterModal.classList.remove('open');
-                    markNewsletterSeen();
-                });
-            }
-
-            if (newsletterModal) {
-                newsletterModal.addEventListener('click', (event) => {
-                    if (event.target === newsletterModal) {
-                        newsletterModal.classList.remove('open');
-                        markNewsletterSeen();
+                        modalMessageDiv.textContent = error.message;
+                        modalMessageDiv.style.color = 'rgba(255,170,170,1)';
                     }
                 });
             }
 
-            if (newsletterForm && messageDiv) submitNewsletter(newsletterForm, messageDiv);
-            if (newsletterModalForm && modalMessageDiv) submitNewsletter(newsletterModalForm, modalMessageDiv);
-
-            // Fondo de partículas sutiles
             if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 const canvas = document.getElementById('particlesCanvas');
                 const ctx = canvas.getContext('2d');
                 let width = canvas.width = innerWidth;
                 let height = canvas.height = innerHeight;
                 const particles = [];
-                const COUNT = Math.max(32, Math.round((width * height) / 35000));
+                const COUNT = Math.max(30, Math.round((width * height) / 40000));
 
                 for (let i = 0; i < COUNT; i++) {
-                    particles.push({ x: Math.random() * width, y: Math.random() * height, r: Math.random() * 1.4 + 0.7, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.2, alpha: Math.random() * 0.13 + 0.04 });
+                    particles.push({ x: Math.random() * width, y: Math.random() * height, r: Math.random() * 1.3 + 0.6, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.15, alpha: Math.random() * 0.12 + 0.03 });
                 }
 
                 function draw() {
@@ -502,50 +273,6 @@
                     requestAnimationFrame(draw);
                 }
                 requestAnimationFrame(draw);
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('img').forEach(img => {
-                img.addEventListener('error', () => {
-                    img.style.display = 'none';
-                    const wrapper = img.parentElement;
-                    if (wrapper) {
-                        wrapper.classList.add('image-missing');
-                    }
-                });
-            });
-
-            const body = document.body;
-
-            const fadeNavigate = (href) => {
-                body.style.opacity = '0';
-                setTimeout(() => { window.location.href = href; }, 260);
-            };
-
-            document.querySelectorAll('.card-link').forEach(link => {
-                link.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    fadeNavigate(link.href);
-                });
-            });
-
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    const target = document.querySelector(anchor.getAttribute('href'));
-                    if (target) {
-                        const offset = 120;
-                        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
-                        window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
-                    }
-                });
-            });
-
-            if (window.location.hash) {
-                body.style.opacity = '0';
-                requestAnimationFrame(() => { body.style.opacity = '1'; });
             }
         });
     </script>
