@@ -26,7 +26,7 @@
     .video-backdrop::after{content:'';position:absolute;inset:0;z-index:2;background:rgba(5,6,9,.24)}
     .page{position:relative;z-index:1;isolation:isolate;min-height:100svh;max-width:1500px;margin:0 auto;padding:20px clamp(20px,5vw,76px) 16px;display:grid;place-items:center}
     
-    /* Estrellas blancas, rectas y sin glow */
+    /* Estrellas limpias, blancas y rectas sin glow */
     .doodle-stars{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
     .doodle-star{position:absolute;object-fit:contain;mix-blend-mode:screen;transform:rotate(0deg)!important}
     .doodle-star.one{width:46px;right:16%;top:22%;opacity:.9}
@@ -36,15 +36,35 @@
     .content{position:relative;z-index:1;width:100%}
     .event-info{position:relative;padding:6px 0;display:flex;flex-direction:column;align-items:center}
     
-    /* Logo principal grande, limpio y sin glow */
+    /* Logo principal limpio */
     .brand-logo{height:42px;width:auto;margin-bottom:18px;object-fit:contain;opacity:1;mix-blend-mode:screen}
 
-    .event-title{font:700 clamp(68px,11vw,150px)/.78 var(--sans);letter-spacing:-.10em;word-spacing:.04em;margin:16px 0 24px;filter:blur(.4px);text-shadow:0 0 3px rgba(255,255,255,.55),0 0 10px rgba(255,255,255,.18)}
+    /* Contenedor del título con el sello LIVE EVENT a la derecha abajo */
+    .title-wrapper {
+      position: relative;
+      display: inline-block;
+      margin: 16px 0 24px;
+    }
+
+    .event-title{font:700 clamp(68px,11vw,150px)/.78 var(--sans);letter-spacing:-.10em;word-spacing:.04em;margin:0;filter:blur(.4px);text-shadow:0 0 3px rgba(255,255,255,.55),0 0 10px rgba(255,255,255,.18)}
     .event-title span{display:block;margin-left:.12em;letter-spacing:-.12em}
     .event-title .title-first{position:relative;margin-left:0;letter-spacing:inherit;animation:title-glitch 8s infinite}
     .event-title .title-first::before,.event-title .title-first::after{content:attr(data-text);position:absolute;inset:0;pointer-events:none;opacity:0}
     .event-title .title-first::before{clip-path:inset(0 0 51% 0);text-shadow:-1px 0 rgba(109,141,255,.38),1px 0 rgba(255,255,255,.32);animation:title-slice-top 8s infinite}
     .event-title .title-first::after{clip-path:inset(55% 0 0 0);text-shadow:1px 0 rgba(109,141,255,.34),-1px 0 rgba(255,255,255,.3);animation:title-slice-bottom 8s infinite}
+    
+    /* Sello LIVE EVENT abajo a la derecha */
+    .live-event-badge {
+      position: absolute;
+      right: 4px;
+      bottom: -18px;
+      font: 500 10px/1 var(--mono);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.85;
+    }
+
     @keyframes title-glitch{
       0%,82%,100%{transform:translate(0,0);text-shadow:inherit}
       84%{transform:translate(-1px,0) skewX(-.4deg);text-shadow:-1px 0 rgba(109,141,255,.32),1px 0 rgba(255,255,255,.3)}
@@ -128,6 +148,7 @@
       .content{align-content:center}
       .event-info{padding:0}
       .event-title{font-size:clamp(44px,12vw,66px);line-height:.78;margin:14px 0}
+      .live-event-badge { font-size: 8px; bottom: -14px; }
       .event-meta{gap:7px 14px;margin-top:20px;font-size:10px;line-height:1.5}
       .access-note{margin-top:10px;font-size:9px}
       .ticket-cta{margin-top:24px;min-height:42px;padding:0 19px;font-size:8px}
@@ -165,7 +186,7 @@
 </head>
 <body>
   <div class="video-backdrop" aria-hidden="true">
-    <video class="background-video" id="event-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="../assets/this-is-tobba-desktop-poster.jpg"></video>
+    <video class="background-video" id="event-background-video" autoplay muted loop playsinline webkit-playsinline x5-playsinline preload="auto" poster="../assets/this-is-tobba-desktop-poster.jpg"></video>
   </div>
   <main class="page">
     <!-- Estrellas limpias, blancas y rectas sin glow -->
@@ -176,10 +197,15 @@
     </div>
     <div class="content">
       <section class="event-info" aria-labelledby="event-title">
-        <!-- Logo principal limpio y sin glow -->
+        <!-- Logo principal limpio -->
         <img class="brand-logo" src="../assets/Logo 2 Blanco.png" alt="Liminal Records" decoding="async">
         
-        <h1 class="event-title" id="event-title"><span class="title-first" data-text="THIS IS">THIS IS</span><span>TOBBA</span></h1>
+        <!-- Contenedor del título con el sello LIVE EVENT a la derecha abajo -->
+        <div class="title-wrapper">
+          <h1 class="event-title" id="event-title"><span class="title-first" data-text="THIS IS">THIS IS</span><span>TOBBA</span></h1>
+          <span class="live-event-badge">LIVE EVENT</span>
+        </div>
+
         <div class="event-meta mono">
           <strong class="event-time">
             <svg class="clock-doodle" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
@@ -193,9 +219,18 @@
         <div class="access-note mono"><strong>Entrada gratuita</strong></div>
         <button class="ticket-cta mono" id="open-booking" type="button">Sacar mi entrada <span aria-hidden="true">↗</span></button>
       </section>
+      
+      <!-- Modal con la info de prensa integrada -->
       <dialog class="booking" id="booking-modal" aria-labelledby="booking-title">
         <div class="modal-head">
-          <div><p class="modal-kicker">Reserva gratuita</p><h2 id="booking-title">Completá tus datos</h2><p class="modal-description"><span>Vení a cerrar el año con nosotros.</span><span>Proyectamos el videoclip de nuestro último tema:</span><span>«Me sale natural». También tocamos en vivo y hay más sorpresas.</span><span>Reservá tu entrada completando el formulario.</span></p></div>
+          <div>
+            <p class="modal-kicker">Reserva gratuita</p>
+            <h2 id="booking-title">Completá tus datos</h2>
+            <p class="modal-description" style="text-transform: none; line-height: 1.55; margin-top: 14px;">
+              <span>El 25 de noviembre nos encontramos en Yunta Bar para ver en exclusiva dos nuevos videoclips de Tobba: <strong>«&lt;3»</strong> y <strong>«Me sale natural»</strong>, que no estarán disponibles públicamente hasta el año que viene.</span>
+              <span style="margin-top: 8px;">Reservá tu entrada completando el formulario.</span>
+            </p>
+          </div>
           <button class="modal-close" id="close-booking" type="button" aria-label="Cerrar">×</button>
         </div>
         <form id="registration-form">
@@ -350,6 +385,10 @@
         if (document.hidden) video.pause();
         else syncBackgroundVideo();
       });
+      // Forzar reproducción en primer toque si iOS bloquea el autoplay por políticas extremas de batería
+      document.addEventListener('touchstart', () => {
+        if (video.paused) video.play().catch(() => {});
+      }, { once: true });
     })();
   </script>
 </body>
