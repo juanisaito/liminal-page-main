@@ -8,13 +8,18 @@ const path = require('path');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
 const { Resend } = require('resend');
+const { createClient } = require('@supabase/supabase-js');
+
+// Inicialización de Supabase
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 const DATA_DIR = path.join(__dirname, 'data');
 const NEWSLETTER_FILE = path.join(DATA_DIR, 'newsletter.json');
-const EVENT_TICKETS_FILE = path.join(DATA_DIR, 'event-tickets.json');
 const USERS_FILE = path.join(__dirname, 'admin-users.json');
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -63,20 +68,46 @@ function saveSubscribers(subscribers) {
   fs.writeFileSync(NEWSLETTER_FILE, JSON.stringify(subscribers, null, 2), { encoding: 'utf-8', mode: 0o600 });
 }
 
-function loadEventTickets() {
-  fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
-  fs.chmodSync(DATA_DIR, 0o700);
-  if (!fs.existsSync(EVENT_TICKETS_FILE)) fs.writeFileSync(EVENT_TICKETS_FILE, '[]', { encoding: 'utf-8', mode: 0o600 });
-  else fs.chmodSync(EVENT_TICKETS_FILE, 0o600);
-  return JSON.parse(fs.readFileSync(EVENT_TICKETS_FILE, 'utf-8') || '[]');
+// FUNCIONES SUPABASE PARA ENTRADAS
+async function getTicketsCountByEmail(email) {
+  const { count, error } = await supabase
+    .from('event_tickets')
+    .select('*', { count: 'exact', head: true })
+    .eq('email', email.toLowerCase().trim());
+  if (error) throw error;
+  return count || 0;
 }
 
-function saveEventTickets(tickets) {
-  fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
-  fs.chmodSync(DATA_DIR, 0o700);
-  const temporaryFile = `${EVENT_TICKETS_FILE}.tmp`;
-  fs.writeFileSync(temporaryFile, JSON.stringify(tickets, null, 2), { encoding: 'utf-8', mode: 0o600 });
-  fs.renameSync(temporaryFile, EVENT_TICKETS_FILE);
+async function getTotalTicketsCount() {
+  const { count, error } = await supabase
+    .from('event_tickets')
+    .select('*', { count: 'exact', head: true });
+  if (error) throw error;
+  return count || 0;
+}
+
+async function saveTicketsToSupabase(tickets) {
+  const ticketsToInsert = tickets.map(t => ({
+    id: t.id,
+    reservation_id: t.reservationId,
+    token: t.token,
+    code: t.code,
+    name: t.name,
+    email: t.email,
+    city: t.city,
+    age: t.age,
+    created_at: t.createdAt,
+    checked_in_at: t.checkedInAt,
+    checked_in_by: t.checkedInBy,
+    guest: t.guest,
+    newsletter_consent_at: t.newsletterConsentAt
+  }));
+
+  const { data, error } = await supabase
+    .from('event_tickets')
+    .insert(ticketsToInsert);
+  if (error) throw error;
+  return data;
 }
 
 function createUniqueTicketCode(existingCodes) {
@@ -171,7 +202,6 @@ async function sendEventConfirmation(email, tickets) {
   }
 }
 
-// Validación de Token basada en el archivo admin-users.json
 function isValidAdminToken(req) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return false;
@@ -260,8 +290,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// THIS IS TOBBA event registration and check-in.
+// THIS IS TOBBA event registration (Con Supabase)
 app.post('/api/event-registration', eventLimiter, async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'La base de datos Supabase no está configurada.' });
+
   const name = sanitizeString(req.body.name, 100);
   const email = sanitizeString(req.body.email, 250).toLowerCase();
   const guestName = sanitizeString(req.body.guestName, 100);
@@ -281,76 +313,129 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
   if (req.body.newsletterConsent !== true) return res.status(400).json({ error: 'Necesitamos tu aceptación para agregarte al newsletter de Liminal Records.' });
   if (!resend || !RESEND_FROM) return res.status(503).json({ error: 'El envío de entradas todavía no está configurado. Probá más tarde.' });
 
-  const tickets = loadEventTickets();
-  const emailTicketCount = tickets.filter((ticket) => ticket.email === email).length;
-  if (emailTicketCount + quantity > MAX_TICKETS_PER_EMAIL) {
-    return res.status(409).json({ error: 'No pudimos procesar la solicitud. Revisá los datos ingresados.' });
+  try {
+    const emailTicketCount = await getTicketsCountByEmail(email);
+    if (emailTicketCount + quantity > MAX_TICKETS_PER_EMAIL) {
+      return res.status(409).json({ error: 'No pudimos procesar la solicitud. Revisá los datos ingresados.' });
+    }
+
+    const totalTicketsCount = await getTotalTicketsCount();
+    if (totalTicketsCount + quantity > EVENT_CAPACITY) {
+      return res.status(409).json({ error: 'No quedan entradas disponibles.' });
+    }
+
+    // Obtener códigos existentes para evitar duplicados
+    const { data: existingRecords } = await supabase.from('event_tickets').select('code');
+    const existingCodes = new Set((existingRecords || []).map(r => r.code));
+
+    const reservationId = crypto.randomUUID();
+    const attendees = [{ name, age }];
+    if (quantity === 2) attendees.push({ name: guestName, age: null });
+
+    const createdTickets = attendees.map((attendee, attendeeIndex) => ({
+      id: crypto.randomUUID(),
+      reservationId,
+      token: crypto.randomBytes(24).toString('hex'),
+      code: createUniqueTicketCode(existingCodes),
+      name: attendee.name,
+      email,
+      city,
+      age: attendee.age,
+      createdAt: new Date().toISOString(),
+      checkedInAt: null,
+      checkedInBy: null,
+      guest: attendeeIndex > 0,
+      newsletterConsentAt: new Date().toISOString()
+    }));
+
+    await saveTicketsToSupabase(createdTickets);
+
+    const mailerlite = await addToMailerLite(email, name);
+    if (!mailerlite.synced) console.error('MailerLite event opt-in error:', mailerlite.reason);
+    const emailSent = await sendEventConfirmation(email, createdTickets);
+
+    return res.status(200).json({
+      message: 'Reserva registrada y entradas emitidas.',
+      email,
+      emailSent,
+      mailerliteSynced: mailerlite.synced,
+      tickets: createdTickets.map(({ token, code, name: attendeeName }) => ({ token, code, name: attendeeName }))
+    });
+  } catch (err) {
+    console.error('Error al procesar registro en Supabase:', err);
+    return res.status(500).json({ error: 'Error interno al guardar la entrada.' });
   }
-  if (tickets.length + quantity > EVENT_CAPACITY) {
-    return res.status(409).json({ error: 'No quedan entradas disponibles.' });
-  }
-
-  const reservationId = crypto.randomUUID();
-  const attendees = [{ name, age }];
-  if (quantity === 2) attendees.push({ name: guestName, age: null });
-  const existingCodes = new Set(tickets.map((ticket) => ticket.code));
-  const createdTickets = attendees.map((attendee, attendeeIndex) => ({
-    id: crypto.randomUUID(),
-    reservationId,
-    token: crypto.randomBytes(24).toString('hex'),
-    code: createUniqueTicketCode(existingCodes),
-    name: attendee.name,
-    email,
-    city,
-    age: attendee.age,
-    createdAt: new Date().toISOString(),
-    checkedInAt: null,
-    checkedInBy: null,
-    guest: attendeeIndex > 0,
-    newsletterConsentAt: new Date().toISOString()
-  }));
-
-  saveEventTickets([...tickets, ...createdTickets]);
-  const mailerlite = await addToMailerLite(email, name);
-  if (!mailerlite.synced) console.error('MailerLite event opt-in error:', mailerlite.reason);
-  const emailSent = await sendEventConfirmation(email, createdTickets);
-
-  return res.status(200).json({
-    message: 'Reserva registrada y entradas emitidas.',
-    email,
-    emailSent,
-    mailerliteSynced: mailerlite.synced,
-    tickets: createdTickets.map(({ token, code, name: attendeeName }) => ({ token, code, name: attendeeName }))
-  });
 });
 
-app.get('/api/admin/event-tickets', (req, res) => {
+// Admin Panel - Obtener entradas desde Supabase
+app.get('/api/admin/event-tickets', async (req, res) => {
   if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
-  const tickets = loadEventTickets();
-  const checkedIn = tickets.filter((ticket) => ticket.checkedInAt).length;
-  res.json({
-    reserved: tickets.length,
-    checkedIn,
-    remaining: Math.max(0, EVENT_CAPACITY - tickets.length),
-    tickets: [...tickets].reverse().map(({ token, id, reservationId, ...ticket }) => ticket)
-  });
+  if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
+
+  try {
+    const { data: tickets, error } = await supabase
+      .from('event_tickets')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const checkedIn = tickets.filter((ticket) => ticket.checked_in_at).length;
+    res.json({
+      reserved: tickets.length,
+      checkedIn,
+      remaining: Math.max(0, EVENT_CAPACITY - tickets.length),
+      tickets: tickets.map(({ token, id, reservation_id, created_at, checked_in_at, checked_in_by, newsletter_consent_at, ...ticket }) => ({
+        ...ticket,
+        createdAt: created_at,
+        checkedInAt: checked_in_at,
+        checkedInBy: checked_in_by,
+        newsletterConsentAt: newsletter_consent_at
+      }))
+    });
+  } catch (err) {
+    console.error('Error al obtener entradas admin:', err);
+    res.status(500).json({ error: 'Error al consultar entradas.' });
+  }
 });
 
-app.post('/api/admin/event-check-in', (req, res) => {
+// Admin Panel - Check-in QR con Supabase
+app.post('/api/admin/event-check-in', async (req, res) => {
   if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
+  if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
+
   const scannedValue = sanitizeString(req.body.token, 100);
   if (!scannedValue) return res.status(400).json({ error: 'Falta el código de la entrada.' });
-  const tickets = loadEventTickets();
-  const normalizedCode = scannedValue.toUpperCase();
-  const ticket = tickets.find((item) => item.token === scannedValue || item.code === normalizedCode);
-  if (!ticket) return res.status(404).json({ error: 'QR no válido para este evento.' });
-  if (ticket.checkedInAt) {
-    return res.json({ alreadyCheckedIn: true, ticket: { name: ticket.name, code: ticket.code, checkedInAt: ticket.checkedInAt } });
+
+  try {
+    const normalizedCode = scannedValue.toUpperCase();
+    const { data: tickets, error } = await supabase
+      .from('event_tickets')
+      .select('*')
+      .or(`token.eq.${scannedValue},code.eq.${normalizedCode}`);
+
+    if (error) throw error;
+
+    const ticket = tickets && tickets[0];
+    if (!ticket) return res.status(404).json({ error: 'QR no válido para este evento.' });
+
+    if (ticket.checked_in_at) {
+      return res.json({ alreadyCheckedIn: true, ticket: { name: ticket.name, code: ticket.code, checkedInAt: ticket.checked_in_at } });
+    }
+
+    const now = new Date().toISOString();
+    const { error: updateError } = await supabase
+      .from('event_tickets')
+      .update({ checked_in_at: now, checked_in_by: 'admin' })
+      .eq('id', ticket.id);
+
+    if (updateError) throw updateError;
+
+    res.json({ alreadyCheckedIn: false, ticket: { name: ticket.name, code: ticket.code, checkedInAt: now } });
+  } catch (err) {
+    console.error('Error en check-in:', err);
+    res.status(500).json({ error: 'Error al procesar el check-in.' });
   }
-  ticket.checkedInAt = new Date().toISOString();
-  ticket.checkedInBy = 'admin';
-  saveEventTickets(tickets);
-  res.json({ alreadyCheckedIn: false, ticket: { name: ticket.name, code: ticket.code, checkedInAt: ticket.checkedInAt } });
 });
 
 // Newsletter Subscription
@@ -397,7 +482,7 @@ app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
   });
 });
 
-// Admin Panel - Verify Multiple Users from JSON
+// Admin Panel - Login
 app.post('/api/admin-login', (req, res) => {
   const { username, password } = req.body;
 
@@ -420,7 +505,6 @@ app.post('/api/admin-login', (req, res) => {
       return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
     }
 
-    // Token codificado con usuario y contraseña para validación posterior
     const token = Buffer.from(`${foundUser.username}:${foundUser.password}:${Date.now()}`).toString('base64');
     res.json({ token, name: foundUser.name, message: 'Acceso concedido.' });
   } catch (err) {
@@ -469,4 +553,5 @@ app.listen(PORT, HOST, () => {
   console.log(`🎵 Liminal backend running on http://${HOST}:${PORT}`);
   console.log(`📋 Admin panel at http://${HOST}:${PORT}/admin`);
   console.log(`MailerLite: ${MAILERLITE_API_KEY ? '✓ Configured' : '✗ Not configured (local storage only)'}`);
+  console.log(`Supabase: ${supabase ? '✓ Configured' : '✗ Not configured'}`);
 });
