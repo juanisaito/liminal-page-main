@@ -123,6 +123,17 @@ function validateEmail(email) {
   return typeof email === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
 }
 
+// Validación robusta de nombres en el servidor
+function isValidPersonName(str) {
+  if (!str || typeof str !== 'string') return false;
+  const clean = str.trim();
+  if (clean.length < 3) return false;
+  if (/(.)\1{3,}/.test(clean)) return false; // Evita letras repetidas spam (ej: asjdkasjdkas, zzzzz)
+  const letters = clean.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+  if (letters.length < 2) return false;
+  return true;
+}
+
 function calculateAgeOnEvent(birthDateString) {
   if (!birthDateString) return { age: null, valid: true };
   if (typeof birthDateString !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(birthDateString)) return { age: null, valid: false };
@@ -290,7 +301,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// THIS IS TOBBA event registration (Con Supabase)
+// THIS IS TOBBA event registration (Con Supabase y validación estricta de nombres)
 app.post('/api/event-registration', eventLimiter, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'La base de datos Supabase no está configurada.' });
 
@@ -303,10 +314,10 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
   const quantity = Number(req.body.quantity);
 
   if (!validateEmail(email)) return res.status(400).json({ error: 'Ingresá un correo electrónico válido.' });
-  if (!name) return res.status(400).json({ error: 'Ingresá tu nombre.' });
+  if (!name || !isValidPersonName(name)) return res.status(400).json({ error: 'Ingresá un nombre y apellido válido.' });
   if (!city) return res.status(400).json({ error: 'Ingresá tu ciudad.' });
-  if (![1, 2].includes(quantity) || (quantity === 2 && !guestName)) {
-    return res.status(400).json({ error: 'Podés reservar una o dos entradas. Para dos, necesitamos el nombre de tu acompañante.' });
+  if (![1, 2].includes(quantity) || (quantity === 2 && (!guestName || !isValidPersonName(guestName)))) {
+    return res.status(400).json({ error: 'Podés reservar una o dos entradas. Para dos, necesitamos el nombre y apellido válido de tu acompañante.' });
   }
   if (!validBirthDate) return res.status(400).json({ error: 'Revisá la fecha de nacimiento o dejala vacía.' });
   if (req.body.privacy !== true) return res.status(400).json({ error: 'Necesitamos tu aceptación para gestionar la entrada.' });
@@ -324,7 +335,6 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
       return res.status(409).json({ error: 'No quedan entradas disponibles.' });
     }
 
-    // Obtener códigos existentes para evitar duplicados
     const { data: existingRecords } = await supabase.from('event_tickets').select('code');
     const existingCodes = new Set((existingRecords || []).map(r => r.code));
 
@@ -448,8 +458,8 @@ app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
     return res.status(400).json({ error: 'Email inválido.' });
   }
 
-  if (!name) {
-    return res.status(400).json({ error: 'El nombre es obligatorio.' });
+  if (!name || !isValidPersonName(name)) {
+    return res.status(400).json({ error: 'El nombre es obligatorio y debe ser válido.' });
   }
 
   const subscribers = loadSubscribers();

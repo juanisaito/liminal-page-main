@@ -106,28 +106,28 @@
     .ticket-cta{appearance:none;margin-top:clamp(26px,4vh,40px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
     .ticket-cta:hover{background:transparent;color:var(--paper)}
     
-    /* Modal compacto sin scroll */
-    .booking{width:min(100%,480px);max-height:none;overflow:hidden;margin:auto;border:0;border-radius:12px;padding:24px 28px;background:#101010;color:var(--paper);text-align:center}
+    /* Modal más ancho y cómodo para ver los QRs grandes */
+    .booking{width:min(100%,600px);max-height:none;overflow:hidden;margin:auto;border:0;border-radius:14px;padding:32px 36px;background:#101010;color:var(--paper);text-align:center}
     
     .booking::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}
     .booking[open]::backdrop{animation:backdrop-in 360ms ease-out both}
     @keyframes backdrop-in{from{background:rgba(0,0,0,0);backdrop-filter:blur(0)}to{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}}
     
-    .modal-head{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px;text-align:center;border-bottom:1px solid rgba(245,245,245,.1);padding-bottom:12px}
-    .modal-head h2{font:500 22px/1 var(--ui);letter-spacing:-.03em;margin:0 0 6px;text-align:center}
-    .modal-description{width:100%;margin:0;color:rgba(245,245,245,.62);font:12px/1.4 var(--ui);letter-spacing:0;text-align:center}
+    .modal-head{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:18px;text-align:center;border-bottom:1px solid rgba(245,245,245,.1);padding-bottom:14px}
+    .modal-head h2{font:500 24px/1 var(--ui);letter-spacing:-.03em;margin:0 0 6px;text-align:center}
+    .modal-description{width:100%;margin:0;color:rgba(245,245,245,.62);font:13px/1.4 var(--ui);letter-spacing:0;text-align:center}
     
     /* Cruz de cerrar gris limpia sin bordes ni recuadros */
     .modal-close{position:absolute;right:0;top:0;appearance:none;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0!important;outline:none!important;background:transparent!important;color:rgba(245,245,245,.45);font:300 22px/1 var(--ui);cursor:pointer;transition:color .18s ease;box-shadow:none!important}
     .modal-close:hover,.modal-close:focus{color:#fff;outline:none!important;border:0!important;box-shadow:none!important}
     
-    form{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+    form{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
     .field{min-width:0;display:flex;flex-direction:column;gap:4px;text-align:left}
     .field[hidden]{display:none!important}
     .field.full{grid-column:1/-1}
     label{font:12px/1.3 var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.78);text-align:left}
     label .optional{font:10px var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.42);margin-left:4px}
-    input,select{width:100%;min-width:0;min-height:36px;border:0;border-bottom:1px solid rgba(245,245,245,.22);border-radius:0;padding:4px 0 6px;background:transparent;color:var(--paper);font:14px var(--ui);outline:none;text-align:left}
+    input,select{width:100%;min-width:0;min-height:38px;border:0;border-bottom:1px solid rgba(245,245,245,.22);border-radius:0;padding:4px 0 6px;background:transparent;color:var(--paper);font:14px var(--ui);outline:none;text-align:left}
     input:focus,select:focus{border-color:rgba(245,245,245,.78)}
     input::placeholder{color:rgba(245,245,245,.3)}
     select{color-scheme:dark}
@@ -136,20 +136,21 @@
     .checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:8px;color:var(--muted);font:11px/1.35 var(--ui);text-align:left}
     .checkrow input{appearance:auto;width:14px;min-height:14px;flex:0 0 14px;margin:1px 0 0;padding:0;border:0;background:transparent;accent-color:#3b82f6}
     .checkrow label{font:inherit;letter-spacing:0;text-transform:none;color:inherit}
-    .form-submit{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:4px}
+    .form-submit{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px}
     .form-submit button{appearance:none;min-height:42px;border:1px solid rgba(245,245,245,.58);border-radius:999px;padding:0 24px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
     .form-submit button:hover{background:transparent;color:var(--paper);transform:translateY(-1px)}
     .form-submit button:disabled{opacity:.55;cursor:wait}
-    .hint{display:none}
     .message{grid-column:1/-1;min-height:14px;color:rgba(245,245,245,.72);font:10px var(--mono)}
-    .ticket-result{display:none;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
-    .ticket-result h3{font:500 18px/1.1 var(--sans);letter-spacing:-.04em;margin:0 0 4px}
-    .ticket-result p{font:10px/1.4 var(--sans);color:var(--muted);margin:0}
-    .ticket-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
-    .ticket-item{min-width:0;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:8px}
-    .qr{display:block;width:64px;height:64px;object-fit:contain;background:#fff;padding:4px;flex:0 0 64px}
-    .ticket-item strong{font:9px var(--mono);letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere}
-    .ticket-item small{display:block;color:var(--muted);font:7px/1.3 var(--mono);margin-top:4px;overflow-wrap:anywhere;word-break:break-all}
+    
+    /* Pantalla de éxito con QRs más grandes y cómodos */
+    .ticket-result{display:none;border-top:1px solid var(--line);padding-top:16px;margin-top:4px}
+    .ticket-result h3{font:500 20px/1.1 var(--sans);letter-spacing:-.04em;margin:0 0 6px}
+    .ticket-result p{font:12px/1.4 var(--sans);color:var(--muted);margin:0 0 16px}
+    .ticket-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+    .ticket-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:10px;border:1px solid rgba(245,245,245,.12);background:rgba(255,255,255,.02);padding:14px;border-radius:8px;text-align:center}
+    .qr{display:block;width:120px;height:120px;object-fit:contain;background:#fff;padding:6px;border-radius:6px;flex:0 0 120px}
+    .ticket-item strong{font:11px var(--mono);letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere;color:#fff}
+    .ticket-item small{display:block;color:var(--muted);font:8px/1.3 var(--mono);margin-top:2px;overflow-wrap:anywhere;word-break:break-all}
     @media(max-width:760px){
       .page{padding:12px max(18px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-bottom));gap:8px}
       .content{align-content:center}
@@ -162,11 +163,13 @@
       .doodle-star.one{width:32px;right:8%;top:16%}
       .doodle-star.two{width:26px;left:8%;bottom:10%}
       .doodle-star.three{display:none}
-      .booking{width:calc(100% - 24px);padding:18px 16px;border-radius:14px}
+      .booking{width:calc(100% - 20px);padding:22px 18px;border-radius:14px}
       .modal-head{margin-bottom:12px;padding-bottom:10px}
       .modal-head h2{font-size:20px}
       form{gap:8px 10px}.field{gap:3px}label{font-size:11px}input,select{min-height:34px;padding:4px 0 5px;font-size:14px}
       .checkrow{gap:7px;font-size:11px;line-height:1.35}.form-submit button{min-height:40px;padding:0 20px;font-size:9px}
+      .ticket-list{grid-template-columns:1fr}
+      .qr{width:110px;height:110px}
     }
     @media(max-width:380px){
       .page{padding-top:9px;gap:5px}
@@ -182,7 +185,7 @@
       .event-title{font-size:45px;margin:5px 0 6px}
       .event-meta{margin-top:7px}
       .access-note{margin-top:5px}
-      .booking{padding:14px 12px}
+      .booking{padding:16px 14px}
       form{gap:6px 8px}
       .form-submit button{min-height:38px}
     }
@@ -240,7 +243,7 @@
         <button class="ticket-cta mono" id="open-booking" type="button">Sacar mi entrada <span aria-hidden="true">↗</span></button>
       </section>
       
-      <!-- Modal compacto, centrado y sin scroll (sin la frase de reserva gratuita) -->
+      <!-- Modal más amplio -->
       <dialog class="booking" id="booking-modal" aria-labelledby="booking-title">
         <div class="modal-head">
           <button class="modal-close" id="close-booking" type="button" aria-label="Cerrar">×</button>
@@ -302,12 +305,10 @@
     citySelect.addEventListener('change', updateOtherCityField);
     updateOtherCityField();
 
-    // Validación inteligente anti-spam / texto basura en nombres
     function isValidPersonName(str) {
       if (!str || typeof str !== 'string') return false;
       const clean = str.trim();
       if (clean.length < 3) return false;
-      // Detectar cadenas con exceso de consonantes repetidas o spam (ej: asjdkasjdkas, zzzzzz, qqqqq)
       if (/(.)\1{3,}/.test(clean)) return false;
       const letters = clean.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
       if (letters.length < 2) return false;
@@ -383,7 +384,8 @@
         for (const ticket of result.tickets) {
           const item = document.createElement('div'); item.className = 'ticket-item';
           const qr = document.createElement('img'); qr.className = 'qr'; qr.alt = `QR de entrada para ${ticket.name}`; qr.loading = 'eager';
-          qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(ticket.token)}`;
+          // QR más grande en la pantalla final para lectura perfecta (tamaño 320x320)
+          qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(ticket.token)}`;
           const copy = document.createElement('div');
           const title = document.createElement('strong'); title.textContent = ticket.name;
           const note = document.createElement('small'); note.textContent = `Entrada ${ticket.code} · ${ticket.token}`;
