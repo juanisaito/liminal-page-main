@@ -187,7 +187,7 @@ async function sendEventConfirmation(email, tickets) {
     const { data, error } = await resend.emails.send({
       from: RESEND_FROM,
       to: [email],
-      subject: 'Tus entradas · THIS IS TOBBA',
+      subject: 'Tus accesos · THIS IS TOBBA LIVE EVENT',
       html,
       attachments
     });
@@ -316,7 +316,7 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
   try {
     const emailTicketCount = await getTicketsCountByEmail(email);
     if (emailTicketCount + quantity > MAX_TICKETS_PER_EMAIL) {
-      return res.status(409).json({ error: 'No pudimos procesar la solicitud. Revisá los datos ingresados.' });
+      return res.status(409).json({ error: 'Ya tenés entradas registradas con este correo. Revisá tu casilla o carpeta de spam.' });
     }
 
     const totalTicketsCount = await getTotalTicketsCount();
