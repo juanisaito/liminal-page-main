@@ -89,12 +89,12 @@
     }
     .event-meta{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:clamp(24px,4vw,42px);font:13px/1.6 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
     .event-meta strong{font-weight:400;color:var(--paper)}
-    .event-time{display:inline-flex;align-items:center;justify-content:center;gap:8px}
-    .clock-doodle{width:20px;height:20px;overflow:visible;transform:rotate(-5deg)}
+    .event-time{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .clock-doodle{width:16px;height:16px;overflow:visible;transform:rotate(-5deg)}
     .clock-doodle path,.clock-doodle circle{fill:none;stroke:#3b82f6;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
     .clock-doodle path+path{stroke-width:1;opacity:.7;transform:translate(1px,-.5px)}
-    .event-meta a{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
-    .location-doodle{width:18px;height:20px;flex:0 0 18px;overflow:visible;transform:rotate(4deg)}
+    .event-meta a{display:inline-flex;align-items:center;justify-content:center;gap:6px;color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+    .location-doodle{width:14px;height:16px;flex:0 0 14px;overflow:visible;transform:rotate(4deg)}
     .location-doodle path,.location-doodle circle{fill:none;stroke:#3b82f6;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
     
     /* Nota de acceso con preescucha y entrada gratuita ordenada */
@@ -103,7 +103,8 @@
     .access-note .free-label{display:block;color:var(--muted);font-size:10px;letter-spacing:.14em;margin-top:4px}
     .access-note::after{content:'';position:absolute;left:22%;right:18%;height:5px;bottom:-10px;border-bottom:1.5px solid #3b82f6;border-radius:50%;transform:rotate(-1.5deg);opacity:.85}
 
-    .ticket-cta{appearance:none;margin-top:clamp(26px,4vh,40px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+    /* Botón más abajo en general */
+    .ticket-cta{appearance:none;margin-top:clamp(32px,5vh,48px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
     .ticket-cta:hover{background:transparent;color:var(--paper)}
     
     /* Modal más ancho y cómodo para ver los QRs grandes */
@@ -157,9 +158,13 @@
       .event-info{padding:0}
       .event-title{font-size:clamp(44px,12vw,66px);line-height:.78;margin:14px 0}
       .live-event-badge { font-size: 9.5px; bottom: -15px; letter-spacing: 0.25em; }
-      .event-meta{gap:7px 14px;margin-top:20px;font-size:10px;line-height:1.5}
+      .event-meta{gap:6px 14px;margin-top:18px;font-size:10px;line-height:1.5}
+      /* Iconos aún más chicos en celular */
+      .clock-doodle{width:13px;height:13px}
+      .location-doodle{width:11px;height:13px;flex:0 0 11px}
       .access-note{margin-top:14px;font-size:10px}
-      .ticket-cta{margin-top:24px;min-height:42px;padding:0 19px;font-size:8px}
+      /* Botón de entrada bastante más abajo en mobile */
+      .ticket-cta{margin-top:36px;min-height:42px;padding:0 19px;font-size:8px}
       .doodle-star.one{width:32px;right:8%;top:16%}
       .doodle-star.two{width:26px;left:8%;bottom:10%}
       .doodle-star.three{display:none}
@@ -384,7 +389,6 @@
         for (const ticket of result.tickets) {
           const item = document.createElement('div'); item.className = 'ticket-item';
           const qr = document.createElement('img'); qr.className = 'qr'; qr.alt = `QR de entrada para ${ticket.name}`; qr.loading = 'eager';
-          // QR más grande en la pantalla final para lectura perfecta (tamaño 320x320)
           qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(ticket.token)}`;
           const copy = document.createElement('div');
           const title = document.createElement('strong'); title.textContent = ticket.name;
