@@ -50,10 +50,10 @@
     .event-title span{display:block;margin-left:.12em;letter-spacing:-.12em}
     .event-title .title-first{position:relative;margin-left:0;letter-spacing:inherit;animation:title-glitch 8s infinite}
     .event-title .title-first::before,.event-title .title-first::after{content:attr(data-text);position:absolute;inset:0;pointer-events:none;opacity:0}
-    .event-title .title-first::before{clip-path:inset(0 0 51% 0);text-shadow:-1px 0 rgba(109,141,255,.38),1px 0 rgba(255,255,255,.32);animation:title-slice-top 8s infinite}
-    .event-title .title-first::after{clip-path:inset(55% 0 0 0);text-shadow:1px 0 rgba(109,141,255,.34),-1px 0 rgba(255,255,255,.3);animation:title-slice-bottom 8s infinite}
+    .event-title .title-first::before{clip-path:inset(0 0 51% 0);text-shadow:-1px 0 rgba(43,108,255,.45),1px 0 rgba(255,255,255,.32);animation:title-slice-top 8s infinite}
+    .event-title .title-first::after{clip-path:inset(55% 0 0 0);text-shadow:1px 0 rgba(43,108,255,.4),-1px 0 rgba(255,255,255,.3);animation:title-slice-bottom 8s infinite}
     
-    /* Sello LIVE EVENT en azul con mayor presencia */
+    /* Sello LIVE EVENT en azul puro */
     .live-event-badge {
       position: absolute;
       right: 4px;
@@ -61,15 +61,15 @@
       font: 600 11px/1 var(--mono);
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: #6d8dff;
-      opacity: 0.95;
-      text-shadow: 0 0 10px rgba(109,141,255,0.4);
+      color: #3b82f6;
+      opacity: 0.98;
+      text-shadow: 0 0 10px rgba(59,130,246,0.5);
     }
 
     @keyframes title-glitch{
       0%,82%,100%{transform:translate(0,0);text-shadow:inherit}
-      84%{transform:translate(-1px,0) skewX(-.4deg);text-shadow:-1px 0 rgba(109,141,255,.32),1px 0 rgba(255,255,255,.3)}
-      88%{transform:translate(1px,.5px) skewX(.4deg);text-shadow:1px 0 rgba(109,141,255,.3),-1px 0 rgba(255,255,255,.28)}
+      84%{transform:translate(-1px,0) skewX(-.4deg);text-shadow:-1px 0 rgba(43,108,255,.4),1px 0 rgba(255,255,255,.3)}
+      88%{transform:translate(1px,.5px) skewX(.4deg);text-shadow:1px 0 rgba(43,108,255,.38),-1px 0 rgba(255,255,255,.28)}
       92%{transform:translate(-.5px,0);text-shadow:inherit}
       96%{transform:translate(0,0);text-shadow:inherit}
     }
@@ -91,19 +91,19 @@
     .event-meta strong{font-weight:400;color:var(--paper)}
     .event-time{display:inline-flex;align-items:center;justify-content:center;gap:8px}
     .clock-doodle{width:20px;height:20px;overflow:visible;transform:rotate(-5deg)}
-    .clock-doodle path,.clock-doodle circle{fill:none;stroke:#6d8dff;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+    .clock-doodle path,.clock-doodle circle{fill:none;stroke:#3b82f6;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
     .clock-doodle path+path{stroke-width:1;opacity:.7;transform:translate(1px,-.5px)}
     .event-meta a{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
     .location-doodle{width:18px;height:20px;flex:0 0 18px;overflow:visible;transform:rotate(4deg)}
-    .location-doodle path,.location-doodle circle{fill:none;stroke:#6d8dff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    .location-doodle path,.location-doodle circle{fill:none;stroke:#3b82f6;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
     
-    /* Nota de acceso con preescucha exclusiva destacada */
+    /* Nota de acceso con preescucha y entrada gratuita ordenada */
     .access-note{position:relative;margin-top:18px;font:11px/1.4 var(--mono);letter-spacing:0.16em;text-transform:uppercase;color:var(--paper);text-align:center}
-    .access-note .highlight-exclusive{display:block;font-size:12px;font-weight:600;letter-spacing:0.2em;color:#fff;margin-bottom:4px;text-shadow:0 0 8px rgba(109,141,255,.4)}
-    .access-note .free-label{display:block;color:var(--muted);font-size:9.5px;letter-spacing:.12em}
-    .access-note::after{content:'';position:absolute;left:22%;right:18%;height:5px;bottom:-8px;border-bottom:1.5px solid #6d8dff;border-radius:50%;transform:rotate(-1.5deg);opacity:.85}
+    .access-note .highlight-exclusive{display:block;font-size:12px;font-weight:600;letter-spacing:0.2em;color:#fff;margin-bottom:6px;text-shadow:0 0 8px rgba(59,130,246,.45)}
+    .access-note .free-label{display:block;color:var(--muted);font-size:10px;letter-spacing:.14em;margin-top:4px}
+    .access-note::after{content:'';position:absolute;left:22%;right:18%;height:5px;bottom:-10px;border-bottom:1.5px solid #3b82f6;border-radius:50%;transform:rotate(-1.5deg);opacity:.85}
 
-    .ticket-cta{appearance:none;margin-top:clamp(24px,4vh,38px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+    .ticket-cta{appearance:none;margin-top:clamp(26px,4vh,40px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
     .ticket-cta:hover{background:transparent;color:var(--paper)}
     
     /* Modal compacto sin scroll */
@@ -114,7 +114,6 @@
     @keyframes backdrop-in{from{background:rgba(0,0,0,0);backdrop-filter:blur(0)}to{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}}
     
     .modal-head{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px;text-align:center;border-bottom:1px solid rgba(245,245,245,.1);padding-bottom:12px}
-    .modal-kicker{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
     .modal-head h2{font:500 22px/1 var(--ui);letter-spacing:-.03em;margin:0 0 6px;text-align:center}
     .modal-description{width:100%;margin:0;color:rgba(245,245,245,.62);font:12px/1.4 var(--ui);letter-spacing:0;text-align:center}
     
@@ -135,7 +134,7 @@
     select option{background:#171a20;color:#f5f5f5}
     
     .checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:8px;color:var(--muted);font:11px/1.35 var(--ui);text-align:left}
-    .checkrow input{appearance:auto;width:14px;min-height:14px;flex:0 0 14px;margin:1px 0 0;padding:0;border:0;background:transparent;accent-color:#6d8dff}
+    .checkrow input{appearance:auto;width:14px;min-height:14px;flex:0 0 14px;margin:1px 0 0;padding:0;border:0;background:transparent;accent-color:#3b82f6}
     .checkrow label{font:inherit;letter-spacing:0;text-transform:none;color:inherit}
     .form-submit{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:4px}
     .form-submit button{appearance:none;min-height:42px;border:1px solid rgba(245,245,245,.58);border-radius:999px;padding:0 24px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
@@ -158,7 +157,7 @@
       .event-title{font-size:clamp(44px,12vw,66px);line-height:.78;margin:14px 0}
       .live-event-badge { font-size: 9.5px; bottom: -15px; letter-spacing: 0.25em; }
       .event-meta{gap:7px 14px;margin-top:20px;font-size:10px;line-height:1.5}
-      .access-note{margin-top:12px;font-size:10px}
+      .access-note{margin-top:14px;font-size:10px}
       .ticket-cta{margin-top:24px;min-height:42px;padding:0 19px;font-size:8px}
       .doodle-star.one{width:32px;right:8%;top:16%}
       .doodle-star.two{width:26px;left:8%;bottom:10%}
@@ -215,7 +214,7 @@
         <!-- Logo principal limpio -->
         <img class="brand-logo" src="../assets/Logo 2 Blanco.png" alt="Liminal Records" decoding="async">
         
-        <!-- Contenedor del título con el sello LIVE EVENT en azul a la derecha abajo -->
+        <!-- Contenedor del título con el sello LIVE EVENT en azul puro a la derecha abajo -->
         <div class="title-wrapper">
           <h1 class="event-title" id="event-title"><span class="title-first" data-text="THIS IS">THIS IS</span><span>TOBBA</span></h1>
           <span class="live-event-badge">LIVE EVENT</span>
@@ -232,7 +231,7 @@
           <a href="https://maps.app.goo.gl/BiRVcGNssrcxe2WD9" target="_blank" rel="noreferrer"><svg class="location-doodle" viewBox="0 0 40 48" aria-hidden="true" focusable="false"><path d="M20 45 C15 36 5 25 5 17 C5 8.5 11.4 3 20 3 C28.2 3 35 8.6 35 17 C35 25 25 37 20 45Z"/><path d="M20 43 C14 34 7 25 7 17 C7 9.5 13 5 20 5 C27.4 5 33 10 33 17 C33 25 25 36 20 43Z"/><circle cx="20" cy="17" r="5.5"/></svg>Yunta Bar · Lavalle 3491 · Almagro ↗</a>
         </div>
         
-        <!-- Nota de acceso con preescucha exclusiva destacada -->
+        <!-- Nota de acceso con preescucha exclusiva y entrada gratuita ordenada -->
         <div class="access-note mono">
           <span class="highlight-exclusive">Preescucha exclusiva</span>
           <span class="free-label">Entrada gratuita</span>
@@ -241,11 +240,10 @@
         <button class="ticket-cta mono" id="open-booking" type="button">Sacar mi entrada <span aria-hidden="true">↗</span></button>
       </section>
       
-      <!-- Modal compacto, centrado y sin scroll -->
+      <!-- Modal compacto, centrado y sin scroll (sin la frase de reserva gratuita) -->
       <dialog class="booking" id="booking-modal" aria-labelledby="booking-title">
         <div class="modal-head">
           <button class="modal-close" id="close-booking" type="button" aria-label="Cerrar">×</button>
-          <p class="modal-kicker">Reserva gratuita</p>
           <h2 id="booking-title">Completá tus datos</h2>
           <p class="modal-description">
             Reservá tu acceso exclusivo para el evento de Tobba.
@@ -256,7 +254,7 @@
           <div class="field full"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" autocomplete="email" maxlength="250" required placeholder="nombre@correo.com"></div>
           <div class="field full"><label for="city">Ciudad</label><select id="city" name="city" autocomplete="address-level2" required><option value="" disabled selected>Elegí tu ciudad</option><option>Ciudad Autónoma de Buenos Aires</option><option>Tigre</option><option>San Fernando</option><option>San Isidro</option><option>Vicente López</option><option>General San Martín</option><option>Tres de Febrero</option><option>Morón</option><option>Hurlingham</option><option>Ituzaingó</option><option>La Matanza</option><option>Lomas de Zamora</option><option>Lanús</option><option>Avellaneda</option><option>Quilmes</option><option>Berazategui</option><option>Florencio Varela</option><option>Almirante Brown</option><option>Esteban Echeverría</option><option>Ezeiza</option><option>Pilar</option><option>Escobar</option><option>Malvinas Argentinas</option><option>José C. Paz</option><option>San Miguel</option><option>Moreno</option><option>General Rodríguez</option><option>La Plata</option><option>Mar del Plata</option><option value="__other">Otra localidad</option></select></div>
           <div class="field full" id="other-city-field" hidden><label for="city-other">Escribí tu ciudad</label><input id="city-other" name="cityOther" maxlength="100" autocomplete="address-level2" placeholder="Ciudad, provincia o país"></div>
-          <div class="field full"><label for="birth-date">Fecha de nacimiento <span class="optional">(opcional)</span></label><input id="birth-date" name="birthDate" type="date" autocomplete="bday"></div>
+          <div class="field full"><label for="birth-date">Fecha de nacimiento <span class="optional">(opcional)</span></label><input id="birth-date" name="birthDate" type="date" autocomplete="bday" value=""></div>
           <div class="field full"><label for="quantity">Entradas</label><select id="quantity" name="quantity"><option value="1">1 persona</option><option value="2">2 personas · vos + acompañante</option></select></div>
           <div class="field full" id="guest-field" hidden><label for="guest-name">Nombre de tu acompañante</label><input id="guest-name" name="guestName" maxlength="100" placeholder="Nombre y apellido"></div>
           <div class="checkrow"><input id="privacy" type="checkbox" required><label for="privacy">Acepto que Liminal use estos datos para gestionar mi entrada.</label></div>
@@ -287,6 +285,7 @@
     const message = document.getElementById('form-message');
     const submitButton = document.getElementById('submit-button');
     const ticketResult = document.getElementById('ticket-result');
+
     function updateGuestField() {
       const hasGuest = quantity.value === '2';
       guestField.hidden = !hasGuest;
@@ -294,6 +293,7 @@
     }
     quantity.addEventListener('change', updateGuestField);
     updateGuestField();
+
     function updateOtherCityField() {
       const needsOtherCity = citySelect.value === '__other';
       otherCityField.hidden = !needsOtherCity;
@@ -301,6 +301,19 @@
     }
     citySelect.addEventListener('change', updateOtherCityField);
     updateOtherCityField();
+
+    // Validación inteligente anti-spam / texto basura en nombres
+    function isValidPersonName(str) {
+      if (!str || typeof str !== 'string') return false;
+      const clean = str.trim();
+      if (clean.length < 3) return false;
+      // Detectar cadenas con exceso de consonantes repetidas o spam (ej: asjdkasjdkas, zzzzzz, qqqqq)
+      if (/(.)\1{3,}/.test(clean)) return false;
+      const letters = clean.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+      if (letters.length < 2) return false;
+      return true;
+    }
+
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function openBookingModal() {
       modal.showModal();
@@ -327,9 +340,25 @@
     modal.addEventListener('click', (event) => {
       if (event.target === modal) closeBookingModal();
     });
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       message.textContent = '';
+
+      const nameVal = document.getElementById('name').value;
+      if (!isValidPersonName(nameVal)) {
+        message.textContent = 'Por favor, ingresá un nombre y apellido válido.';
+        return;
+      }
+
+      if (quantity.value === '2') {
+        const guestVal = guestInput.value;
+        if (!isValidPersonName(guestVal)) {
+          message.textContent = 'Por favor, ingresá un nombre y apellido válido para el acompañante.';
+          return;
+        }
+      }
+
       submitButton.disabled = true;
       submitButton.textContent = 'Procesando…';
       const payload = Object.fromEntries(new FormData(form).entries());
