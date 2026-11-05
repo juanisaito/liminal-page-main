@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <meta name="description" content="THIS IS TOBBA — 25 nov. · 19 hs · Yunta Bar. Entrada gratuita.">
+  <meta name="description" content="THIS IS TOBBA — 25 nov. · 20 hs · Yunta Bar. Preescucha exclusiva y entrada gratuita.">
   <title>THIS IS TOBBA — Liminal Records</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,16 +53,17 @@
     .event-title .title-first::before{clip-path:inset(0 0 51% 0);text-shadow:-1px 0 rgba(109,141,255,.38),1px 0 rgba(255,255,255,.32);animation:title-slice-top 8s infinite}
     .event-title .title-first::after{clip-path:inset(55% 0 0 0);text-shadow:1px 0 rgba(109,141,255,.34),-1px 0 rgba(255,255,255,.3);animation:title-slice-bottom 8s infinite}
     
-    /* Sello LIVE EVENT abajo a la derecha */
+    /* Sello LIVE EVENT en azul con mayor presencia */
     .live-event-badge {
       position: absolute;
       right: 4px;
       bottom: -18px;
-      font: 500 10px/1 var(--mono);
-      letter-spacing: 0.28em;
+      font: 600 11px/1 var(--mono);
+      letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--muted);
-      opacity: 0.85;
+      color: #6d8dff;
+      opacity: 0.95;
+      text-shadow: 0 0 10px rgba(109,141,255,0.4);
     }
 
     @keyframes title-glitch{
@@ -95,74 +96,78 @@
     .event-meta a{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
     .location-doodle{width:18px;height:20px;flex:0 0 18px;overflow:visible;transform:rotate(4deg)}
     .location-doodle path,.location-doodle circle{fill:none;stroke:#6d8dff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-    .access-note{position:relative;margin-top:16px;font:10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--paper)}
-    .access-note::after{content:'';position:absolute;left:13%;right:8%;height:5px;bottom:-7px;border-bottom:1.5px solid #6d8dff;border-radius:50%;transform:rotate(-2deg);opacity:.82}
-    .access-note strong{font-weight:400;color:var(--paper)}
+    
+    /* Nota de acceso con preescucha exclusiva destacada */
+    .access-note{position:relative;margin-top:18px;font:11px/1.4 var(--mono);letter-spacing:0.16em;text-transform:uppercase;color:var(--paper);text-align:center}
+    .access-note .highlight-exclusive{display:block;font-size:12px;font-weight:600;letter-spacing:0.2em;color:#fff;margin-bottom:4px;text-shadow:0 0 8px rgba(109,141,255,.4)}
+    .access-note .free-label{display:block;color:var(--muted);font-size:9.5px;letter-spacing:.12em}
+    .access-note::after{content:'';position:absolute;left:22%;right:18%;height:5px;bottom:-8px;border-bottom:1.5px solid #6d8dff;border-radius:50%;transform:rotate(-1.5deg);opacity:.85}
+
     .ticket-cta{appearance:none;margin-top:clamp(24px,4vh,38px);min-height:46px;border:1px solid rgba(245,245,245,.72);border-radius:0;padding:0 22px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
     .ticket-cta:hover{background:transparent;color:var(--paper)}
     
-    /* Modal estilizado con altura controlada y scroll prolijo */
-    .booking{width:min(100%,520px);max-height:85vh;max-height:85svh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:auto;border:0;border-radius:12px;padding:clamp(20px,4vw,32px);background:#101010;color:var(--paper);text-align:left}
-    .booking::-webkit-scrollbar{width:4px}
-    .booking::-webkit-scrollbar-thumb{background:rgba(245,245,245,0.2);border-radius:2px}
+    /* Modal compacto sin scroll */
+    .booking{width:min(100%,480px);max-height:none;overflow:hidden;margin:auto;border:0;border-radius:12px;padding:24px 28px;background:#101010;color:var(--paper);text-align:center}
     
     .booking::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}
     .booking[open]::backdrop{animation:backdrop-in 360ms ease-out both}
     @keyframes backdrop-in{from{background:rgba(0,0,0,0);backdrop-filter:blur(0)}to{background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}}
     
-    .modal-head{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;text-align:left;border-bottom:1px solid rgba(245,245,245,.1);padding-bottom:16px}
-    .modal-kicker{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-    .modal-head h2{font:500 clamp(20px,2.5vw,26px)/1 var(--ui);letter-spacing:-.045em;margin:0 0 8px}
-    .modal-description{width:100%;margin:0;color:rgba(245,245,245,.72);font:12px/1.55 var(--ui);letter-spacing:0}
+    .modal-head{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px;text-align:center;border-bottom:1px solid rgba(245,245,245,.1);padding-bottom:12px}
+    .modal-kicker{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+    .modal-head h2{font:500 22px/1 var(--ui);letter-spacing:-.03em;margin:0 0 6px;text-align:center}
+    .modal-description{width:100%;margin:0;color:rgba(245,245,245,.62);font:12px/1.4 var(--ui);letter-spacing:0;text-align:center}
     
-    .modal-close{position:sticky;top:0;appearance:none;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;background:transparent;color:rgba(245,245,245,.68);font:300 18px/1 var(--ui);cursor:pointer;flex:0 0 auto;transition:color .18s ease}
-    .modal-close:hover{color:#fff}
+    /* Cruz de cerrar gris limpia sin bordes ni recuadros */
+    .modal-close{position:absolute;right:0;top:0;appearance:none;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0!important;outline:none!important;background:transparent!important;color:rgba(245,245,245,.45);font:300 22px/1 var(--ui);cursor:pointer;transition:color .18s ease;box-shadow:none!important}
+    .modal-close:hover,.modal-close:focus{color:#fff;outline:none!important;border:0!important;box-shadow:none!important}
     
-    form{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
-    .field{min-width:0;display:flex;flex-direction:column;gap:6px}
+    form{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+    .field{min-width:0;display:flex;flex-direction:column;gap:4px;text-align:left}
     .field[hidden]{display:none!important}
     .field.full{grid-column:1/-1}
-    label{font:13px/1.35 var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.78);text-align:left}
+    label{font:12px/1.3 var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.78);text-align:left}
     label .optional{font:10px var(--ui);letter-spacing:0;text-transform:none;color:rgba(245,245,245,.42);margin-left:4px}
-    input,select{width:100%;min-width:0;min-height:42px;border:0;border-bottom:1px solid rgba(245,245,245,.22);border-radius:0;padding:7px 0 8px;background:transparent;color:var(--paper);font:16px var(--ui);outline:none;text-align:left}
+    input,select{width:100%;min-width:0;min-height:36px;border:0;border-bottom:1px solid rgba(245,245,245,.22);border-radius:0;padding:4px 0 6px;background:transparent;color:var(--paper);font:14px var(--ui);outline:none;text-align:left}
     input:focus,select:focus{border-color:rgba(245,245,245,.78)}
     input::placeholder{color:rgba(245,245,245,.3)}
     select{color-scheme:dark}
     select option{background:#171a20;color:#f5f5f5}
-    .checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;color:var(--muted);font:12px/1.45 var(--ui);text-align:left}
-    .checkrow input{appearance:auto;width:16px;min-height:16px;flex:0 0 16px;margin:1px 0 0;padding:0;border:0;background:transparent;accent-color:#6d8dff}
+    
+    .checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:8px;color:var(--muted);font:11px/1.35 var(--ui);text-align:left}
+    .checkrow input{appearance:auto;width:14px;min-height:14px;flex:0 0 14px;margin:1px 0 0;padding:0;border:0;background:transparent;accent-color:#6d8dff}
     .checkrow label{font:inherit;letter-spacing:0;text-transform:none;color:inherit}
-    .form-submit{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px}
-    .form-submit button{appearance:none;min-height:48px;border:1px solid rgba(245,245,245,.58);border-radius:999px;padding:0 26px;background:var(--paper);color:var(--bg);font:10px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+    .form-submit{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:4px}
+    .form-submit button{appearance:none;min-height:42px;border:1px solid rgba(245,245,245,.58);border-radius:999px;padding:0 24px;background:var(--paper);color:var(--bg);font:9px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
     .form-submit button:hover{background:transparent;color:var(--paper);transform:translateY(-1px)}
     .form-submit button:disabled{opacity:.55;cursor:wait}
     .hint{display:none}
-    .message{grid-column:1/-1;min-height:15px;color:rgba(245,245,245,.72);font:10px var(--mono)}
-    .ticket-result{display:none;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
-    .ticket-result h3{font:500 20px/1.1 var(--sans);letter-spacing:-.04em;margin:0 0 5px}
-    .ticket-result p{font:10px/1.45 var(--sans);color:var(--muted);margin:0}
-    .ticket-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
-    .ticket-item{min-width:0;display:flex;align-items:center;gap:9px;border-top:1px solid var(--line);padding-top:9px}
-    .qr{display:block;width:72px;height:72px;object-fit:contain;background:#fff;padding:5px;flex:0 0 72px}
-    .ticket-item strong{font:10px var(--mono);letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere}
-    .ticket-item small{display:block;color:var(--muted);font:7px/1.3 var(--mono);margin-top:5px;overflow-wrap:anywhere;word-break:break-all}
+    .message{grid-column:1/-1;min-height:14px;color:rgba(245,245,245,.72);font:10px var(--mono)}
+    .ticket-result{display:none;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+    .ticket-result h3{font:500 18px/1.1 var(--sans);letter-spacing:-.04em;margin:0 0 4px}
+    .ticket-result p{font:10px/1.4 var(--sans);color:var(--muted);margin:0}
+    .ticket-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+    .ticket-item{min-width:0;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:8px}
+    .qr{display:block;width:64px;height:64px;object-fit:contain;background:#fff;padding:4px;flex:0 0 64px}
+    .ticket-item strong{font:9px var(--mono);letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere}
+    .ticket-item small{display:block;color:var(--muted);font:7px/1.3 var(--mono);margin-top:4px;overflow-wrap:anywhere;word-break:break-all}
     @media(max-width:760px){
       .page{padding:12px max(18px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-bottom));gap:8px}
       .content{align-content:center}
       .event-info{padding:0}
       .event-title{font-size:clamp(44px,12vw,66px);line-height:.78;margin:14px 0}
-      .live-event-badge { font-size: 8px; bottom: -14px; }
+      .live-event-badge { font-size: 9.5px; bottom: -15px; letter-spacing: 0.25em; }
       .event-meta{gap:7px 14px;margin-top:20px;font-size:10px;line-height:1.5}
-      .access-note{margin-top:10px;font-size:9px}
+      .access-note{margin-top:12px;font-size:10px}
       .ticket-cta{margin-top:24px;min-height:42px;padding:0 19px;font-size:8px}
       .doodle-star.one{width:32px;right:8%;top:16%}
       .doodle-star.two{width:26px;left:8%;bottom:10%}
       .doodle-star.three{display:none}
-      .booking{width:calc(100% - 20px);padding:20px 16px;border-radius:14px}
-      .modal-head{margin-bottom:16px;padding-bottom:12px}
-      .modal-head h2{font-size:22px}
-      form{gap:12px 12px}.field{gap:5px}label{font-size:13px}input,select{min-height:40px;padding:6px 0 7px;font-size:16px}
-      .checkrow{gap:9px;font-size:12px;line-height:1.4}.form-submit button{min-height:46px;padding:0 24px;font-size:10px}
+      .booking{width:calc(100% - 24px);padding:18px 16px;border-radius:14px}
+      .modal-head{margin-bottom:12px;padding-bottom:10px}
+      .modal-head h2{font-size:20px}
+      form{gap:8px 10px}.field{gap:3px}label{font-size:11px}input,select{min-height:34px;padding:4px 0 5px;font-size:14px}
+      .checkrow{gap:7px;font-size:11px;line-height:1.35}.form-submit button{min-height:40px;padding:0 20px;font-size:9px}
     }
     @media(max-width:380px){
       .page{padding-top:9px;gap:5px}
@@ -170,7 +175,7 @@
       .event-title{font-size:44px;margin:7px 0 8px}
       .event-meta{margin-top:10px}
       .ticket-list{grid-template-columns:1fr}
-      form{gap:7px 10px}
+      form{gap:6px 8px}
     }
     @media(max-height:700px) and (max-width:760px){
       .page{padding-top:7px;padding-bottom:max(7px,env(safe-area-inset-bottom));gap:4px}
@@ -178,9 +183,9 @@
       .event-title{font-size:45px;margin:5px 0 6px}
       .event-meta{margin-top:7px}
       .access-note{margin-top:5px}
-      .booking{padding:16px 14px}
-      form{gap:8px 10px}
-      .form-submit button{min-height:44px}
+      .booking{padding:14px 12px}
+      form{gap:6px 8px}
+      .form-submit button{min-height:38px}
     }
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.event-title .title-first,.event-title .title-first::before,.event-title .title-first::after{animation:none!important}}
     @media(prefers-reduced-motion:reduce){.booking[open]::backdrop{animation:none!important}}
@@ -210,7 +215,7 @@
         <!-- Logo principal limpio -->
         <img class="brand-logo" src="../assets/Logo 2 Blanco.png" alt="Liminal Records" decoding="async">
         
-        <!-- Contenedor del título con el sello LIVE EVENT a la derecha abajo -->
+        <!-- Contenedor del título con el sello LIVE EVENT en azul a la derecha abajo -->
         <div class="title-wrapper">
           <h1 class="event-title" id="event-title"><span class="title-first" data-text="THIS IS">THIS IS</span><span>TOBBA</span></h1>
           <span class="live-event-badge">LIVE EVENT</span>
@@ -226,28 +231,32 @@
           </strong>
           <a href="https://maps.app.goo.gl/BiRVcGNssrcxe2WD9" target="_blank" rel="noreferrer"><svg class="location-doodle" viewBox="0 0 40 48" aria-hidden="true" focusable="false"><path d="M20 45 C15 36 5 25 5 17 C5 8.5 11.4 3 20 3 C28.2 3 35 8.6 35 17 C35 25 25 37 20 45Z"/><path d="M20 43 C14 34 7 25 7 17 C7 9.5 13 5 20 5 C27.4 5 33 10 33 17 C33 25 25 36 20 43Z"/><circle cx="20" cy="17" r="5.5"/></svg>Yunta Bar · Lavalle 3491 · Almagro ↗</a>
         </div>
-        <div class="access-note mono"><strong>Entrada gratuita</strong></div>
+        
+        <!-- Nota de acceso con preescucha exclusiva destacada -->
+        <div class="access-note mono">
+          <span class="highlight-exclusive">Preescucha exclusiva</span>
+          <span class="free-label">Entrada gratuita</span>
+        </div>
+
         <button class="ticket-cta mono" id="open-booking" type="button">Sacar mi entrada <span aria-hidden="true">↗</span></button>
       </section>
       
-      <!-- Modal con diseño compacto y scroll interno -->
+      <!-- Modal compacto, centrado y sin scroll -->
       <dialog class="booking" id="booking-modal" aria-labelledby="booking-title">
         <div class="modal-head">
-          <div>
-            <p class="modal-kicker">Reserva gratuita</p>
-            <h2 id="booking-title">Completá tus datos</h2>
-            <p class="modal-description">
-              El 25 de noviembre nos encontramos en Yunta Bar para ver en exclusiva dos nuevos videoclips de Tobba: <strong>«&lt;3»</strong> y <strong>«Me sale natural»</strong>, que no estarán disponibles públicamente hasta el año que viene.
-            </p>
-          </div>
           <button class="modal-close" id="close-booking" type="button" aria-label="Cerrar">×</button>
+          <p class="modal-kicker">Reserva gratuita</p>
+          <h2 id="booking-title">Completá tus datos</h2>
+          <p class="modal-description">
+            Reservá tu acceso exclusivo para el evento de Tobba.
+          </p>
         </div>
         <form id="registration-form">
           <div class="field full"><label for="name">Tu nombre</label><input id="name" name="name" autocomplete="name" maxlength="100" required placeholder="Nombre y apellido"></div>
           <div class="field full"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" autocomplete="email" maxlength="250" required placeholder="nombre@correo.com"></div>
           <div class="field full"><label for="city">Ciudad</label><select id="city" name="city" autocomplete="address-level2" required><option value="" disabled selected>Elegí tu ciudad</option><option>Ciudad Autónoma de Buenos Aires</option><option>Tigre</option><option>San Fernando</option><option>San Isidro</option><option>Vicente López</option><option>General San Martín</option><option>Tres de Febrero</option><option>Morón</option><option>Hurlingham</option><option>Ituzaingó</option><option>La Matanza</option><option>Lomas de Zamora</option><option>Lanús</option><option>Avellaneda</option><option>Quilmes</option><option>Berazategui</option><option>Florencio Varela</option><option>Almirante Brown</option><option>Esteban Echeverría</option><option>Ezeiza</option><option>Pilar</option><option>Escobar</option><option>Malvinas Argentinas</option><option>José C. Paz</option><option>San Miguel</option><option>Moreno</option><option>General Rodríguez</option><option>La Plata</option><option>Mar del Plata</option><option value="__other">Otra localidad</option></select></div>
           <div class="field full" id="other-city-field" hidden><label for="city-other">Escribí tu ciudad</label><input id="city-other" name="cityOther" maxlength="100" autocomplete="address-level2" placeholder="Ciudad, provincia o país"></div>
-          <div class="field full"><label for="birth-date">Fecha de nacimiento <span class="optional">(opcional)</span></label><input id="birth-date" name="birthDate" type="date" max="2026-11-25" autocomplete="bday"></div>
+          <div class="field full"><label for="birth-date">Fecha de nacimiento <span class="optional">(opcional)</span></label><input id="birth-date" name="birthDate" type="date" autocomplete="bday"></div>
           <div class="field full"><label for="quantity">Entradas</label><select id="quantity" name="quantity"><option value="1">1 persona</option><option value="2">2 personas · vos + acompañante</option></select></div>
           <div class="field full" id="guest-field" hidden><label for="guest-name">Nombre de tu acompañante</label><input id="guest-name" name="guestName" maxlength="100" placeholder="Nombre y apellido"></div>
           <div class="checkrow"><input id="privacy" type="checkbox" required><label for="privacy">Acepto que Liminal use estos datos para gestionar mi entrada.</label></div>
