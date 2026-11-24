@@ -128,7 +128,7 @@ function isValidPersonName(str) {
   if (!str || typeof str !== 'string') return false;
   const clean = str.trim();
   if (clean.length < 3) return false;
-  if (/(.)\1{3,}/.test(clean)) return false; // Evita letras repetidas spam (ej: asjdkasjdkas, zzzzz)
+  if (/(.)\1{3,}/.test(clean)) return false;
   const letters = clean.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
   if (letters.length < 2) return false;
   return true;
@@ -474,6 +474,67 @@ app.post('/api/admin/event-check-in', async (req, res) => {
   } catch (err) {
     console.error('Error en check-in:', err);
     res.status(500).json({ error: 'Error al procesar el check-in.' });
+  }
+});
+
+// Admin / Puerta - Anotar ingreso sin QR directamente en Supabase
+app.post('/api/admin/walk-in-check-in', async (req, res) => {
+  const operatorUsername = parseAdminAuth(req);
+  if (!operatorUsername) return res.status(403).json({ error: 'Acceso denegado.' });
+  if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
+
+  const name = sanitizeString(req.body.name, 100);
+  const rawEmail = sanitizeString(req.body.email, 250).toLowerCase();
+
+  if (!name || !isValidPersonName(name)) {
+    return res.status(400).json({ error: 'Ingresá un nombre y apellido válido.' });
+  }
+
+  const email = rawEmail && validateEmail(rawEmail)
+    ? rawEmail
+    : `puerta-${Date.now()}-${crypto.randomBytes(2).toString('hex')}@walkin.liminalrecords.ar`;
+
+  try {
+    const { data: existingRecords } = await supabase.from('event_tickets').select('code');
+    const existingCodes = new Set((existingRecords || []).map(r => r.code));
+
+    let code;
+    do {
+      code = `PT-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    } while (existingCodes.has(code));
+
+    const now = new Date().toISOString();
+    const ticket = {
+      id: crypto.randomUUID(),
+      reservationId: crypto.randomUUID(),
+      token: crypto.randomBytes(24).toString('hex'),
+      code,
+      name,
+      email,
+      city: 'Puerta / Sin QR',
+      age: null,
+      createdAt: now,
+      checkedInAt: now,
+      checkedInBy: operatorUsername,
+      guest: false,
+      newsletterConsentAt: null
+    };
+
+    await saveTicketsToSupabase([ticket]);
+
+    res.status(201).json({
+      message: 'Ingreso sin QR registrado.',
+      ticket: {
+        id: ticket.id,
+        name: ticket.name,
+        code: ticket.code,
+        checkedInAt: ticket.checkedInAt,
+        checkedInBy: ticket.checkedInBy
+      }
+    });
+  } catch (err) {
+    console.error('Error al registrar ingreso sin QR:', err);
+    res.status(500).json({ error: 'Error al guardar el ingreso en Supabase.' });
   }
 });
 

@@ -55,6 +55,8 @@
         .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
         .btn-primary:hover:not(:disabled) { background: #e0e0e0; }
         .btn-sm { padding: 6px 10px; font-size: 9px; }
+        .btn-walkin { border-color: #3b82f6; color: #93c5fd; }
+        .btn-walkin:hover:not(:disabled) { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 
         .grid-stats {
             display: grid;
@@ -154,6 +156,7 @@
                     <h1 style="font-size: 24px; margin: 4px 0 0 0;">Liminal Records & Eventos</h1>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" id="admin-walkin-btn" class="btn btn-walkin">+ Ingreso sin QR</button>
                     <a href="/eventos/checkin.html" target="_blank" style="text-decoration: none;">
                         <button type="button" class="btn btn-primary">📷 Abrir Escáner de Puerta</button>
                     </a>
@@ -277,6 +280,29 @@
             loginScreen.classList.remove('hidden');
             document.getElementById('admin-user').value = '';
             document.getElementById('admin-password').value = '';
+        });
+
+        document.getElementById('admin-walkin-btn').addEventListener('click', async () => {
+            const name = prompt('Nombre y apellido de quien ingresa sin QR:');
+            if (!name || !name.trim()) return;
+            const email = prompt('Correo electrónico (opcional, dejá vacío si no aplica):') || '';
+
+            try {
+                const response = await fetch('/api/admin/walk-in-check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ name: name.trim(), email: email.trim() })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Error al registrar ingreso');
+                alert(`✓ Ingreso registrado: ${data.ticket.name} (${data.ticket.code})`);
+                await loadTickets();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         });
 
         async function loadTickets() {

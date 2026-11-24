@@ -100,6 +100,16 @@
     .btn:disabled { opacity: .45; cursor: not-allowed; }
     .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
     .btn-primary:hover:not(:disabled) { background: #e0e0e0; }
+    .btn-walkin {
+      border-color: #3b82f6;
+      color: #93c5fd;
+      margin-top: 10px;
+    }
+    .btn-walkin:hover:not(:disabled) {
+      background: #3b82f6;
+      color: #fff;
+      border-color: #3b82f6;
+    }
 
     #reader {
       width: 100%;
@@ -133,6 +143,27 @@
       border-radius: 4px;
     }
     .stat-box strong { display: block; font-size: 16px; margin-top: 2px; font-weight: 500; }
+
+    /* Modal para anotar ingreso sin QR */
+    .walkin-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 99990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .walkin-card {
+      width: 100%;
+      max-width: 400px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 24px;
+    }
 
     /* Pop-Up Modal Gigante Bloqueante */
     .modal-overlay {
@@ -197,7 +228,7 @@
     </div>
   </div>
 
-  <!-- Login (Multi-usuario con localStorage) -->
+  <!-- Login -->
   <section id="login" class="box">
     <div class="eyebrow">SEGURIDAD</div>
     <h1 class="title" style="margin-top:6px;">Acceso Staff</h1>
@@ -221,7 +252,7 @@
   <section id="dashboard" class="hidden">
     <div>
       <h1 class="title">Escáner de Entradas</h1>
-      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apuntá la cámara al QR o ingresá el código manual.</p>
+      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apuntá la cámara al QR, ingresá código manual o anotá ingreso sin QR.</p>
     </div>
 
     <div class="box">
@@ -252,10 +283,32 @@
       <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 16px;">
         <input id="manual-token" class="input" placeholder="O ingresá el código manual..." style="margin-bottom:8px;">
         <button type="button" id="manual-check" class="btn">Validar Código Manual</button>
+        <button type="button" id="open-walkin" class="btn btn-walkin">+ Anotar Ingreso Sin QR</button>
       </div>
     </div>
   </section>
 </main>
+
+<!-- Modal Ingreso Sin QR -->
+<div id="walkin-modal" class="walkin-overlay hidden">
+  <div class="walkin-card">
+    <div class="eyebrow">PUERTA · SIN ENTRADA QR</div>
+    <h2 class="title" style="font-size:18px; margin:6px 0 14px;">Anotar Ingreso Directo</h2>
+    <form id="walkin-form">
+      <label class="eyebrow">Nombre y apellido</label>
+      <input id="walkin-name" class="input" type="text" required maxlength="100" placeholder="Ej: Lucas Gómez" style="margin-top:6px;">
+
+      <label class="eyebrow">Correo (opcional)</label>
+      <input id="walkin-email" class="input" type="email" maxlength="250" placeholder="opcional@correo.com" style="margin-top:6px;">
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button type="button" id="cancel-walkin" class="btn">Cancelar</button>
+        <button type="submit" id="save-walkin" class="btn btn-primary">Registrar Ingreso</button>
+      </div>
+      <div id="walkin-error" style="margin-top:10px; font-size:11px; color:#ffccd5; text-align:center;"></div>
+    </form>
+  </div>
+</div>
 
 <!-- Pop-Up Modal Gigante Bloqueante -->
 <div id="popup-modal" class="modal-overlay">
@@ -276,6 +329,11 @@ const loginScreen = document.getElementById('login');
 const dashboard = document.getElementById('dashboard');
 const logoutBtn = document.getElementById('logout-btn');
 const cameraStatus = document.getElementById('camera-status');
+const walkinModal = document.getElementById('walkin-modal');
+const walkinForm = document.getElementById('walkin-form');
+const walkinNameInput = document.getElementById('walkin-name');
+const walkinEmailInput = document.getElementById('walkin-email');
+const walkinError = document.getElementById('walkin-error');
 const modalOverlay = document.getElementById('popup-modal');
 const modalCard = document.getElementById('modal-card');
 const modalTitle = document.getElementById('modal-title');
@@ -299,12 +357,10 @@ function showDashboard() {
   loadStats();
 }
 
-// Auto-login si ya existía token guardado (la cámara se activa al tocar "Activar Cámara" o si ya estaba activa)
 if (authToken) {
   showDashboard();
 }
 
-// Mostrar / Ocultar contraseña
 document.getElementById('toggle-pass').addEventListener('click', () => {
   const passInput = document.getElementById('admin-password');
   const toggleBtn = document.getElementById('toggle-pass');
@@ -354,7 +410,6 @@ logoutBtn.addEventListener('click', async () => {
   document.getElementById('admin-password').value = '';
 });
 
-// Cargar contadores en tiempo real
 async function loadStats() {
   try {
     const res = await fetch('/api/admin/event-tickets', {
@@ -384,7 +439,6 @@ async function checkIn(rawValue) {
     return;
   }
 
-  // Extraer token si la cámara lee una URL completa
   let ticketToken = cleanVal;
   if (cleanVal.includes('http://') || cleanVal.includes('https://')) {
     try {
@@ -426,6 +480,54 @@ async function checkIn(rawValue) {
   document.getElementById('manual-token').value = '';
 }
 
+function openWalkinModal() {
+  walkinError.textContent = '';
+  walkinForm.reset();
+  walkinModal.classList.remove('hidden');
+  setTimeout(() => walkinNameInput.focus(), 20);
+}
+
+function closeWalkinModal() {
+  walkinModal.classList.add('hidden');
+  walkinError.textContent = '';
+}
+
+document.getElementById('open-walkin').addEventListener('click', openWalkinModal);
+document.getElementById('cancel-walkin').addEventListener('click', closeWalkinModal);
+walkinModal.addEventListener('click', (e) => {
+  if (e.target === walkinModal) closeWalkinModal();
+});
+
+walkinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (isProcessing) return;
+  isProcessing = true;
+  walkinError.textContent = 'Guardando...';
+
+  try {
+    const res = await fetch('/api/admin/walk-in-check-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        name: walkinNameInput.value.trim(),
+        email: walkinEmailInput.value.trim()
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'No se pudo registrar el ingreso');
+
+    closeWalkinModal();
+    await loadStats();
+    showPopup('success', '✓ INGRESO SIN QR', `${data.ticket.name} · ${data.ticket.code}`, 'PUERTA');
+  } catch (err) {
+    walkinError.textContent = err.message;
+    isProcessing = false;
+  }
+});
+
 function showPopup(type, title, subtitleText, eyebrowText) {
   modalCard.className = `modal-card ${type}`;
   modalTitle.textContent = title;
@@ -442,6 +544,10 @@ function closePopupModal() {
 document.getElementById('close-popup').addEventListener('click', closePopupModal);
 
 document.addEventListener('keydown', (e) => {
+  if (!walkinModal.classList.contains('hidden') && e.key === 'Escape') {
+    closeWalkinModal();
+    return;
+  }
   if (!modalOverlay.classList.contains('active')) return;
   if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
