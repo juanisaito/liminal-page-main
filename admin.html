@@ -50,13 +50,15 @@
             border-radius: 4px;
             transition: all 0.2s;
         }
-        .btn:hover { background: #fff; color: #000; border-color: #fff; }
+        .btn:hover:not(:disabled) { background: #fff; color: #000; border-color: #fff; }
+        .btn:disabled { opacity: .45; cursor: not-allowed; }
         .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
-        .btn-primary:hover { background: #e0e0e0; }
-        
+        .btn-primary:hover:not(:disabled) { background: #e0e0e0; }
+        .btn-sm { padding: 6px 10px; font-size: 9px; }
+
         .grid-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
             margin-bottom: 32px;
         }
@@ -67,7 +69,7 @@
             border-radius: 6px;
         }
         .stat-card strong { display: block; font-size: 28px; font-weight: 400; margin-top: 6px; }
-        
+
         .section-box {
             background: #111;
             border: 1px solid #222;
@@ -81,7 +83,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
+        .search-input {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px 12px;
+            font: 11px 'IBM Plex Mono', monospace;
+            border-radius: 4px;
+            outline: none;
+            min-width: 240px;
+        }
+        .search-input:focus { border-color: #777; }
+
         .row-item {
             padding: 12px 20px;
             border-bottom: 1px solid #181818;
@@ -91,10 +107,22 @@
             font-size: 11px;
             align-items: center;
         }
+        .row-item.tickets-grid {
+            grid-template-columns: 1.6fr 1.6fr 0.9fr 1.2fr 1fr;
+        }
         .row-item.head { color: #666; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
         .status-yes { color: #52b788; }
         .status-no { color: #d4a373; }
         .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .row-item, .row-item.tickets-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            .row-item.head { display: none; }
+            .search-input { width: 100%; min-width: 0; }
+        }
     </style>
 </head>
 <body>
@@ -120,35 +148,51 @@
 
         <!-- Dashboard -->
         <div id="dashboard" class="hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #222; padding-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #222; padding-bottom: 16px; gap: 12px; flex-wrap: wrap;">
                 <div>
                     <span class="eyebrow">PANEL GENERAL</span>
                     <h1 style="font-size: 24px; margin: 4px 0 0 0;">Liminal Records & Eventos</h1>
                 </div>
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <a href="/eventos/checkin.html" target="_blank" style="text-decoration: none;">
-                        <button class="btn btn-primary">📷 Abrir Escáner de Puerta</button>
+                        <button type="button" class="btn btn-primary">📷 Abrir Escáner de Puerta</button>
                     </a>
-                    <button id="logout-btn" class="btn">Salir</button>
+                    <button type="button" id="logout-btn" class="btn">Salir</button>
                 </div>
             </div>
 
             <!-- Stats -->
             <div class="grid-stats">
                 <div class="stat-card">
-                    <span class="eyebrow">Total Suscriptores</span>
+                    <span class="eyebrow">Entradas Emitidas</span>
+                    <strong id="tickets-reserved">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span class="eyebrow">Ingresaron al Evento</span>
+                    <strong id="tickets-checked" class="status-yes">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span class="eyebrow">Faltan Entrar</span>
+                    <strong id="tickets-pending" class="status-no">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span class="eyebrow">Suscriptores Newsletter</span>
                     <strong id="total-count">0</strong>
+                    <div class="eyebrow" style="margin-top: 8px;">MailerLite: <span id="synced-count">0</span></div>
                 </div>
-                <div class="stat-card">
-                    <span class="eyebrow">Sincronizados MailerLite</span>
-                    <strong id="synced-count">0</strong>
-                </div>
-                <div class="stat-card">
-                    <span class="eyebrow">Acciones</span>
-                    <div style="margin-top: 10px; display: flex; gap: 8px;">
-                        <button id="refresh-btn" class="btn" style="font-size: 9px;">Recargar</button>
-                        <button id="export-btn" class="btn" style="font-size: 9px;">Descargar CSV</button>
+            </div>
+
+            <!-- Event Tickets List -->
+            <div class="section-box">
+                <div class="section-header">
+                    <span style="font-size: 13px; font-weight: 500;">Entradas · THIS IS TOBBA</span>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="ticket-search" class="search-input" placeholder="Buscar nombre, mail o código...">
+                        <button type="button" id="refresh-tickets-btn" class="btn btn-sm">Recargar</button>
                     </div>
+                </div>
+                <div id="tickets-list">
+                    <p style="padding: 24px; text-align: center; color: #666; font-size: 11px;">Cargando entradas...</p>
                 </div>
             </div>
 
@@ -156,6 +200,10 @@
             <div class="section-box">
                 <div class="section-header">
                     <span style="font-size: 13px; font-weight: 500;">Suscriptores del Newsletter</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" id="refresh-btn" class="btn btn-sm">Recargar</button>
+                        <button type="button" id="export-btn" class="btn btn-sm">Descargar CSV</button>
+                    </div>
                 </div>
                 <div id="subscribers-list">
                     <p style="padding: 24px; text-align: center; color: #666; font-size: 11px;">Cargando registros...</p>
@@ -166,14 +214,20 @@
 
     <script>
         let authToken = localStorage.getItem('liminal_admin_token') || '';
+        let allTickets = [];
 
         const loginScreen = document.getElementById('login-screen');
         const dashboard = document.getElementById('dashboard');
 
-        if (authToken) {
+        function openDashboard() {
             loginScreen.classList.add('hidden');
             dashboard.classList.remove('hidden');
             loadSubscribers();
+            loadTickets();
+        }
+
+        if (authToken) {
+            openDashboard();
         }
 
         // Mostrar / Ocultar contraseña
@@ -208,9 +262,8 @@
 
                 authToken = data.token;
                 localStorage.setItem('liminal_admin_token', authToken);
-                loginScreen.classList.add('hidden');
-                dashboard.classList.remove('hidden');
-                loadSubscribers();
+                errBox.textContent = '';
+                openDashboard();
             } catch (error) {
                 errBox.textContent = error.message;
             }
@@ -218,12 +271,108 @@
 
         document.getElementById('logout-btn').addEventListener('click', () => {
             authToken = '';
+            allTickets = [];
             localStorage.removeItem('liminal_admin_token');
-            loginScreen.classList.add('hidden');
             dashboard.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
             document.getElementById('admin-user').value = '';
             document.getElementById('admin-password').value = '';
         });
+
+        async function loadTickets() {
+            const list = document.getElementById('tickets-list');
+            try {
+                const response = await fetch('/api/admin/event-tickets', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('No se pudieron cargar las entradas');
+
+                const data = await response.json();
+                allTickets = data.tickets || [];
+
+                const reserved = typeof data.reserved === 'number' ? data.reserved : allTickets.length;
+                const checkedIn = typeof data.checkedIn === 'number' ? data.checkedIn : allTickets.filter(t => t.checkedInAt).length;
+                const pending = typeof data.pendingCheckIn === 'number' ? data.pendingCheckIn : Math.max(0, reserved - checkedIn);
+
+                document.getElementById('tickets-reserved').textContent = reserved;
+                document.getElementById('tickets-checked').textContent = checkedIn;
+                document.getElementById('tickets-pending').textContent = pending;
+
+                renderTickets(allTickets);
+            } catch (error) {
+                list.innerHTML = `<p style="padding: 24px; text-align: center; color: #ffccd5; font-size: 11px;">${escapeHtml(error.message)}</p>`;
+            }
+        }
+
+        function renderTickets(ticketsToRender) {
+            const list = document.getElementById('tickets-list');
+            const headHtml = '<div class="row-item tickets-grid head"><div>Asistente</div><div>Correo</div><div>Código</div><div>Estado</div><div>Acción</div></div>';
+
+            if (!ticketsToRender || ticketsToRender.length === 0) {
+                list.innerHTML = headHtml + '<div style="padding: 24px; text-align: center; color: #666; font-size: 11px;">No hay entradas que coincidan.</div>';
+                return;
+            }
+
+            list.innerHTML = headHtml + ticketsToRender.map(t => {
+                const isChecked = Boolean(t.checkedInAt);
+                const hora = isChecked
+                    ? new Date(t.checkedInAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+                    : '';
+                const statusHtml = isChecked
+                    ? `<span class="status-yes">✓ Ingresó (${escapeHtml(hora)} hs)</span>`
+                    : `<span class="status-no">• Pendiente</span>`;
+
+                const actionHtml = isChecked
+                    ? `<span style="color:#666; font-size:10px;">${escapeHtml(t.checkedInBy || 'validada')}</span>`
+                    : `<button type="button" class="btn btn-sm" onclick="manualCheckIn('${escapeHtml(t.code)}')">Marcar ingreso</button>`;
+
+                return `
+                    <div class="row-item tickets-grid">
+                        <div><strong>${escapeHtml(t.name)}</strong>${t.guest ? ' <span style="color:#666;">(acompañante)</span>' : ''}</div>
+                        <div style="word-break: break-all; color: #bbb;">${escapeHtml(t.email)}</div>
+                        <div><strong>${escapeHtml(t.code)}</strong></div>
+                        <div>${statusHtml}</div>
+                        <div>${actionHtml}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function manualCheckIn(code) {
+            if (!code) return;
+            try {
+                const response = await fetch('/api/admin/event-check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ token: code })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Error al marcar ingreso');
+                await loadTickets();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        document.getElementById('ticket-search').addEventListener('input', (e) => {
+            const q = e.target.value.trim().toLowerCase();
+            if (!q) {
+                renderTickets(allTickets);
+                return;
+            }
+            const filtered = allTickets.filter(t =>
+                String(t.name || '').toLowerCase().includes(q) ||
+                String(t.email || '').toLowerCase().includes(q) ||
+                String(t.code || '').toLowerCase().includes(q) ||
+                String(t.city || '').toLowerCase().includes(q)
+            );
+            renderTickets(filtered);
+        });
+
+        document.getElementById('refresh-tickets-btn').addEventListener('click', loadTickets);
 
         async function loadSubscribers() {
             try {

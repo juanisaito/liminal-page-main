@@ -213,25 +213,34 @@ async function sendEventConfirmation(email, tickets) {
   }
 }
 
-function isValidAdminToken(req) {
+function parseAdminAuth(req) {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return false;
+  if (!token) return null;
 
   try {
-    const decoded = Buffer.from(token, 'base64').toString();
-    const [username, password] = decoded.split(':');
-    
-    if (!username || !password) return false;
+    const decoded = Buffer.from(token, 'base64').toString('utf8');
+    const firstColon = decoded.indexOf(':');
+    const lastColon = decoded.lastIndexOf(':');
+    if (firstColon === -1 || lastColon === -1 || firstColon === lastColon) return null;
 
-    if (!fs.existsSync(USERS_FILE)) return false;
+    const username = decoded.slice(0, firstColon);
+    const password = decoded.slice(firstColon + 1, lastColon);
+    if (!username || !password) return null;
+
+    if (!fs.existsSync(USERS_FILE)) return null;
     const rawData = fs.readFileSync(USERS_FILE, 'utf8');
     const data = JSON.parse(rawData);
     const users = data.users || [];
 
-    return users.some(u => u.username === username && u.password === password);
+    const matched = users.find(u => u.username === username && u.password === password);
+    return matched ? matched.username : null;
   } catch (err) {
-    return false;
+    return null;
   }
+}
+
+function isValidAdminToken(req) {
+  return Boolean(parseAdminAuth(req));
 }
 
 async function addToMailerLite(email, name) {
@@ -290,6 +299,7 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 app.use('/data', (_req, res) => res.sendStatus(404));
+app.use('/admin-users.json', (_req, res) => res.sendStatus(404));
 app.use(express.static(path.join(__dirname)));
 
 app.get('/', (_req, res) => {
@@ -394,9 +404,11 @@ app.get('/api/admin/event-tickets', async (req, res) => {
     res.json({
       reserved: tickets.length,
       checkedIn,
+      pendingCheckIn: Math.max(0, tickets.length - checkedIn),
       remaining: Math.max(0, EVENT_CAPACITY - tickets.length),
       tickets: tickets.map(({ token, id, reservation_id, created_at, checked_in_at, checked_in_by, newsletter_consent_at, ...ticket }) => ({
         ...ticket,
+        id,
         createdAt: created_at,
         checkedInAt: checked_in_at,
         checkedInBy: checked_in_by,
@@ -411,7 +423,8 @@ app.get('/api/admin/event-tickets', async (req, res) => {
 
 // Admin Panel - Check-in QR con Supabase
 app.post('/api/admin/event-check-in', async (req, res) => {
-  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
+  const operatorUsername = parseAdminAuth(req);
+  if (!operatorUsername) return res.status(403).json({ error: 'Acceso denegado.' });
   if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
 
   const scannedValue = sanitizeString(req.body.token, 100);
@@ -430,18 +443,34 @@ app.post('/api/admin/event-check-in', async (req, res) => {
     if (!ticket) return res.status(404).json({ error: 'QR no válido para este evento.' });
 
     if (ticket.checked_in_at) {
-      return res.json({ alreadyCheckedIn: true, ticket: { name: ticket.name, code: ticket.code, checkedInAt: ticket.checked_in_at } });
+      return res.json({
+        alreadyCheckedIn: true,
+        ticket: {
+          name: ticket.name,
+          code: ticket.code,
+          checkedInAt: ticket.checked_in_at,
+          checkedInBy: ticket.checked_in_by
+        }
+      });
     }
 
     const now = new Date().toISOString();
     const { error: updateError } = await supabase
       .from('event_tickets')
-      .update({ checked_in_at: now, checked_in_by: 'admin' })
+      .update({ checked_in_at: now, checked_in_by: operatorUsername })
       .eq('id', ticket.id);
 
     if (updateError) throw updateError;
 
-    res.json({ alreadyCheckedIn: false, ticket: { name: ticket.name, code: ticket.code, checkedInAt: now } });
+    res.json({
+      alreadyCheckedIn: false,
+      ticket: {
+        name: ticket.name,
+        code: ticket.code,
+        checkedInAt: now,
+        checkedInBy: operatorUsername
+      }
+    });
   } catch (err) {
     console.error('Error en check-in:', err);
     res.status(500).json({ error: 'Error al procesar el check-in.' });
@@ -516,7 +545,7 @@ app.post('/api/admin-login', (req, res) => {
     }
 
     const token = Buffer.from(`${foundUser.username}:${foundUser.password}:${Date.now()}`).toString('base64');
-    res.json({ token, name: foundUser.name, message: 'Acceso concedido.' });
+    res.json({ token, username: foundUser.username, name: foundUser.name, message: 'Acceso concedido.' });
   } catch (err) {
     console.error('Error en login:', err);
     res.status(500).json({ error: 'Error interno al procesar el acceso.' });

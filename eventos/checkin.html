@@ -35,7 +35,24 @@
       border-bottom: 1px solid #1f1f1f;
       padding-bottom: 14px;
       margin-bottom: 20px;
+      gap: 12px;
     }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .link-btn {
+      background: none;
+      border: none;
+      color: #888;
+      font: 9px 'IBM Plex Mono', monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0;
+    }
+    .link-btn:hover { color: #fff; }
     .eyebrow {
       font-size: 9px;
       letter-spacing: .2em;
@@ -79,10 +96,11 @@
       transition: all 0.2s;
       width: 100%;
     }
-    .btn:hover { background: #fff; color: #000; border-color: #fff; }
+    .btn:hover:not(:disabled) { background: #fff; color: #000; border-color: #fff; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
     .btn-primary { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
-    .btn-primary:hover { background: #e0e0e0; }
-    
+    .btn-primary:hover:not(:disabled) { background: #e0e0e0; }
+
     #reader {
       width: 100%;
       border-radius: 4px;
@@ -90,6 +108,13 @@
       border: 1px solid #222;
       background: #000;
       margin-top: 14px;
+    }
+    .camera-status {
+      font-size: 11px;
+      color: #ffccd5;
+      margin-top: 10px;
+      line-height: 1.4;
+      text-align: center;
     }
     .hidden { display: none !important; }
 
@@ -109,7 +134,7 @@
     }
     .stat-box strong { display: block; font-size: 16px; margin-top: 2px; font-weight: 500; }
 
-    /* Pop-Up Modal Gigante Bloqueante (Tapa todo con z-index alto) */
+    /* Pop-Up Modal Gigante Bloqueante */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -146,7 +171,7 @@
     .modal-card.error { background: #330a0e; border: 2px solid #a4161a; color: #ffccd5; }
 
     .modal-title { font-size: 22px; font-weight: 600; margin: 10px 0; letter-spacing: -.02em; }
-    .modal-subtitle { font-size: 14px; margin-bottom: 28px; opacity: 0.95; word-break: break-all; line-height: 1.4; }
+    .modal-subtitle { font-size: 14px; margin-bottom: 28px; opacity: 0.95; word-break: break-word; line-height: 1.4; }
     .modal-btn {
       background: #fff;
       color: #000;
@@ -166,7 +191,10 @@
 <main class="wrap">
   <div class="top">
     <a href="/admin" style="color:#aaa; text-decoration:none; font-size:10px; letter-spacing:.15em;">← VOLVER AL ADMIN</a>
-    <span class="eyebrow">PUERTA · THIS IS TOBBA</span>
+    <div class="top-actions">
+      <span class="eyebrow">PUERTA · THIS IS TOBBA</span>
+      <button type="button" id="logout-btn" class="link-btn hidden">Salir</button>
+    </div>
   </div>
 
   <!-- Login (Multi-usuario con localStorage) -->
@@ -184,7 +212,7 @@
         <button type="button" id="toggle-pass" style="position: absolute; right: 10px; top: 40%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 14px;" title="Ver contraseña">👁️</button>
       </div>
 
-      <button class="btn btn-primary" style="margin-top: 18px;">Ingresar</button>
+      <button type="submit" class="btn btn-primary" style="margin-top: 18px;">Ingresar</button>
       <div id="login-message" style="margin-top:12px; font-size:11px; color:#ffccd5; text-align:center;"></div>
     </form>
   </section>
@@ -193,21 +221,22 @@
   <section id="dashboard" class="hidden">
     <div>
       <h1 class="title">Escáner de Entradas</h1>
-      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apunta la cámara al QR o ingresa el código manual.</p>
+      <p style="color:#888; font-size:11px; margin:0 0 16px 0;">Apuntá la cámara al QR o ingresá el código manual.</p>
     </div>
 
     <div class="box">
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-primary" id="start-camera">Activar Cámara</button>
-        <button class="btn" id="stop-camera" disabled>Detener</button>
+        <button type="button" class="btn btn-primary" id="start-camera">Activar Cámara</button>
+        <button type="button" class="btn" id="stop-camera" disabled>Detener</button>
       </div>
       
       <div id="reader"></div>
+      <div id="camera-status" class="camera-status hidden"></div>
 
       <!-- Barra de Contador de Entradas Abajo del Lector -->
       <div class="stats-bar">
         <div class="stat-box">
-          <span class="eyebrow">Total</span>
+          <span class="eyebrow">Emitidas</span>
           <strong id="stat-reserved">—</strong>
         </div>
         <div class="stat-box">
@@ -215,26 +244,26 @@
           <strong id="stat-checked" style="color:#52b788">—</strong>
         </div>
         <div class="stat-box">
-          <span class="eyebrow">Quedan</span>
+          <span class="eyebrow">Faltan entrar</span>
           <strong id="stat-remaining" style="color:#d4a373">—</strong>
         </div>
       </div>
 
-      <div style="margin-top: 20px; border-top: 1px solid #222; paddingTop: 16px;">
+      <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 16px;">
         <input id="manual-token" class="input" placeholder="O ingresá el código manual..." style="margin-bottom:8px;">
-        <button id="manual-check" class="btn">Validar Código Manual</button>
+        <button type="button" id="manual-check" class="btn">Validar Código Manual</button>
       </div>
     </div>
   </section>
 </main>
 
-<!-- Pop-Up Modal Gigante Bloqueante (Tapa toda la pantalla y la cámara) -->
+<!-- Pop-Up Modal Gigante Bloqueante -->
 <div id="popup-modal" class="modal-overlay">
   <div id="modal-card" class="modal-card success">
     <div id="modal-eyebrow" class="eyebrow" style="letter-spacing: .25em; opacity: 0.8;">ESTADO</div>
     <div id="modal-title" class="modal-title">ACCESO CONCEDIDO</div>
     <div id="modal-subtitle" class="modal-subtitle">Nombre del asistente</div>
-    <button class="modal-btn" id="close-popup">Siguiente (OK)</button>
+    <button type="button" class="modal-btn" id="close-popup">Siguiente (OK)</button>
   </div>
 </div>
 
@@ -245,18 +274,34 @@ let isProcessing = false;
 
 const loginScreen = document.getElementById('login');
 const dashboard = document.getElementById('dashboard');
+const logoutBtn = document.getElementById('logout-btn');
+const cameraStatus = document.getElementById('camera-status');
 const modalOverlay = document.getElementById('popup-modal');
 const modalCard = document.getElementById('modal-card');
 const modalTitle = document.getElementById('modal-title');
 const modalSubtitle = document.getElementById('modal-subtitle');
 const modalEyebrow = document.getElementById('modal-eyebrow');
 
-// Auto-login si ya existía token guardado
-if (authToken) {
+function setCameraStatus(msg) {
+  if (!msg) {
+    cameraStatus.textContent = '';
+    cameraStatus.classList.add('hidden');
+    return;
+  }
+  cameraStatus.textContent = msg;
+  cameraStatus.classList.remove('hidden');
+}
+
+function showDashboard() {
   loginScreen.classList.add('hidden');
   dashboard.classList.remove('hidden');
-  initScanner();
+  logoutBtn.classList.remove('hidden');
   loadStats();
+}
+
+// Auto-login si ya existía token guardado (la cámara se activa al tocar "Activar Cámara" o si ya estaba activa)
+if (authToken) {
+  showDashboard();
 }
 
 // Mostrar / Ocultar contraseña
@@ -290,13 +335,23 @@ document.getElementById('login-form').addEventListener('submit', async e => {
 
     authToken = data.token;
     localStorage.setItem('liminal_admin_token', authToken);
-    loginScreen.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    initScanner();
-    loadStats();
+    msg.textContent = '';
+    showDashboard();
+    await initScanner();
   } catch (err) {
     msg.textContent = err.message;
   }
+});
+
+logoutBtn.addEventListener('click', async () => {
+  await stopScanner();
+  authToken = '';
+  localStorage.removeItem('liminal_admin_token');
+  dashboard.classList.add('hidden');
+  logoutBtn.classList.add('hidden');
+  loginScreen.classList.remove('hidden');
+  document.getElementById('admin-user').value = '';
+  document.getElementById('admin-password').value = '';
 });
 
 // Cargar contadores en tiempo real
@@ -309,7 +364,10 @@ async function loadStats() {
     if (res.ok) {
       document.getElementById('stat-reserved').textContent = data.reserved;
       document.getElementById('stat-checked').textContent = data.checkedIn;
-      document.getElementById('stat-remaining').textContent = data.remaining;
+      const pending = typeof data.pendingCheckIn === 'number'
+        ? data.pendingCheckIn
+        : Math.max(0, (data.reserved || 0) - (data.checkedIn || 0));
+      document.getElementById('stat-remaining').textContent = pending;
     }
   } catch (err) {
     console.error('Error al actualizar contadores:', err);
@@ -355,24 +413,23 @@ async function checkIn(rawValue) {
     if (!res.ok) throw new Error(data.error || 'Entrada no válida');
 
     if (data.alreadyCheckedIn) {
-      showPopup('warning', '⚠️ YA FUE UTILIZADA', escapeHtml(data.ticket.name), 'ATENCIÓN');
+      showPopup('warning', '⚠️ YA FUE UTILIZADA', data.ticket.name, 'ATENCIÓN');
     } else {
-      showPopup('success', '✓ ACCESO CONCEDIDO', escapeHtml(data.ticket.name), 'OK');
+      showPopup('success', '✓ ACCESO CONCEDIDO', data.ticket.name, 'OK');
     }
     
-    // Actualizar contadores por debajo
     await loadStats();
   } catch (err) {
-    showPopup('error', '❌ ERROR / NO VÁLIDA', escapeHtml(err.message), 'DENEGADO');
+    showPopup('error', '❌ ERROR / NO VÁLIDA', err.message, 'DENEGADO');
   }
 
   document.getElementById('manual-token').value = '';
 }
 
-function showPopup(type, title, subtitle, eyebrowText) {
+function showPopup(type, title, subtitleText, eyebrowText) {
   modalCard.className = `modal-card ${type}`;
   modalTitle.textContent = title;
-  modalSubtitle.textContent = subtitle;
+  modalSubtitle.textContent = subtitleText;
   modalEyebrow.textContent = eyebrowText;
   modalOverlay.classList.add('active');
 }
@@ -384,14 +441,25 @@ function closePopupModal() {
 
 document.getElementById('close-popup').addEventListener('click', closePopupModal);
 
+document.addEventListener('keydown', (e) => {
+  if (!modalOverlay.classList.contains('active')) return;
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    closePopupModal();
+  }
+});
+
 document.getElementById('manual-check').addEventListener('click', () => checkIn(document.getElementById('manual-token').value));
 document.getElementById('manual-token').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); checkIn(e.currentTarget.value); }
 });
 
 async function initScanner() {
+  setCameraStatus('');
   try {
-    scanner = new Html5Qrcode('reader');
+    if (!scanner) {
+      scanner = new Html5Qrcode('reader');
+    }
     await scanner.start(
       { facingMode: 'environment' },
       { fps: 20, qrbox: { width: 250, height: 250 } },
@@ -406,21 +474,23 @@ async function initScanner() {
     document.getElementById('stop-camera').disabled = false;
   } catch (e) {
     console.error('Error al iniciar cámara:', e);
+    setCameraStatus('No se pudo abrir la cámara. Revisá los permisos del navegador (requiere HTTPS) o usá el código manual.');
+    document.getElementById('start-camera').disabled = false;
+    document.getElementById('stop-camera').disabled = true;
   }
 }
 
-document.getElementById('stop-camera').addEventListener('click', async () => {
+async function stopScanner() {
   if (scanner) {
     try { await scanner.stop(); await scanner.clear(); } catch(_){}
     scanner = null;
   }
   document.getElementById('start-camera').disabled = false;
   document.getElementById('stop-camera').disabled = true;
-});
-
-function escapeHtml(str) {
-  return String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
 }
+
+document.getElementById('start-camera').addEventListener('click', initScanner);
+document.getElementById('stop-camera').addEventListener('click', stopScanner);
 </script>
 </body>
 </html>
