@@ -6,9 +6,11 @@ const rateLimit = require('express-rate-limit');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const multer = require('multer');
 const QRCode = require('qrcode');
 const { Resend } = require('resend');
 const { createClient } = require('@supabase/supabase-js');
+const { google } = require('googleapis');
 
 // Inicialización de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -19,7 +21,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 const DATA_DIR = path.join(__dirname, 'data');
+const UPLOADS_DIR = path.join(__dirname, 'uploads', 'comprobantes');
 const NEWSLETTER_FILE = path.join(DATA_DIR, 'newsletter.json');
+const BOOKINGS_FILE = path.join(DATA_DIR, 'saito-bookings.json');
+const LEADS_FILE = path.join(DATA_DIR, 'saito-leads.json');
 const USERS_FILE = path.join(__dirname, 'admin-users.json');
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -28,10 +33,35 @@ const MAILERLITE_API_URL = 'https://connect.mailerlite.com/api/subscribers';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM = process.env.RESEND_FROM;
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
-const PUBLIC_URL = process.env.PUBLIC_URL || '';
+const PUBLIC_URL = (process.env.PUBLIC_URL || 'https://liminalrecords.ar').replace(/\/$/, '');
 const EVENT_CAPACITY = 100;
 const MAX_TICKETS_PER_EMAIL = 2;
 const EVENT_DATE = new Date('2026-11-25T00:00:00.000Z');
+
+// Configuración Google Calendar & Sesiones Saito
+const GOOGLE_CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'juanisaito@gmail.com';
+const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL || '';
+const GOOGLE_PRIVATE_KEY = (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+
+const STUDIO_ADDRESS = 'Av. Medrano 46, 1A, CABA';
+const CONTACT_PHONE = '11 2636-06722';
+const TRANSFER_ALIAS = 'saitoneprod';
+const BASE_PRICE_ARS = 85000;
+const PROMO_DISCOUNT_PERCENT = 40;
+const SLOTS_CATALOG = ['11:00', '14:00', '16:30', '19:00'];
+
+// Multer para subida de comprobantes de transferencia
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+const uploadReceipt = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
+      cb(null, `${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`);
+    }
+  }),
+  limits: { fileSize: 8 * 1024 * 1024 }
+});
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -49,23 +79,123 @@ const eventLimiter = rateLimit({
 
 function ensureDataStore() {
   fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
-  fs.chmodSync(DATA_DIR, 0o700);
   if (!fs.existsSync(NEWSLETTER_FILE)) {
     fs.writeFileSync(NEWSLETTER_FILE, '[]', { encoding: 'utf-8', mode: 0o600 });
-  } else {
-    fs.chmodSync(NEWSLETTER_FILE, 0o600);
+  }
+  if (!fs.existsSync(BOOKINGS_FILE)) {
+    fs.writeFileSync(BOOKINGS_FILE, '[]', { encoding: 'utf-8', mode: 0o600 });
+  }
+  if (!fs.existsSync(LEADS_FILE)) {
+    fs.writeFileSync(LEADS_FILE, '[]', { encoding: 'utf-8', mode: 0o600 });
   }
 }
 
-function loadSubscribers() {
+function loadJsonArray(filePath) {
   ensureDataStore();
-  const raw = fs.readFileSync(NEWSLETTER_FILE, 'utf-8');
-  return JSON.parse(raw || '[]');
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveJsonArray(filePath, arr) {
+  ensureDataStore();
+  fs.writeFileSync(filePath, JSON.stringify(arr, null, 2), { encoding: 'utf-8', mode: 0o600 });
+}
+
+function loadSubscribers() {
+  return loadJsonArray(NEWSLETTER_FILE);
 }
 
 function saveSubscribers(subscribers) {
-  ensureDataStore();
-  fs.writeFileSync(NEWSLETTER_FILE, JSON.stringify(subscribers, null, 2), { encoding: 'utf-8', mode: 0o600 });
+  saveJsonArray(NEWSLETTER_FILE, subscribers);
+}
+
+function getCalendarClient() {
+  if (!GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY) return null;
+  const auth = new google.auth.JWT({
+    email: GOOGLE_CLIENT_EMAIL,
+    key: GOOGLE_PRIVATE_KEY,
+    scopes: ['https://www.googleapis.com/auth/calendar']
+  });
+  return google.calendar({ version: 'v3', auth });
+}
+
+function getPromoSlotsForDate(type, dateIso) {
+  if (type !== 'studio') return [];
+  // Horarios con -40% promo en diciembre para completar agenda
+  if (dateIso.slice(5, 7) === '12') {
+    return ['11:00', '16:30'];
+  }
+  return [];
+}
+
+function computeBookingPrice(type, dateIso, slot) {
+  if (type !== 'studio') return { amount: 0, isPromo: false };
+  const isPromo = getPromoSlotsForDate(type, dateIso).includes(slot);
+  const amount = isPromo
+    ? Math.round(BASE_PRICE_ARS * (1 - PROMO_DISCOUNT_PERCENT / 100))
+    : BASE_PRICE_ARS;
+  return { amount, isPromo };
+}
+
+function buildEventRange(dateIso, slot, durationHours) {
+  const start = new Date(`${dateIso}T${slot}:00-03:00`);
+  const end = new Date(start.getTime() + durationHours * 60 * 60 * 1000);
+  return { startISO: start.toISOString(), endISO: end.toISOString() };
+}
+
+async function createCalendarEventForBooking(booking) {
+  const calendar = getCalendarClient();
+  if (!calendar) return null;
+
+  const durationHours = booking.type === 'studio' ? 2 : 1;
+  const { startISO, endISO } = buildEventRange(booking.date, booking.slot, durationHours);
+  const summary = booking.type === 'studio'
+    ? `Sesión de estudio · ${booking.name}`
+    : `1ª Reunión Dir. Artística · ${booking.name}`;
+
+  const descriptionLines = [
+    `Cliente: ${booking.name}`,
+    `Email: ${booking.email}`,
+    booking.notes ? `Notas: ${booking.notes}` : null,
+    booking.type === 'studio'
+      ? `Monto abonado: $${Number(booking.amount).toLocaleString('es-AR')} ARS (Alias: ${TRANSFER_ALIAS})`
+      : '1ª reunión gratuita de análisis de perfil',
+    `Dirección: ${STUDIO_ADDRESS}`,
+    `Consultas: ${CONTACT_PHONE}`
+  ].filter(Boolean);
+
+  try {
+    const response = await calendar.events.insert({
+      calendarId: GOOGLE_CALENDAR_ID,
+      sendUpdates: 'all',
+      requestBody: {
+        summary,
+        location: STUDIO_ADDRESS,
+        description: descriptionLines.join('\n'),
+        start: { dateTime: startISO, timeZone: 'America/Argentina/Buenos_Aires' },
+        end: { dateTime: endISO, timeZone: 'America/Argentina/Buenos_Aires' },
+        attendees: [{ email: booking.email, displayName: booking.name }]
+      }
+    });
+    return response.data.id || null;
+  } catch (err) {
+    // Fallback si Google bloquea invitación con Service Account: crea el evento igual sin attendee
+    console.warn('Reintentando crear evento sin attendee:', err.message);
+    const fallback = await calendar.events.insert({
+      calendarId: GOOGLE_CALENDAR_ID,
+      requestBody: {
+        summary,
+        location: STUDIO_ADDRESS,
+        description: descriptionLines.join('\n'),
+        start: { dateTime: startISO, timeZone: 'America/Argentina/Buenos_Aires' },
+        end: { dateTime: endISO, timeZone: 'America/Argentina/Buenos_Aires' }
+      }
+    });
+    return fallback.data.id || null;
+  }
 }
 
 // FUNCIONES SUPABASE PARA ENTRADAS
@@ -123,14 +253,11 @@ function validateEmail(email) {
   return typeof email === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
 }
 
-// Validación robusta de nombres en el servidor
 function isValidPersonName(str) {
   if (!str || typeof str !== 'string') return false;
   const clean = str.trim();
-  if (clean.length < 3) return false;
+  if (clean.length < 2) return false;
   if (/(.)\1{3,}/.test(clean)) return false;
-  const letters = clean.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
-  if (letters.length < 2) return false;
   return true;
 }
 
@@ -159,10 +286,7 @@ function escapeHtml(value) {
 }
 
 async function sendEventConfirmation(email, tickets) {
-  if (!resend || !RESEND_FROM) {
-    console.error('Event confirmation email is not configured: set RESEND_API_KEY and RESEND_FROM.');
-    return false;
-  }
+  if (!resend || !RESEND_FROM) return false;
 
   try {
     let html = fs.readFileSync(path.join(__dirname, 'email-plantilla.html'), 'utf-8');
@@ -202,50 +326,35 @@ async function sendEventConfirmation(email, tickets) {
       html,
       attachments
     });
-    if (error) {
-      console.error('Event confirmation email error:', error.message);
-      return false;
-    }
+    if (error) return false;
     return Boolean(data?.id);
-  } catch (error) {
-    console.error('Event confirmation email error:', error.message);
+  } catch {
     return false;
   }
 }
 
-function parseAdminAuth(req) {
+function isValidAdminToken(req) {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return null;
+  if (!token) return false;
 
   try {
-    const decoded = Buffer.from(token, 'base64').toString('utf8');
-    const firstColon = decoded.indexOf(':');
-    const lastColon = decoded.lastIndexOf(':');
-    if (firstColon === -1 || lastColon === -1 || firstColon === lastColon) return null;
+    const decoded = Buffer.from(token, 'base64').toString();
+    const [username, password] = decoded.split(':');
+    if (!username || !password) return false;
 
-    const username = decoded.slice(0, firstColon);
-    const password = decoded.slice(firstColon + 1, lastColon);
-    if (!username || !password) return null;
-
-    if (!fs.existsSync(USERS_FILE)) return null;
+    if (!fs.existsSync(USERS_FILE)) return false;
     const rawData = fs.readFileSync(USERS_FILE, 'utf8');
     const data = JSON.parse(rawData);
     const users = data.users || [];
 
-    const matched = users.find(u => u.username === username && u.password === password);
-    return matched ? matched.username : null;
-  } catch (err) {
-    return null;
+    return users.some(u => u.username === username && u.password === password);
+  } catch {
+    return false;
   }
 }
 
-function isValidAdminToken(req) {
-  return Boolean(parseAdminAuth(req));
-}
-
 async function addToMailerLite(email, name) {
-  if (!MAILERLITE_API_KEY) return { synced: false, reason: 'MailerLite API key is not configured.' };
-  if (!MAILERLITE_GROUP_ID) return { synced: false, reason: 'MailerLite group is not configured.' };
+  if (!MAILERLITE_API_KEY || !MAILERLITE_GROUP_ID) return { synced: false };
 
   try {
     const response = await fetch(MAILERLITE_API_URL, {
@@ -263,16 +372,9 @@ async function addToMailerLite(email, name) {
         opted_in_at: new Date().toISOString().replace('T', ' ').slice(0, 19)
       })
     });
-
-    if (response.ok) {
-      return { synced: true };
-    } else {
-      const errorData = await response.json();
-      return { synced: false, reason: errorData.message || 'MailerLite API error' };
-    }
-  } catch (error) {
-    console.error('MailerLite sync error:', error);
-    return { synced: false, reason: error.message };
+    return { synced: response.ok };
+  } catch {
+    return { synced: false };
   }
 }
 
@@ -299,19 +401,317 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 app.use('/data', (_req, res) => res.sendStatus(404));
-app.use('/admin-users.json', (_req, res) => res.sendStatus(404));
+app.use('/uploads', (req, res, next) => {
+  if (!isValidAdminToken(req)) return res.sendStatus(403);
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname)));
 
 app.get('/', (_req, res) => {
   res.sendFile(path.join(__dirname, 'eventos', 'this-is-tobba.html'));
 });
 
+// Ruta oculta de agendamiento personal de Saito
+app.get('/saitoneprod', (_req, res) => {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  res.sendFile(path.join(__dirname, 'saitoneprod.html'));
+});
+
 // Health Check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// THIS IS TOBBA event registration (Con Supabase y validación estricta de nombres)
+// ============================================================================
+// API AGENDA PERSONAL SAÏTO (/saitoneprod)
+// ============================================================================
+
+app.get('/api/availability', async (req, res) => {
+  const type = req.query.type === 'direction' ? 'direction' : 'studio';
+  const dateIso = sanitizeString(req.query.date, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) {
+    return res.status(400).json({ error: 'Fecha inválida' });
+  }
+
+  const busySet = new Set();
+
+  // 1. Bloquear turnos ya tomados o con comprobante subido localmente
+  const bookings = loadJsonArray(BOOKINGS_FILE);
+  bookings.forEach((b) => {
+    if (b.date === dateIso && ['receipt_uploaded', 'confirmed'].includes(b.status)) {
+      busySet.add(b.slot);
+    }
+  });
+
+  // 2. Consultar ocupación real en Google Calendar
+  const calendar = getCalendarClient();
+  if (calendar) {
+    try {
+      const durationHours = type === 'studio' ? 2 : 1;
+      const dayStart = new Date(`${dateIso}T00:00:00-03:00`).toISOString();
+      const dayEnd = new Date(`${dateIso}T23:59:59-03:00`).toISOString();
+
+      const fb = await calendar.freebusy.query({
+        requestBody: {
+          timeMin: dayStart,
+          timeMax: dayEnd,
+          timeZone: 'America/Argentina/Buenos_Aires',
+          items: [{ id: GOOGLE_CALENDAR_ID }]
+        }
+      });
+
+      const busyWindows = fb.data.calendars?.[GOOGLE_CALENDAR_ID]?.busy || [];
+      for (const slot of SLOTS_CATALOG) {
+        const { startISO, endISO } = buildEventRange(dateIso, slot, durationHours);
+        const sMs = Date.parse(startISO);
+        const eMs = Date.parse(endISO);
+        const overlaps = busyWindows.some((w) => {
+          const ws = Date.parse(w.start);
+          const we = Date.parse(w.end);
+          return sMs < we && eMs > ws;
+        });
+        if (overlaps) busySet.add(slot);
+      }
+    } catch (err) {
+      console.error('Error leyendo freebusy de Google Calendar:', err.message);
+    }
+  }
+
+  return res.json({
+    date: dateIso,
+    busy: Array.from(busySet),
+    promoSlots: getPromoSlotsForDate(type, dateIso)
+  });
+});
+
+app.post('/api/lead-abandon', (req, res) => {
+  const email = sanitizeString(req.body.email, 250).toLowerCase();
+  if (!validateEmail(email)) return res.status(400).json({ error: 'Email inválido' });
+
+  const leads = loadJsonArray(LEADS_FILE);
+  const existing = leads.find((l) => l.email === email && !l.completed);
+  if (!existing) {
+    leads.push({
+      id: crypto.randomUUID(),
+      type: sanitizeString(req.body.type, 20),
+      name: sanitizeString(req.body.name, 100),
+      email,
+      date: sanitizeString(req.body.date, 10),
+      slot: sanitizeString(req.body.slot, 10),
+      capturedAt: new Date().toISOString(),
+      completed: false,
+      followUpSent: false
+    });
+    saveJsonArray(LEADS_FILE, leads);
+  }
+  return res.json({ ok: true });
+});
+
+app.post('/api/book', async (req, res) => {
+  const type = req.body.type === 'direction' ? 'direction' : 'studio';
+  const name = sanitizeString(req.body.name, 100);
+  const email = sanitizeString(req.body.email, 250).toLowerCase();
+  const notes = sanitizeString(req.body.notes, 400);
+  const date = sanitizeString(req.body.date, 10);
+  const slot = sanitizeString(req.body.slot, 10);
+
+  if (!name || !validateEmail(email) || !date || !slot) {
+    return res.status(400).json({ error: 'Faltan datos obligatorios.' });
+  }
+
+  const { amount, isPromo } = computeBookingPrice(type, date, slot);
+  const bookingId = crypto.randomUUID();
+
+  const booking = {
+    id: bookingId,
+    type,
+    name,
+    email,
+    notes,
+    date,
+    slot,
+    amount,
+    isPromo,
+    status: type === 'direction' ? 'confirmed' : 'pending_transfer',
+    receiptFile: null,
+    calendarEventId: null,
+    createdAt: new Date().toISOString()
+  };
+
+  // Si es 1ª reunión gratuita de dirección artística, agenda directo en Google Calendar
+  if (type === 'direction') {
+    try {
+      booking.calendarEventId = await createCalendarEventForBooking(booking);
+    } catch (err) {
+      console.error('Error creando evento de dir. artística:', err.message);
+    }
+
+    const leads = loadJsonArray(LEADS_FILE);
+    leads.forEach((l) => { if (l.email === email) l.completed = true; });
+    saveJsonArray(LEADS_FILE, leads);
+  }
+
+  const bookings = loadJsonArray(BOOKINGS_FILE);
+  bookings.unshift(booking);
+  saveJsonArray(BOOKINGS_FILE, bookings);
+
+  return res.json({ ok: true, bookingId, status: booking.status, amount, isPromo });
+});
+
+app.post('/api/upload-receipt', uploadReceipt.single('receipt'), async (req, res) => {
+  const bookingId = sanitizeString(req.body.bookingId, 80);
+  const bookings = loadJsonArray(BOOKINGS_FILE);
+  let booking = bookings.find((b) => b.id === bookingId);
+
+  if (!booking) {
+    const date = sanitizeString(req.body.date, 10);
+    const slot = sanitizeString(req.body.slot, 10);
+    const { amount, isPromo } = computeBookingPrice('studio', date, slot);
+    booking = {
+      id: bookingId || crypto.randomUUID(),
+      type: 'studio',
+      name: sanitizeString(req.body.name, 100),
+      email: sanitizeString(req.body.email, 250).toLowerCase(),
+      notes: '',
+      date,
+      slot,
+      amount,
+      isPromo,
+      status: 'receipt_uploaded',
+      receiptFile: null,
+      calendarEventId: null,
+      createdAt: new Date().toISOString()
+    };
+    bookings.unshift(booking);
+  }
+
+  booking.status = 'receipt_uploaded';
+  booking.receiptFile = req.file ? req.file.filename : null;
+  booking.receiptUploadedAt = new Date().toISOString();
+  saveJsonArray(BOOKINGS_FILE, bookings);
+
+  // Marcar lead como completado para no enviar mail de carrito abandonado
+  const leads = loadJsonArray(LEADS_FILE);
+  leads.forEach((l) => { if (l.email === booking.email) l.completed = true; });
+  saveJsonArray(LEADS_FILE, leads);
+
+  // Avisarte por mail vía Resend cuando alguien sube un comprobante
+  if (resend && RESEND_FROM) {
+    try {
+      const attachments = [];
+      if (req.file) {
+        attachments.push({
+          filename: req.file.originalname || req.file.filename,
+          content: fs.readFileSync(req.file.path)
+        });
+      }
+      await resend.emails.send({
+        from: RESEND_FROM,
+        to: [GOOGLE_CALENDAR_ID],
+        subject: `Nuevo comprobante de sesión · ${booking.name} (${booking.date} ${booking.slot})`,
+        html: `
+          <p><strong>${escapeHtml(booking.name)}</strong> subió un comprobante de transferencia.</p>
+          <ul>
+            <li><strong>Día y hora:</strong> ${escapeHtml(booking.date)} · ${escapeHtml(booking.slot)} hs</li>
+            <li><strong>Monto:</strong> $${Number(booking.amount).toLocaleString('es-AR')} ARS ${booking.isPromo ? '(-40% promo)' : ''}</li>
+            <li><strong>Email:</strong> ${escapeHtml(booking.email)}</li>
+          </ul>
+          <p>Entrá a <a href="${PUBLIC_URL}/admin">${PUBLIC_URL}/admin</a> para aprobar el turno y disparar la invitación en Google Calendar.</p>
+        `,
+        attachments
+      });
+    } catch (err) {
+      console.error('Error enviando aviso de comprobante:', err.message);
+    }
+  }
+
+  return res.json({ ok: true, bookingId: booking.id });
+});
+
+// Admin: listar turnos de Saito
+app.get('/api/admin/saito-bookings', (req, res) => {
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
+  const bookings = loadJsonArray(BOOKINGS_FILE);
+  res.json({ bookings });
+});
+
+// Admin: aprobar turno y agendar en Google Calendar
+app.post('/api/admin/saito-bookings/:id/approve', async (req, res) => {
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
+
+  const bookings = loadJsonArray(BOOKINGS_FILE);
+  const booking = bookings.find((b) => b.id === req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Reserva no encontrada.' });
+
+  try {
+    if (!booking.calendarEventId) {
+      booking.calendarEventId = await createCalendarEventForBooking(booking);
+    }
+    booking.status = 'confirmed';
+    booking.confirmedAt = new Date().toISOString();
+    saveJsonArray(BOOKINGS_FILE, bookings);
+
+    if (resend && RESEND_FROM && booking.email) {
+      await resend.emails.send({
+        from: RESEND_FROM,
+        to: [booking.email],
+        subject: `Turno confirmado · ${booking.date} ${booking.slot} hs`,
+        html: `
+          <p>Hola ${escapeHtml(booking.name)}, qué bueno que reservaste.</p>
+          <p>Tu sesión quedó confirmada para el <strong>${escapeHtml(booking.date)} a las ${escapeHtml(booking.slot)} hs</strong>.</p>
+          <p><strong>Dirección del estudio:</strong> ${STUDIO_ADDRESS}<br/>
+          <strong>Celular para consultas:</strong> ${CONTACT_PHONE}</p>
+        `
+      });
+    }
+
+    res.json({ ok: true, booking });
+  } catch (err) {
+    console.error('Error aprobando turno:', err.message);
+    res.status(500).json({ error: 'No se pudo confirmar en Google Calendar.' });
+  }
+});
+
+// Recuperación automática de carritos abandonados (cada 6 horas revisa leads > 48 hs sin completar)
+setInterval(async () => {
+  if (!resend || !RESEND_FROM) return;
+  const leads = loadJsonArray(LEADS_FILE);
+  const now = Date.now();
+  let changed = false;
+
+  for (const lead of leads) {
+    if (lead.completed || lead.followUpSent) continue;
+    const elapsedHours = (now - Date.parse(lead.capturedAt)) / (1000 * 60 * 60);
+    if (elapsedHours >= 48) {
+      try {
+        await resend.emails.send({
+          from: RESEND_FROM,
+          to: [lead.email],
+          subject: '¿Seguimos con tu sesión en estudio?',
+          html: `
+            <p>Hola ${escapeHtml(lead.name || '')},</p>
+            <p>Vi que estuviste mirando horarios para venir a trabajar al estudio y quedó pendiente la reserva.</p>
+            <p>Si querés coordinar o aprovechar alguno de los horarios con <strong>40% de descuento</strong> disponibles en agenda, podés volver a entrar directo acá:</p>
+            <p><a href="${PUBLIC_URL}/saitoneprod">${PUBLIC_URL}/saitoneprod</a></p>
+            <p>Cualquier consulta escribime al ${CONTACT_PHONE}.</p>
+          `
+        });
+        lead.followUpSent = true;
+        lead.followUpSentAt = new Date().toISOString();
+        changed = true;
+      } catch (err) {
+        console.error('Error enviando follow-up lead:', err.message);
+      }
+    }
+  }
+
+  if (changed) saveJsonArray(LEADS_FILE, leads);
+}, 6 * 60 * 60 * 1000);
+
+// ============================================================================
+// RUTAS EXISTENTES DE LIMINAL RECORDS & THIS IS TOBBA
+// ============================================================================
+
 app.post('/api/event-registration', eventLimiter, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'La base de datos Supabase no está configurada.' });
 
@@ -371,7 +771,6 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
     await saveTicketsToSupabase(createdTickets);
 
     const mailerlite = await addToMailerLite(email, name);
-    if (!mailerlite.synced) console.error('MailerLite event opt-in error:', mailerlite.reason);
     const emailSent = await sendEventConfirmation(email, createdTickets);
 
     return res.status(200).json({
@@ -387,7 +786,6 @@ app.post('/api/event-registration', eventLimiter, async (req, res) => {
   }
 });
 
-// Admin Panel - Obtener entradas desde Supabase
 app.get('/api/admin/event-tickets', async (req, res) => {
   if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
   if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
@@ -404,11 +802,9 @@ app.get('/api/admin/event-tickets', async (req, res) => {
     res.json({
       reserved: tickets.length,
       checkedIn,
-      pendingCheckIn: Math.max(0, tickets.length - checkedIn),
       remaining: Math.max(0, EVENT_CAPACITY - tickets.length),
       tickets: tickets.map(({ token, id, reservation_id, created_at, checked_in_at, checked_in_by, newsletter_consent_at, ...ticket }) => ({
         ...ticket,
-        id,
         createdAt: created_at,
         checkedInAt: checked_in_at,
         checkedInBy: checked_in_by,
@@ -416,15 +812,12 @@ app.get('/api/admin/event-tickets', async (req, res) => {
       }))
     });
   } catch (err) {
-    console.error('Error al obtener entradas admin:', err);
     res.status(500).json({ error: 'Error al consultar entradas.' });
   }
 });
 
-// Admin Panel - Check-in QR con Supabase
 app.post('/api/admin/event-check-in', async (req, res) => {
-  const operatorUsername = parseAdminAuth(req);
-  if (!operatorUsername) return res.status(403).json({ error: 'Acceso denegado.' });
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
   if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
 
   const scannedValue = sanitizeString(req.body.token, 100);
@@ -443,124 +836,38 @@ app.post('/api/admin/event-check-in', async (req, res) => {
     if (!ticket) return res.status(404).json({ error: 'QR no válido para este evento.' });
 
     if (ticket.checked_in_at) {
-      return res.json({
-        alreadyCheckedIn: true,
-        ticket: {
-          name: ticket.name,
-          code: ticket.code,
-          checkedInAt: ticket.checked_in_at,
-          checkedInBy: ticket.checked_in_by
-        }
-      });
+      return res.json({ alreadyCheckedIn: true, ticket: { name: ticket.name, code: ticket.code, checkedInAt: ticket.checked_in_at } });
     }
 
     const now = new Date().toISOString();
     const { error: updateError } = await supabase
       .from('event_tickets')
-      .update({ checked_in_at: now, checked_in_by: operatorUsername })
+      .update({ checked_in_at: now, checked_in_by: 'admin' })
       .eq('id', ticket.id);
 
     if (updateError) throw updateError;
 
-    res.json({
-      alreadyCheckedIn: false,
-      ticket: {
-        name: ticket.name,
-        code: ticket.code,
-        checkedInAt: now,
-        checkedInBy: operatorUsername
-      }
-    });
-  } catch (err) {
-    console.error('Error en check-in:', err);
+    res.json({ alreadyCheckedIn: false, ticket: { name: ticket.name, code: ticket.code, checkedInAt: now } });
+  } catch {
     res.status(500).json({ error: 'Error al procesar el check-in.' });
   }
 });
 
-// Admin / Puerta - Anotar ingreso sin QR directamente en Supabase
-app.post('/api/admin/walk-in-check-in', async (req, res) => {
-  const operatorUsername = parseAdminAuth(req);
-  if (!operatorUsername) return res.status(403).json({ error: 'Acceso denegado.' });
-  if (!supabase) return res.status(500).json({ error: 'Supabase no configurado.' });
-
-  const name = sanitizeString(req.body.name, 100);
-  const rawEmail = sanitizeString(req.body.email, 250).toLowerCase();
-
-  if (!name || !isValidPersonName(name)) {
-    return res.status(400).json({ error: 'Ingresá un nombre y apellido válido.' });
-  }
-
-  const email = rawEmail && validateEmail(rawEmail)
-    ? rawEmail
-    : `puerta-${Date.now()}-${crypto.randomBytes(2).toString('hex')}@walkin.liminalrecords.ar`;
-
-  try {
-    const { data: existingRecords } = await supabase.from('event_tickets').select('code');
-    const existingCodes = new Set((existingRecords || []).map(r => r.code));
-
-    let code;
-    do {
-      code = `PT-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
-    } while (existingCodes.has(code));
-
-    const now = new Date().toISOString();
-    const ticket = {
-      id: crypto.randomUUID(),
-      reservationId: crypto.randomUUID(),
-      token: crypto.randomBytes(24).toString('hex'),
-      code,
-      name,
-      email,
-      city: 'Puerta / Sin QR',
-      age: null,
-      createdAt: now,
-      checkedInAt: now,
-      checkedInBy: operatorUsername,
-      guest: false,
-      newsletterConsentAt: null
-    };
-
-    await saveTicketsToSupabase([ticket]);
-
-    res.status(201).json({
-      message: 'Ingreso sin QR registrado.',
-      ticket: {
-        id: ticket.id,
-        name: ticket.name,
-        code: ticket.code,
-        checkedInAt: ticket.checkedInAt,
-        checkedInBy: ticket.checkedInBy
-      }
-    });
-  } catch (err) {
-    console.error('Error al registrar ingreso sin QR:', err);
-    res.status(500).json({ error: 'Error al guardar el ingreso en Supabase.' });
-  }
-});
-
-// Newsletter Subscription
 app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
   const email = sanitizeString(req.body.email).toLowerCase();
   const name = sanitizeString(req.body.name);
   const source = sanitizeString(req.body.source || req.headers.referer || 'unknown');
 
-  if (!validateEmail(email)) {
-    return res.status(400).json({ error: 'Email inválido.' });
-  }
-
-  if (!name || !isValidPersonName(name)) {
-    return res.status(400).json({ error: 'El nombre es obligatorio y debe ser válido.' });
-  }
+  if (!validateEmail(email)) return res.status(400).json({ error: 'Email inválido.' });
+  if (!name || !isValidPersonName(name)) return res.status(400).json({ error: 'El nombre es obligatorio y debe ser válido.' });
 
   const subscribers = loadSubscribers();
   const existing = subscribers.find((item) => item.email === email);
-
   if (existing) {
     return res.status(200).json({ message: 'Este correo ya está suscripto.', subscriber: existing });
   }
 
   const mailerliteSyncResult = await addToMailerLite(email, name);
-
   const subscriber = {
     id: `${Date.now()}-${Math.round(Math.random() * 10000)}`,
     email,
@@ -575,64 +882,44 @@ app.post('/api/newsletter-subscribe', limiter, async (req, res) => {
   subscribers.push(subscriber);
   saveSubscribers(subscribers);
 
-  res.status(201).json({ 
-    message: 'Suscripción registrada.', 
+  res.status(201).json({
+    message: 'Suscripción registrada.',
     subscriber,
     mailerliteSync: mailerliteSyncResult
   });
 });
 
-// Admin Panel - Login
 app.post('/api/admin-login', (req, res) => {
   const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Usuario y contraseña requeridos.' });
-  }
+  if (!username || !password) return res.status(400).json({ error: 'Usuario y contraseña requeridos.' });
 
   try {
-    if (!fs.existsSync(USERS_FILE)) {
-      return res.status(500).json({ error: 'Archivo de usuarios no configurado en el servidor.' });
-    }
-
+    if (!fs.existsSync(USERS_FILE)) return res.status(500).json({ error: 'Archivo de usuarios no configurado en el servidor.' });
     const rawData = fs.readFileSync(USERS_FILE, 'utf8');
     const data = JSON.parse(rawData);
     const users = data.users || [];
-
     const foundUser = users.find(u => u.username === username && u.password === password);
-
-    if (!foundUser) {
-      return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
-    }
+    if (!foundUser) return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
 
     const token = Buffer.from(`${foundUser.username}:${foundUser.password}:${Date.now()}`).toString('base64');
-    res.json({ token, username: foundUser.username, name: foundUser.name, message: 'Acceso concedido.' });
-  } catch (err) {
-    console.error('Error en login:', err);
+    res.json({ token, name: foundUser.name, message: 'Acceso concedido.' });
+  } catch {
     res.status(500).json({ error: 'Error interno al procesar el acceso.' });
   }
 });
 
-// Admin Panel - Get Subscribers
 app.get('/api/admin/subscribers', (req, res) => {
-  if (!isValidAdminToken(req)) {
-    return res.status(403).json({ error: 'Acceso denegado.' });
-  }
-
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
   const subscribers = loadSubscribers();
-  res.json({ 
-    count: subscribers.length, 
+  res.json({
+    count: subscribers.length,
     subscribers,
     mailerliteSyncedCount: subscribers.filter(s => s.mailerliteSynced).length
   });
 });
 
-// Admin Panel - Export CSV
 app.get('/api/admin/export-csv', (req, res) => {
-  if (!isValidAdminToken(req)) {
-    return res.status(403).json({ error: 'Acceso denegado.' });
-  }
-
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
   const subscribers = loadSubscribers();
   const csv = ['Email,Nombre,Fecha,MailerLite Sincronizado\n'];
   subscribers.forEach(s => {
@@ -644,14 +931,13 @@ app.get('/api/admin/export-csv', (req, res) => {
   res.send(csv.join(''));
 });
 
-// Serve admin panel HTML
-app.get('/admin', (req, res) => {
+app.get('/admin', (_req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 app.listen(PORT, HOST, () => {
   console.log(`🎵 Liminal backend running on http://${HOST}:${PORT}`);
   console.log(`📋 Admin panel at http://${HOST}:${PORT}/admin`);
-  console.log(`MailerLite: ${MAILERLITE_API_KEY ? '✓ Configured' : '✗ Not configured (local storage only)'}`);
-  console.log(`Supabase: ${supabase ? '✓ Configured' : '✗ Not configured'}`);
+  console.log(`📅 Saito booking at http://${HOST}:${PORT}/saitoneprod`);
+  console.log(`Google Calendar: ${GOOGLE_CLIENT_EMAIL ? '✓ Configured' : '✗ Not configured'}`);
 });

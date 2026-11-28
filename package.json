@@ -1,7 +1,7 @@
 {
   "name": "liminal-page-backend",
-  "version": "0.2.0",
-  "description": "Backend for Liminal Records newsletter signup with MailerLite integration",
+  "version": "0.3.0",
+  "description": "Backend for Liminal Records & Saito Booking",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,8 +13,10 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.4",
     "express-rate-limit": "^7.1.5",
+    "googleapis": "^144.0.0",
     "helmet": "^7.0.0",
     "html5-qrcode": "^2.3.8",
+    "multer": "^1.4.5-lts.1",
     "qrcode": "^1.5.4",
     "resend": "^6.37.0"
   }

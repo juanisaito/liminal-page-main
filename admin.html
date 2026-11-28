@@ -185,6 +185,17 @@
                 </div>
             </div>
 
+            <!-- Saito Studio & Direction Bookings -->
+            <div class="section-box">
+                <div class="section-header">
+                    <span style="font-size: 13px; font-weight: 500;">Turnos & Sesiones · SAÏTO (/saitoneprod)</span>
+                    <button type="button" id="refresh-saito-btn" class="btn btn-sm">Recargar</button>
+                </div>
+                <div id="saito-bookings-list">
+                    <p style="padding: 24px; text-align: center; color: #666; font-size: 11px;">Cargando turnos...</p>
+                </div>
+            </div>
+
             <!-- Event Tickets List -->
             <div class="section-box">
                 <div class="section-header">
@@ -225,6 +236,7 @@
         function openDashboard() {
             loginScreen.classList.add('hidden');
             dashboard.classList.remove('hidden');
+            loadSaitoBookings();
             loadSubscribers();
             loadTickets();
         }
@@ -233,7 +245,6 @@
             openDashboard();
         }
 
-        // Mostrar / Ocultar contraseña
         document.getElementById('toggle-pass').addEventListener('click', () => {
             const passInput = document.getElementById('admin-password');
             const toggleBtn = document.getElementById('toggle-pass');
@@ -281,6 +292,79 @@
             document.getElementById('admin-user').value = '';
             document.getElementById('admin-password').value = '';
         });
+
+        async function loadSaitoBookings() {
+            const list = document.getElementById('saito-bookings-list');
+            try {
+                const res = await fetch('/api/admin/saito-bookings', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!res.ok) throw new Error('Error al cargar turnos');
+                const data = await res.json();
+                const bookings = data.bookings || [];
+                const head = '<div class="row-item tickets-grid head"><div>Cliente</div><div>Servicio / Fecha</div><div>Monto</div><div>Comprobante</div><div>Acción</div></div>';
+
+                if (!bookings.length) {
+                    list.innerHTML = head + '<div style="padding: 20px; text-align: center; color: #666; font-size: 11px;">No hay turnos registrados aún.</div>';
+                    return;
+                }
+
+                list.innerHTML = head + bookings.map(b => {
+                    const serviceLabel = b.type === 'studio' ? 'Sesión estudio' : 'Dir. artística';
+                    const priceLabel = b.type === 'studio'
+                        ? `$${Number(b.amount || 0).toLocaleString('es-AR')}${b.isPromo ? ' (-40%)' : ''}`
+                        : 'Gratuita';
+                    const receiptHtml = b.receiptFile
+                        ? `<button type="button" class="btn btn-sm" onclick="openReceipt('${escapeHtml(b.receiptFile)}')">Ver archivo</button>`
+                        : `<span style="color:#666;">Sin archivo</span>`;
+                    const actionHtml = b.status === 'confirmed'
+                        ? `<span class="status-yes">✓ En Calendar</span>`
+                        : `<button type="button" class="btn btn-sm btn-primary" onclick="approveSaitoBooking('${escapeHtml(b.id)}')">Aprobar y agendar</button>`;
+
+                    return `
+                        <div class="row-item tickets-grid">
+                            <div><strong>${escapeHtml(b.name)}</strong><br><span style="color:#888;">${escapeHtml(b.email)}</span></div>
+                            <div>${serviceLabel}<br><strong>${escapeHtml(b.date)} · ${escapeHtml(b.slot)} hs</strong></div>
+                            <div>${priceLabel}</div>
+                            <div>${receiptHtml}</div>
+                            <div>${actionHtml}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                list.innerHTML = `<p style="padding: 20px; text-align: center; color: #ffccd5; font-size: 11px;">${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        async function openReceipt(filename) {
+            try {
+                const res = await fetch(`/uploads/comprobantes/${encodeURIComponent(filename)}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!res.ok) throw new Error('No se pudo abrir el comprobante');
+                const blob = await res.blob();
+                window.open(URL.createObjectURL(blob), '_blank');
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function approveSaitoBooking(id) {
+            try {
+                const res = await fetch(`/api/admin/saito-bookings/${encodeURIComponent(id)}/approve`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al aprobar');
+                alert('✓ Turno aprobado y agendado en Google Calendar');
+                loadSaitoBookings();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        document.getElementById('refresh-saito-btn').addEventListener('click', loadSaitoBookings);
 
         document.getElementById('admin-walkin-btn').addEventListener('click', async () => {
             const name = prompt('Nombre y apellido de quien ingresa sin QR:');
