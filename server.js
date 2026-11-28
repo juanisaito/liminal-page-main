@@ -25,6 +25,8 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads', 'comprobantes');
 const NEWSLETTER_FILE = path.join(DATA_DIR, 'newsletter.json');
 const BOOKINGS_FILE = path.join(DATA_DIR, 'saito-bookings.json');
 const LEADS_FILE = path.join(DATA_DIR, 'saito-leads.json');
+const SAITO_CONFIG_FILE = path.join(DATA_DIR, 'saito-config.json');
+const PROMO_EMAILS_FILE = path.join(DATA_DIR, 'saito-promo-emails.json');
 const USERS_FILE = path.join(__dirname, 'admin-users.json');
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -49,6 +51,17 @@ const TRANSFER_ALIAS = 'saitoneprod';
 const BASE_PRICE_ARS = 85000;
 const PROMO_DISCOUNT_PERCENT = 40;
 const SLOTS_CATALOG = ['11:00', '14:00', '16:30', '19:00'];
+
+const DEFAULT_SAITO_CONFIG = {
+  allPromo: true,
+  basePriceArs: BASE_PRICE_ARS,
+  discountPercent: PROMO_DISCOUNT_PERCENT,
+  promoLabel: 'promo activa',
+  alias: TRANSFER_ALIAS,
+  dayMode: 'all',
+  promoDates: [],
+  promoSlots: [...SLOTS_CATALOG]
+};
 
 // Multer para subida de comprobantes de transferencia
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -88,6 +101,12 @@ function ensureDataStore() {
   if (!fs.existsSync(LEADS_FILE)) {
     fs.writeFileSync(LEADS_FILE, '[]', { encoding: 'utf-8', mode: 0o600 });
   }
+  if (!fs.existsSync(SAITO_CONFIG_FILE)) {
+    fs.writeFileSync(SAITO_CONFIG_FILE, JSON.stringify(DEFAULT_SAITO_CONFIG, null, 2), { encoding: 'utf-8', mode: 0o600 });
+  }
+  if (!fs.existsSync(PROMO_EMAILS_FILE)) {
+    fs.writeFileSync(PROMO_EMAILS_FILE, '[]', { encoding: 'utf-8', mode: 0o600 });
+  }
 }
 
 function loadJsonArray(filePath) {
@@ -102,6 +121,39 @@ function loadJsonArray(filePath) {
 function saveJsonArray(filePath, arr) {
   ensureDataStore();
   fs.writeFileSync(filePath, JSON.stringify(arr, null, 2), { encoding: 'utf-8', mode: 0o600 });
+}
+
+function loadSaitoConfig() {
+  ensureDataStore();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(SAITO_CONFIG_FILE, 'utf-8') || '{}');
+    return { ...DEFAULT_SAITO_CONFIG, ...parsed };
+  } catch {
+    return { ...DEFAULT_SAITO_CONFIG };
+  }
+}
+
+function saveSaitoConfig(cfg) {
+  ensureDataStore();
+  fs.writeFileSync(SAITO_CONFIG_FILE, JSON.stringify(cfg, null, 2), { encoding: 'utf-8', mode: 0o600 });
+}
+
+function recordPromoEmail({ email, name = '', type = 'web', date = '', slot = '' }) {
+  const cleanEmail = sanitizeString(email, 250).toLowerCase();
+  if (!validateEmail(cleanEmail)) return;
+  const list = loadJsonArray(PROMO_EMAILS_FILE);
+  if (!list.some((item) => item.email === cleanEmail)) {
+    list.unshift({
+      id: crypto.randomUUID(),
+      email: cleanEmail,
+      name: sanitizeString(name, 100),
+      type: sanitizeString(type, 30) || 'web',
+      date: sanitizeString(date, 10),
+      slot: sanitizeString(slot, 10),
+      capturedAt: new Date().toISOString()
+    });
+    saveJsonArray(PROMO_EMAILS_FILE, list);
+  }
 }
 
 function loadSubscribers() {
@@ -122,22 +174,40 @@ function getCalendarClient() {
   return google.calendar({ version: 'v3', auth });
 }
 
+function isDateInPromo(cfg, dateIso) {
+  if (!dateIso) return false;
+  if (cfg.allPromo) return true;
+  const mode = cfg.dayMode || 'all';
+  if (mode === 'all') return true;
+  if (mode === 'custom') {
+    return Array.isArray(cfg.promoDates) && cfg.promoDates.includes(dateIso);
+  }
+  const dayOfWeek = new Date(`${dateIso}T12:00:00-03:00`).getDay();
+  if (mode === 'weekdays') return dayOfWeek >= 1 && dayOfWeek <= 5;
+  if (mode === 'weekends') return dayOfWeek === 6;
+  return false;
+}
+
 function getPromoSlotsForDate(type, dateIso) {
   if (type !== 'studio') return [];
-  // Horarios con -40% promo en diciembre para completar agenda
-  if (dateIso.slice(5, 7) === '12') {
-    return ['11:00', '16:30'];
-  }
-  return [];
+  const cfg = loadSaitoConfig();
+  if (!isDateInPromo(cfg, dateIso)) return [];
+  if (cfg.allPromo) return [...SLOTS_CATALOG];
+  return Array.isArray(cfg.promoSlots) ? cfg.promoSlots : [];
 }
 
 function computeBookingPrice(type, dateIso, slot) {
-  if (type !== 'studio') return { amount: 0, isPromo: false };
+  const cfg = loadSaitoConfig();
+  const basePrice = Number(cfg.basePriceArs) || BASE_PRICE_ARS;
+  const discount = Number(cfg.discountPercent) || PROMO_DISCOUNT_PERCENT;
+  const alias = cfg.alias || TRANSFER_ALIAS;
+
+  if (type !== 'studio') return { amount: 0, isPromo: false, alias };
   const isPromo = getPromoSlotsForDate(type, dateIso).includes(slot);
   const amount = isPromo
-    ? Math.round(BASE_PRICE_ARS * (1 - PROMO_DISCOUNT_PERCENT / 100))
-    : BASE_PRICE_ARS;
-  return { amount, isPromo };
+    ? Math.round(basePrice * (1 - discount / 100))
+    : basePrice;
+  return { amount, isPromo, alias };
 }
 
 function buildEventRange(dateIso, slot, durationHours) {
@@ -150,6 +220,8 @@ async function createCalendarEventForBooking(booking) {
   const calendar = getCalendarClient();
   if (!calendar) return null;
 
+  const cfg = loadSaitoConfig();
+  const alias = cfg.alias || TRANSFER_ALIAS;
   const durationHours = booking.type === 'studio' ? 2 : 1;
   const { startISO, endISO } = buildEventRange(booking.date, booking.slot, durationHours);
   const summary = booking.type === 'studio'
@@ -161,7 +233,7 @@ async function createCalendarEventForBooking(booking) {
     `Email: ${booking.email}`,
     booking.notes ? `Notas: ${booking.notes}` : null,
     booking.type === 'studio'
-      ? `Monto abonado: $${Number(booking.amount).toLocaleString('es-AR')} ARS (Alias: ${TRANSFER_ALIAS})`
+      ? `Monto abonado: $${Number(booking.amount).toLocaleString('es-AR')} ARS (Alias: ${alias})`
       : '1ª reunión gratuita de análisis de perfil',
     `Dirección: ${STUDIO_ADDRESS}`,
     `Consultas: ${CONTACT_PHONE}`
@@ -182,7 +254,6 @@ async function createCalendarEventForBooking(booking) {
     });
     return response.data.id || null;
   } catch (err) {
-    // Fallback si Google bloquea invitación con Service Account: crea el evento igual sin attendee
     console.warn('Reintentando crear evento sin attendee:', err.message);
     const fallback = await calendar.events.insert({
       calendarId: GOOGLE_CALENDAR_ID,
@@ -417,14 +488,70 @@ app.get('/saitoneprod', (_req, res) => {
   res.sendFile(path.join(__dirname, 'saitoneprod.html'));
 });
 
+// Página administradora de promos, mails y turnos de Saito
+app.get('/saito-admin', (_req, res) => {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  res.sendFile(path.join(__dirname, 'saito-admin.html'));
+});
+
 // Health Check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
 // ============================================================================
-// API AGENDA PERSONAL SAÏTO (/saitoneprod)
+// API AGENDA PERSONAL SAÏTO (/saitoneprod & /saito-admin)
 // ============================================================================
+
+app.get('/api/saito-config', (_req, res) => {
+  res.json(loadSaitoConfig());
+});
+
+app.post('/api/admin/saito-config', (req, res) => {
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
+
+  const current = loadSaitoConfig();
+  const basePriceArs = Number(req.body.basePriceArs);
+  const discountPercent = Number(req.body.discountPercent);
+
+  const next = {
+    allPromo: typeof req.body.allPromo === 'boolean' ? req.body.allPromo : current.allPromo,
+    basePriceArs: Number.isFinite(basePriceArs) && basePriceArs > 0 ? basePriceArs : current.basePriceArs,
+    discountPercent: Number.isFinite(discountPercent) && discountPercent >= 0 && discountPercent <= 90 ? discountPercent : current.discountPercent,
+    promoLabel: sanitizeString(req.body.promoLabel, 80) || current.promoLabel,
+    alias: sanitizeString(req.body.alias, 60) || current.alias,
+    dayMode: ['all', 'weekdays', 'weekends', 'custom'].includes(req.body.dayMode) ? req.body.dayMode : current.dayMode,
+    promoDates: Array.isArray(req.body.promoDates)
+      ? req.body.promoDates.map((d) => sanitizeString(d, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+      : current.promoDates,
+    promoSlots: Array.isArray(req.body.promoSlots)
+      ? req.body.promoSlots.map((s) => sanitizeString(s, 10)).filter((s) => SLOTS_CATALOG.includes(s))
+      : current.promoSlots
+  };
+
+  saveSaitoConfig(next);
+  res.json({ ok: true, config: next });
+});
+
+app.post('/api/promo-emails', (req, res) => {
+  const email = sanitizeString(req.body.email, 250).toLowerCase();
+  if (!validateEmail(email)) return res.status(400).json({ error: 'Email inválido' });
+
+  recordPromoEmail({
+    email,
+    name: req.body.name,
+    type: req.body.type || 'web',
+    date: req.body.date || '',
+    slot: req.body.slot || ''
+  });
+
+  return res.json({ ok: true });
+});
+
+app.get('/api/admin/promo-emails', (req, res) => {
+  if (!isValidAdminToken(req)) return res.status(403).json({ error: 'Acceso denegado.' });
+  res.json({ emails: loadJsonArray(PROMO_EMAILS_FILE) });
+});
 
 app.get('/api/availability', async (req, res) => {
   const type = req.query.type === 'direction' ? 'direction' : 'studio';
@@ -477,9 +604,11 @@ app.get('/api/availability', async (req, res) => {
     }
   }
 
+  const cfg = loadSaitoConfig();
   return res.json({
     date: dateIso,
     busy: Array.from(busySet),
+    allPromo: type === 'studio' ? Boolean(cfg.allPromo && isDateInPromo(cfg, dateIso)) : false,
     promoSlots: getPromoSlotsForDate(type, dateIso)
   });
 });
@@ -487,6 +616,14 @@ app.get('/api/availability', async (req, res) => {
 app.post('/api/lead-abandon', (req, res) => {
   const email = sanitizeString(req.body.email, 250).toLowerCase();
   if (!validateEmail(email)) return res.status(400).json({ error: 'Email inválido' });
+
+  recordPromoEmail({
+    email,
+    name: req.body.name,
+    type: `lead-${sanitizeString(req.body.type, 20) || 'studio'}`,
+    date: req.body.date,
+    slot: req.body.slot
+  });
 
   const leads = loadJsonArray(LEADS_FILE);
   const existing = leads.find((l) => l.email === email && !l.completed);
@@ -519,6 +656,8 @@ app.post('/api/book', async (req, res) => {
     return res.status(400).json({ error: 'Faltan datos obligatorios.' });
   }
 
+  recordPromoEmail({ email, name, type: `booking-${type}`, date, slot });
+
   const { amount, isPromo } = computeBookingPrice(type, date, slot);
   const bookingId = crypto.randomUUID();
 
@@ -538,7 +677,6 @@ app.post('/api/book', async (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  // Si es 1ª reunión gratuita de dirección artística, agenda directo en Google Calendar
   if (type === 'direction') {
     try {
       booking.calendarEventId = await createCalendarEventForBooking(booking);
@@ -585,17 +723,25 @@ app.post('/api/upload-receipt', uploadReceipt.single('receipt'), async (req, res
     bookings.unshift(booking);
   }
 
+  if (booking.email) {
+    recordPromoEmail({
+      email: booking.email,
+      name: booking.name,
+      type: 'receipt-studio',
+      date: booking.date,
+      slot: booking.slot
+    });
+  }
+
   booking.status = 'receipt_uploaded';
   booking.receiptFile = req.file ? req.file.filename : null;
   booking.receiptUploadedAt = new Date().toISOString();
   saveJsonArray(BOOKINGS_FILE, bookings);
 
-  // Marcar lead como completado para no enviar mail de carrito abandonado
   const leads = loadJsonArray(LEADS_FILE);
   leads.forEach((l) => { if (l.email === booking.email) l.completed = true; });
   saveJsonArray(LEADS_FILE, leads);
 
-  // Avisarte por mail vía Resend cuando alguien sube un comprobante
   if (resend && RESEND_FROM) {
     try {
       const attachments = [];
@@ -613,10 +759,10 @@ app.post('/api/upload-receipt', uploadReceipt.single('receipt'), async (req, res
           <p><strong>${escapeHtml(booking.name)}</strong> subió un comprobante de transferencia.</p>
           <ul>
             <li><strong>Día y hora:</strong> ${escapeHtml(booking.date)} · ${escapeHtml(booking.slot)} hs</li>
-            <li><strong>Monto:</strong> $${Number(booking.amount).toLocaleString('es-AR')} ARS ${booking.isPromo ? '(-40% promo)' : ''}</li>
+            <li><strong>Monto:</strong> $${Number(booking.amount).toLocaleString('es-AR')} ARS ${booking.isPromo ? '(promo)' : ''}</li>
             <li><strong>Email:</strong> ${escapeHtml(booking.email)}</li>
           </ul>
-          <p>Entrá a <a href="${PUBLIC_URL}/admin">${PUBLIC_URL}/admin</a> para aprobar el turno y disparar la invitación en Google Calendar.</p>
+          <p>Entrá a <a href="${PUBLIC_URL}/saito-admin">${PUBLIC_URL}/saito-admin</a> para aprobar el turno y disparar la invitación en Google Calendar.</p>
         `,
         attachments
       });
@@ -691,7 +837,7 @@ setInterval(async () => {
           html: `
             <p>Hola ${escapeHtml(lead.name || '')},</p>
             <p>Vi que estuviste mirando horarios para venir a trabajar al estudio y quedó pendiente la reserva.</p>
-            <p>Si querés coordinar o aprovechar alguno de los horarios con <strong>40% de descuento</strong> disponibles en agenda, podés volver a entrar directo acá:</p>
+            <p>Si querés coordinar o aprovechar alguno de los horarios con promo disponibles en agenda, podés volver a entrar directo acá:</p>
             <p><a href="${PUBLIC_URL}/saitoneprod">${PUBLIC_URL}/saitoneprod</a></p>
             <p>Cualquier consulta escribime al ${CONTACT_PHONE}.</p>
           `
@@ -936,8 +1082,10 @@ app.get('/admin', (_req, res) => {
 });
 
 app.listen(PORT, HOST, () => {
+  ensureDataStore();
   console.log(`🎵 Liminal backend running on http://${HOST}:${PORT}`);
   console.log(`📋 Admin panel at http://${HOST}:${PORT}/admin`);
+  console.log(`🎛️  Saito admin at http://${HOST}:${PORT}/saito-admin`);
   console.log(`📅 Saito booking at http://${HOST}:${PORT}/saitoneprod`);
   console.log(`Google Calendar: ${GOOGLE_CLIENT_EMAIL ? '✓ Configured' : '✗ Not configured'}`);
 });

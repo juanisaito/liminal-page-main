@@ -32,8 +32,8 @@
       color: var(--ink);
       font-family: var(--font);
       font-size: 14px;
-      line-height: 1.32;
-      letter-spacing: -0.025em;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
       -webkit-font-smoothing: antialiased;
       min-height: 100dvh;
       overflow-x: hidden;
@@ -45,27 +45,19 @@
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.22;
+      opacity: 0.18;
       background-image:
-        radial-gradient(circle at 18% 22%, rgba(17, 17, 17, 0.08) 0 1px, transparent 1.2px),
-        radial-gradient(circle at 74% 38%, rgba(110, 109, 104, 0.1) 0 1px, transparent 1.4px),
-        radial-gradient(circle at 42% 81%, rgba(17, 17, 17, 0.07) 0 0.8px, transparent 1.2px),
-        repeating-linear-gradient(
-          -14deg,
-          rgba(17, 17, 17, 0.015) 0px,
-          rgba(17, 17, 17, 0.015) 1px,
-          transparent 1px,
-          transparent 7px
-        );
-      background-size: 170px 170px, 230px 230px, 190px 190px, 100% 100%;
+        radial-gradient(circle at 20% 24%, rgba(17, 17, 17, 0.07) 0 1px, transparent 1.2px),
+        radial-gradient(circle at 76% 40%, rgba(110, 109, 104, 0.08) 0 1px, transparent 1.4px);
+      background-size: 180px 180px, 240px 240px;
     }
 
     .wrap {
       position: relative;
       z-index: 1;
-      max-width: 780px;
+      max-width: 760px;
       margin: 0 auto;
-      padding: calc(24px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+      padding: calc(32px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));
     }
 
     .top-prompt {
@@ -73,8 +65,8 @@
       font-size: 18px;
       font-weight: 500;
       color: var(--ink);
-      margin: 0 0 16px;
-      letter-spacing: -0.03em;
+      margin: 0 0 18px;
+      letter-spacing: -0.025em;
     }
 
     .choices {
@@ -82,7 +74,6 @@
       grid-template-columns: 1fr 1fr;
       border-top: 1px solid var(--rule);
       border-bottom: 1px solid var(--rule);
-      background: rgba(247, 246, 243, 0.72);
     }
 
     .choice-btn {
@@ -90,17 +81,17 @@
       background: transparent;
       border: 0;
       border-right: 1px solid var(--rule);
-      padding: 18px 12px;
-      min-height: 54px;
+      padding: 18px 14px;
+      min-height: 52px;
       cursor: pointer;
       touch-action: manipulation;
       font-family: var(--font);
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 500;
       color: var(--ink);
-      letter-spacing: -0.03em;
+      letter-spacing: -0.025em;
       text-align: center;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      transition: background-color 0.18s ease;
     }
 
     .choice-btn:last-child {
@@ -108,14 +99,14 @@
     }
 
     .choice-btn:hover {
-      background: rgba(17, 17, 17, 0.03);
+      background: rgba(17, 17, 17, 0.025);
     }
 
     .choice-btn .label-inner {
       display: inline-block;
       padding-bottom: 2px;
       border-bottom: 2px solid transparent;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.18s ease;
     }
 
     .choice-btn[data-choice="studio"].active .label-inner {
@@ -130,9 +121,9 @@
       display: none;
       opacity: 0;
       transform: translateY(4px);
-      transition: opacity 0.24s ease, transform 0.24s ease;
+      transition: opacity 0.22s ease, transform 0.22s ease;
       border-bottom: 1px solid var(--rule);
-      padding: 18px 2px 20px;
+      padding: 20px 0 22px;
     }
 
     .panel.open {
@@ -147,7 +138,7 @@
     .panel-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      gap: 28px;
       align-items: start;
     }
 
@@ -155,31 +146,28 @@
       font-size: 14px;
       color: var(--ink);
       font-weight: 500;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .promo-note {
+    .promo-line {
       display: none;
       font-size: 13px;
-      color: var(--ink);
-      border-left: 2px solid var(--promo);
-      padding-left: 8px;
+      color: var(--promo);
       margin-bottom: 10px;
     }
 
-    .promo-note.visible {
+    .promo-line.visible {
       display: block;
     }
 
     .desc {
       font-size: 14px;
-      line-height: 1.38;
+      line-height: 1.4;
       color: var(--stone);
       margin: 0;
     }
 
-    .desc strong,
-    .desc b {
+    .desc strong {
       color: var(--ink);
       font-weight: 500;
     }
@@ -193,7 +181,6 @@
       gap: 6px;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x proximity;
       padding-bottom: 8px;
       margin-bottom: 10px;
       scrollbar-width: thin;
@@ -205,15 +192,12 @@
       border: 1px solid var(--rule);
       color: var(--ink);
       font-family: var(--font);
-      font-size: 14px;
-      min-height: 38px;
-      padding: 6px 10px;
+      font-size: 13px;
+      min-height: 36px;
+      padding: 5px 9px;
       cursor: pointer;
       touch-action: manipulation;
-      scroll-snap-align: start;
       white-space: nowrap;
-      position: relative;
-      transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
     }
 
     .date-chip:hover {
@@ -226,22 +210,11 @@
       border-color: var(--ink);
     }
 
-    .date-chip.has-promo::after {
-      content: "· promo";
-      font-size: 11px;
-      margin-left: 4px;
-      color: var(--promo);
-    }
-
-    .date-chip.selected.has-promo::after {
-      color: #86EFAC;
-    }
-
     .slots-row {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       min-height: 36px;
     }
 
@@ -251,15 +224,14 @@
       border: 1px solid var(--rule);
       color: var(--ink);
       font-family: var(--font);
-      font-size: 14px;
-      min-height: 38px;
-      padding: 6px 10px;
+      font-size: 13px;
+      min-height: 36px;
+      padding: 5px 9px;
       cursor: pointer;
       touch-action: manipulation;
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
     }
 
     .slot-btn:hover:not(:disabled) {
@@ -273,15 +245,13 @@
       cursor: not-allowed;
     }
 
-    .slot-badge {
+    .slot-tag {
       font-size: 11px;
       color: var(--promo);
-      font-weight: 600;
     }
 
-    .slot-btn.selected .slot-badge {
+    .slot-btn.selected .slot-tag {
       color: #FFFFFF;
-      text-decoration: underline;
     }
 
     .slot-btn.selected.cobalt {
@@ -304,7 +274,7 @@
 
     .field-row {
       display: grid;
-      grid-template-columns: 88px 1fr;
+      grid-template-columns: 78px 1fr;
       align-items: baseline;
       gap: 8px;
     }
@@ -321,24 +291,15 @@
       border: 0;
       border-radius: 0;
       border-bottom: 1px solid var(--rule);
-      padding: 6px 2px;
+      padding: 5px 2px;
       font-family: var(--font);
       font-size: 16px;
       color: var(--ink);
       outline: none;
-      transition: border-color 0.18s ease;
     }
 
     .field-row input:focus {
       border-bottom-color: var(--ink);
-    }
-
-    .submit-row {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
     }
 
     .action-btn {
@@ -347,16 +308,15 @@
       color: var(--paper);
       border: 1px solid var(--ink);
       font-family: var(--font);
-      font-size: 15px;
-      min-height: 44px;
-      padding: 9px 14px;
+      font-size: 14px;
+      min-height: 40px;
+      padding: 7px 14px;
       cursor: pointer;
       touch-action: manipulation;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
     }
 
     .action-btn.cobalt {
@@ -374,67 +334,48 @@
     .action-btn.ghost {
       background: transparent;
       color: var(--ink);
-      border-color: var(--ink);
-    }
-
-    .action-btn:hover {
-      opacity: 0.9;
+      border-color: var(--rule);
     }
 
     .status-msg {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--ink);
       margin-top: 8px;
     }
 
     .transfer-box {
       display: none;
-      margin-top: 12px;
-      padding: 12px;
-      border: 1px solid var(--ink);
-      background: rgba(255, 255, 255, 0.55);
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--rule);
       font-size: 14px;
-      color: var(--ink);
     }
 
     .transfer-box.open {
       display: block;
     }
 
-    .alias-row {
+    .alias-line {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      padding: 8px 10px;
-      margin: 8px 0 10px;
-      border: 1px solid var(--rule);
-      background: var(--paper);
+      gap: 10px;
+      padding: 6px 0;
+      margin: 6px 0 10px;
+      border-bottom: 1px solid var(--rule);
     }
 
-    .alias-value {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0;
-    }
-
-    .copy-btn {
+    .link-btn {
       appearance: none;
-      background: var(--ink);
-      color: var(--paper);
+      background: transparent;
       border: 0;
+      padding: 0;
       font-family: var(--font);
       font-size: 13px;
-      padding: 6px 10px;
-      min-height: 32px;
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 2px;
       cursor: pointer;
-    }
-
-    .upload-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 6px;
     }
 
     .file-input {
@@ -442,16 +383,15 @@
       font-family: var(--font);
       font-size: 14px;
       color: var(--ink);
-      margin-bottom: 10px;
+      margin: 6px 0 10px;
     }
 
     .confirm-box {
       display: none;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid var(--rule);
       font-size: 14px;
-      color: var(--ink);
     }
 
     .confirm-box.open {
@@ -467,47 +407,24 @@
 
     .paid-banner {
       display: none;
-      border: 1px solid var(--ink);
-      background: rgba(255, 255, 255, 0.72);
-      padding: 18px 16px;
-      margin-bottom: 18px;
-      color: var(--ink);
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding: 16px 0;
+      margin-bottom: 20px;
+      font-size: 14px;
     }
 
     .paid-banner.open {
       display: block;
     }
 
-    .paid-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0 0 8px;
-      letter-spacing: -0.03em;
-    }
-
-    .paid-text {
-      font-size: 14px;
-      line-height: 1.42;
-      margin: 0 0 12px;
-      color: var(--ink);
-    }
-
-    .paid-details {
-      border-top: 1px solid var(--rule);
-      border-bottom: 1px solid var(--rule);
-      padding: 10px 0;
-      margin-bottom: 12px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
     .faq-panel {
       display: none;
       opacity: 0;
       transform: translateY(4px);
-      transition: opacity 0.24s ease, transform 0.24s ease;
+      transition: opacity 0.22s ease, transform 0.22s ease;
       border-bottom: 1px solid var(--rule);
-      padding: 16px 2px 18px;
+      padding: 16px 0 18px;
     }
 
     .faq-panel.open {
@@ -530,14 +447,11 @@
     .faq-q {
       color: var(--ink);
       font-weight: 500;
-      font-size: 14px;
       margin-bottom: 2px;
     }
 
     .faq-a {
       color: var(--stone);
-      font-size: 14px;
-      line-height: 1.35;
     }
 
     .bottom-bar {
@@ -555,8 +469,8 @@
       appearance: none;
       background: transparent;
       border: 0;
-      padding: 8px 4px;
-      min-height: 40px;
+      padding: 6px 4px;
+      min-height: 38px;
       display: inline-flex;
       align-items: center;
       font-family: var(--font);
@@ -565,41 +479,17 @@
       text-decoration: underline;
       text-underline-offset: 3px;
       cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .bottom-bar a:hover,
-    .bottom-bar button:hover {
-      opacity: 0.7;
     }
 
     @media (max-width: 660px) {
-      .wrap {
-        padding: calc(18px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));
-      }
-
-      .top-prompt {
-        font-size: 17px;
-        margin-bottom: 14px;
+      .panel-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
       }
 
       .choice-btn {
         font-size: 16px;
         padding: 16px 8px;
-      }
-
-      .panel-grid {
-        grid-template-columns: 1fr;
-        gap: 18px;
-      }
-
-      .field-row {
-        grid-template-columns: 78px 1fr;
-      }
-
-      .submit-row .action-btn,
-      .confirm-actions .action-btn {
-        width: 100%;
       }
     }
   </style>
@@ -607,16 +497,16 @@
 <body>
   <main class="wrap">
     <section id="paid-banner" class="paid-banner" aria-live="polite">
-      <h2 class="paid-title">qué bueno que reservaste</h2>
-      <p class="paid-text">
-        recibimos tu comprobante y ya bloqueamos tu horario. te dejamos todos los datos para que puedas asistir sin drama, cualquier cosa comunicate directo:
-      </p>
-      <div class="paid-details" id="paid-details-body">
-        <div><strong>dirección del estudio:</strong> Av. Medrano 46, 1A (CABA)</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px;">qué bueno que reservaste</div>
+      <div style="margin-bottom:8px;color:var(--stone);">
+        confirmaste tu turno y te dejamos los datos para que puedas asistir, cualquier cosa comunicate:
+      </div>
+      <div id="paid-details-body">
+        <div><strong>dirección:</strong> Av. Medrano 46, 1A</div>
         <div><strong>celular para consultas:</strong> 11 2636-06722</div>
       </div>
       <div class="confirm-actions">
-        <a id="paid-wa-link" class="action-btn cobalt" href="https://wa.me/5491126306722" target="_blank" rel="noopener noreferrer">escribir por whatsapp (11 2636-06722)</a>
+        <a id="paid-wa-link" class="action-btn cobalt" href="https://wa.me/5491126306722" target="_blank" rel="noopener noreferrer">whatsapp 11 2636-06722</a>
       </div>
     </section>
 
@@ -635,15 +525,13 @@
       <div class="panel-grid">
         <div>
           <div class="meta-line" id="studio-price-line"><strong>$85.000</strong> · <span class="nowrap">2 hs</span> presenciales</div>
-          <div id="studio-promo-note" class="promo-note">
-            horario con promo descuento disponible: <strong>-40% off ($51.000)</strong> aplicado al seleccionar este turno.
-          </div>
+          <div id="studio-promo-note" class="promo-line"></div>
           <p class="desc">
             Vení a trabajar conmigo en una sesión de <strong class="nowrap">dos hs</strong> de manera presencial, podemos ver: — producción musical de una canción, — instrumental, — mix &amp; máster o — grabación de voces de un track. Una vez elegido el día, enviame tu nombre y comentame un poco de vos. Tené en cuenta que para una producción completa son <strong class="nowrap">4 sesiones de dos hs</strong> pero esto último puede variar y ser más de 4 sesiones.
           </p>
         </div>
 
-        <div id="booking-col-studio">
+        <div>
           <div id="dates-studio" class="date-strip" role="listbox" aria-label="Días disponibles"></div>
           <div id="slots-studio" class="slots-row" aria-label="Horarios disponibles"></div>
 
@@ -660,8 +548,8 @@
               <label for="studio-notes">sobre vos</label>
               <input id="studio-notes" name="notes" type="text" />
             </div>
-            <div class="submit-row">
-              <button type="submit" class="action-btn cobalt">continuar a transferencia</button>
+            <div style="margin-top:6px;">
+              <button type="submit" class="action-btn cobalt">continuar</button>
             </div>
           </form>
 
@@ -669,20 +557,20 @@
 
           <div id="transfer-studio" class="transfer-box">
             <div id="transfer-summary"></div>
-            <div class="alias-row">
+            <div class="alias-line">
               <div>
-                <div style="font-size:12px;color:var(--stone);">alias · Juan Ignacio Saito</div>
-                <div class="alias-value" id="alias-text">saitoneprod</div>
+                <span style="color:var(--stone);font-size:12px;">alias: </span>
+                <strong id="alias-text">saitoneprod</strong>
               </div>
-              <button type="button" class="copy-btn" id="copy-alias-btn">copiar alias</button>
+              <button type="button" class="link-btn" id="copy-alias-btn">copiar alias</button>
             </div>
 
             <form id="receipt-form" novalidate>
-              <label class="upload-label" for="receipt-file">subí el comprobante de transferencia (foto o PDF):</label>
+              <label for="receipt-file" style="display:block;font-size:13px;">subí el comprobante de transferencia:</label>
               <input class="file-input" id="receipt-file" name="receipt" type="file" accept="image/*,application/pdf" required />
               <div class="confirm-actions">
-                <button type="submit" class="action-btn cobalt" id="upload-receipt-btn">enviar comprobante y confirmar</button>
-                <a id="transfer-wa-link" class="action-btn ghost" href="#" target="_blank" rel="noopener noreferrer">mandar por whatsapp</a>
+                <button type="submit" class="action-btn cobalt" id="upload-receipt-btn">enviar comprobante</button>
+                <a id="transfer-wa-link" class="action-btn ghost" href="#" target="_blank" rel="noopener noreferrer">enviar por whatsapp</a>
               </div>
             </form>
           </div>
@@ -701,7 +589,7 @@
           </p>
         </div>
 
-        <div id="booking-col-direction">
+        <div>
           <div id="dates-direction" class="date-strip" role="listbox" aria-label="Días disponibles"></div>
           <div id="slots-direction" class="slots-row" aria-label="Horarios disponibles"></div>
 
@@ -718,7 +606,7 @@
               <label for="direction-notes">proyecto</label>
               <input id="direction-notes" name="notes" type="text" />
             </div>
-            <div class="submit-row">
+            <div style="margin-top:6px;">
               <button type="submit" class="action-btn crimson">agendar reunión</button>
             </div>
           </form>
@@ -732,11 +620,11 @@
     <section id="panel-faq" class="faq-panel" aria-hidden="true">
       <div class="faq-item">
         <div class="faq-q">¿cómo se confirma el turno de estudio?</div>
-        <div class="faq-a">Elegís día, horario y tus datos, transferís al alias <strong>saitoneprod</strong> y subís el comprobante ahí mismo. Te llega la invitación a tu Google Calendar y te mostramos la dirección exacta (Av. Medrano 46, 1A).</div>
+        <div class="faq-a">Elegís día, horario y tus datos, transferís al alias <strong>saitoneprod</strong> y subís el comprobante. Te queda reservado el turno y te damos la dirección (Av. Medrano 46, 1A) y el contacto (11 2636-06722).</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">¿qué son los horarios con promo descuento?</div>
-        <div class="faq-a">En fechas seleccionadas (como diciembre) vas a ver franjas marcadas con <strong>-40% promo</strong> a <strong>$51.000</strong> en lugar de $85.000 para completar agenda.</div>
+        <div class="faq-q">¿qué pasa si pongo mi email pero no termino?</div>
+        <div class="faq-a">Si dejás tu email, queda guardado para avisarte novedades o promos disponibles.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">¿cómo funciona la 1ª reunión de dirección artística?</div>
@@ -759,8 +647,13 @@
       contactPhoneDisplay: "11 2636-06722",
       studioAddress: "Av. Medrano 46, 1A",
       alias: "saitoneprod",
-      studioPriceArs: 85000,
-      promoDiscountPercent: 40,
+      basePriceArs: 85000,
+      discountPercent: 40,
+      allPromo: true,
+      dayMode: "all",
+      promoDates: [],
+      promoSlots: ["11:00", "14:00", "16:30", "19:00"],
+      promoLabel: "promo activa",
       apiBase: ""
     };
 
@@ -773,29 +666,81 @@
       availabilityByDate: { studio: {}, direction: {} },
       currentBookingId: null,
       currentPayload: null,
-      abandonedSent: new Set()
+      savedEmails: new Set()
     };
 
     const DEFAULT_SLOTS = ["11:00", "14:00", "16:30", "19:00"];
-
-    function isMobileViewport() {
-      return window.matchMedia("(max-width: 660px)").matches;
-    }
-
-    function smoothRevealScroll(element) {
-      if (!isMobileViewport() || !element) return;
-      setTimeout(() => {
-        element.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 120);
-    }
 
     function formatArs(amount) {
       return `$${Number(amount).toLocaleString("es-AR")}`;
     }
 
-    function getFinalStudioPrice(isPromo) {
-      if (!isPromo) return CONFIG.studioPriceArs;
-      return Math.round(CONFIG.studioPriceArs * (1 - CONFIG.promoDiscountPercent / 100));
+    function computePrice(isPromo) {
+      if (!isPromo) return CONFIG.basePriceArs;
+      return Math.round(CONFIG.basePriceArs * (1 - CONFIG.discountPercent / 100));
+    }
+
+    function isLocalDateInPromo(dateIso) {
+      if (!dateIso) return false;
+      if (CONFIG.allPromo) return true;
+      const mode = CONFIG.dayMode || "all";
+      if (mode === "all") return true;
+      if (mode === "custom") {
+        return Array.isArray(CONFIG.promoDates) && CONFIG.promoDates.includes(dateIso);
+      }
+      const dayOfWeek = new Date(`${dateIso}T12:00:00-03:00`).getDay();
+      if (mode === "weekdays") return dayOfWeek >= 1 && dayOfWeek <= 5;
+      if (mode === "weekends") return dayOfWeek === 6;
+      return false;
+    }
+
+    function isSlotPromoForDate(dateIso, time, serverPromoSlots, serverAllPromo) {
+      if (typeof serverAllPromo === "boolean" && serverAllPromo) return true;
+      if (Array.isArray(serverPromoSlots)) return serverPromoSlots.includes(time);
+      if (!isLocalDateInPromo(dateIso)) return false;
+      if (CONFIG.allPromo) return true;
+      return Array.isArray(CONFIG.promoSlots) && CONFIG.promoSlots.includes(time);
+    }
+
+    async function loadRemoteConfig() {
+      try {
+        const res = await fetch(`${CONFIG.apiBase}/api/saito-config`);
+        if (!res.ok) return;
+        const cfg = await res.json();
+        if (typeof cfg.basePriceArs === "number") CONFIG.basePriceArs = cfg.basePriceArs;
+        if (typeof cfg.discountPercent === "number") CONFIG.discountPercent = cfg.discountPercent;
+        if (typeof cfg.allPromo === "boolean") CONFIG.allPromo = cfg.allPromo;
+        if (typeof cfg.dayMode === "string") CONFIG.dayMode = cfg.dayMode;
+        if (Array.isArray(cfg.promoDates)) CONFIG.promoDates = cfg.promoDates;
+        if (Array.isArray(cfg.promoSlots)) CONFIG.promoSlots = cfg.promoSlots;
+        if (typeof cfg.promoLabel === "string" && cfg.promoLabel.trim()) CONFIG.promoLabel = cfg.promoLabel.trim();
+        if (typeof cfg.alias === "string" && cfg.alias.trim()) {
+          CONFIG.alias = cfg.alias.trim();
+          document.getElementById("alias-text").textContent = CONFIG.alias;
+        }
+        state.availabilityByDate.studio = {};
+        updateStudioPriceDisplay(false);
+        if (state.selectedDate.studio) {
+          renderSlots("studio", state.selectedDate.studio);
+        }
+      } catch (_) {}
+    }
+
+    function updateStudioPriceDisplay(slotIsPromo) {
+      const priceLine = document.getElementById("studio-price-line");
+      const promoNote = document.getElementById("studio-promo-note");
+      const dateIsPromo = isLocalDateInPromo(state.selectedDate.studio);
+      const activePromo = Boolean(slotIsPromo || (CONFIG.allPromo && dateIsPromo));
+
+      if (activePromo) {
+        const discounted = computePrice(true);
+        priceLine.innerHTML = `<strong>${formatArs(discounted)}</strong> <span style="text-decoration:line-through;color:var(--stone);">${formatArs(CONFIG.basePriceArs)}</span> · <span class="nowrap">2 hs</span> presenciales`;
+        promoNote.textContent = `${CONFIG.promoLabel}: ${CONFIG.discountPercent}% off (${formatArs(discounted)})`;
+        promoNote.classList.add("visible");
+      } else {
+        priceLine.innerHTML = `<strong>${formatArs(CONFIG.basePriceArs)}</strong> · <span class="nowrap">2 hs</span> presenciales`;
+        promoNote.classList.remove("visible");
+      }
     }
 
     function showConfirmedScreen(info) {
@@ -804,25 +749,25 @@
       const waLink = document.getElementById("paid-wa-link");
 
       const whenLine = info && info.date && info.slot
-        ? `<div><strong>turno reservado:</strong> ${info.date} a las ${info.slot} hs${info.name ? ` · ${info.name}` : ""}</div>`
+        ? `<div><strong>turno:</strong> ${info.date} · ${info.slot} hs${info.name ? ` (${info.name})` : ""}</div>`
         : "";
 
       detailsBody.innerHTML = `
         ${whenLine}
-        <div><strong>dirección del estudio:</strong> ${CONFIG.studioAddress} (CABA)</div>
+        <div><strong>dirección:</strong> ${CONFIG.studioAddress}</div>
         <div><strong>celular para consultas:</strong> ${CONFIG.contactPhoneDisplay}</div>
       `;
 
       const waMsg = info && info.date
-        ? `Hola! Ya subí mi comprobante y reservé el turno para el ${info.date} a las ${info.slot} hs.`
-        : "Hola! Confirmé mi turno en el estudio y te escribo por cualquier consulta.";
+        ? `Hola! Ya subí el comprobante para el ${info.date} a las ${info.slot} hs.`
+        : "Hola! Reservé turno en el estudio, te escribo por cualquier consulta.";
 
       waLink.href = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(waMsg)}`;
       banner.classList.add("open");
       banner.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function getUpcomingDays(count = 18) {
+    function getUpcomingDays(count = 16) {
       const days = [];
       const formatter = new Intl.DateTimeFormat("es-AR", {
         weekday: "short",
@@ -835,11 +780,9 @@
         d.setDate(now.getDate() + i);
         if (d.getDay() === 0) continue;
         const iso = d.toISOString().slice(0, 10);
-        const isDecember = d.getMonth() === 11;
         days.push({
           iso,
-          label: formatter.format(d).replace(".", "").toLowerCase(),
-          hasPromo: isDecember
+          label: formatter.format(d).replace(".", "").toLowerCase()
         });
       }
       return days;
@@ -855,31 +798,19 @@
         const data = await res.json();
         const normalized = {
           busy: Array.isArray(data.busy) ? data.busy : [],
-          promoSlots: Array.isArray(data.promoSlots) ? data.promoSlots : []
+          promoSlots: Array.isArray(data.promoSlots) ? data.promoSlots : null,
+          allPromo: typeof data.allPromo === "boolean" ? data.allPromo : null
         };
         state.availabilityByDate[choice][dateIso] = normalized;
         return normalized;
       } catch (_) {
-        const isDecember = dateIso.slice(5, 7) === "12";
         const fallback = {
-          busy: dateIso.endsWith("2") || dateIso.endsWith("7") ? ["14:00"] : [],
-          promoSlots: choice === "studio" && isDecember ? ["11:00", "16:30"] : []
+          busy: [],
+          promoSlots: null,
+          allPromo: null
         };
         state.availabilityByDate[choice][dateIso] = fallback;
         return fallback;
-      }
-    }
-
-    function updateStudioPriceDisplay(isPromo) {
-      const priceLine = document.getElementById("studio-price-line");
-      const promoNote = document.getElementById("studio-promo-note");
-      if (isPromo) {
-        const discounted = getFinalStudioPrice(true);
-        priceLine.innerHTML = `<strong>${formatArs(discounted)}</strong> <span style="text-decoration:line-through;color:var(--stone);">${formatArs(CONFIG.studioPriceArs)}</span> · <span class="nowrap">2 hs</span> presenciales`;
-        promoNote.classList.add("visible");
-      } else {
-        priceLine.innerHTML = `<strong>${formatArs(CONFIG.studioPriceArs)}</strong> · <span class="nowrap">2 hs</span> presenciales`;
-        promoNote.classList.remove("visible");
       }
     }
 
@@ -890,16 +821,16 @@
       state.selectedSlotPromo[choice] = false;
       if (choice === "studio") updateStudioPriceDisplay(false);
 
-      const { busy, promoSlots } = await fetchDayAvailability(choice, dateIso);
+      const { busy, promoSlots, allPromo } = await fetchDayAvailability(choice, dateIso);
 
       DEFAULT_SLOTS.forEach((time) => {
-        const isPromo = choice === "studio" && promoSlots.includes(time);
+        const isPromo = choice === "studio" && isSlotPromoForDate(dateIso, time, promoSlots, allPromo);
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "slot-btn";
         btn.disabled = busy.includes(time);
         btn.innerHTML = isPromo
-          ? `<span>${time}</span><span class="slot-badge">-40% promo</span>`
+          ? `<span>${time}</span><span class="slot-tag">-${CONFIG.discountPercent}%</span>`
           : `<span>${time}</span>`;
 
         btn.addEventListener("click", () => {
@@ -909,12 +840,7 @@
           btn.classList.add("selected", choice === "studio" ? "cobalt" : "crimson");
           state.selectedSlot[choice] = time;
           state.selectedSlotPromo[choice] = isPromo;
-
-          if (choice === "studio") {
-            updateStudioPriceDisplay(isPromo);
-          }
-
-          smoothRevealScroll(document.getElementById(`form-${choice}`));
+          if (choice === "studio") updateStudioPriceDisplay(isPromo);
         });
         container.appendChild(btn);
       });
@@ -922,13 +848,13 @@
 
     function initCalendar(choice) {
       const strip = document.getElementById(`dates-${choice}`);
-      const days = getUpcomingDays(18);
+      const days = getUpcomingDays(16);
       strip.innerHTML = "";
 
       days.forEach((day, idx) => {
         const chip = document.createElement("button");
         chip.type = "button";
-        chip.className = "date-chip" + (choice === "studio" && day.hasPromo ? " has-promo" : "");
+        chip.className = "date-chip";
         chip.textContent = day.label;
         chip.dataset.date = day.iso;
         chip.addEventListener("click", async () => {
@@ -957,23 +883,19 @@
         faqPanel.classList.add("open");
         faqPanel.setAttribute("aria-hidden", "false");
         requestAnimationFrame(() => faqPanel.classList.add("visible"));
-        smoothRevealScroll(faqPanel);
       } else {
         faqPanel.classList.remove("visible");
         faqPanel.setAttribute("aria-hidden", "true");
         setTimeout(() => {
           if (!state.faqOpen) faqPanel.classList.remove("open");
-        }, 220);
+        }, 200);
       }
     }
 
     function selectChoice(choice) {
-      if (state.faqOpen) {
-        setFaqState(false);
-      }
+      if (state.faqOpen) setFaqState(false);
 
-      const buttons = document.querySelectorAll(".choice-btn");
-      buttons.forEach((btn) => {
+      document.querySelectorAll(".choice-btn").forEach((btn) => {
         const isTarget = btn.dataset.choice === choice;
         btn.classList.toggle("active", isTarget);
         btn.setAttribute("aria-expanded", String(isTarget));
@@ -987,49 +909,44 @@
           panel.classList.add("open");
           panel.setAttribute("aria-hidden", "false");
           requestAnimationFrame(() => panel.classList.add("visible"));
-          smoothRevealScroll(panel);
         } else {
           panel.classList.remove("visible");
           panel.setAttribute("aria-hidden", "true");
           setTimeout(() => {
             if (state.activeChoice !== key) panel.classList.remove("open");
-          }, 220);
+          }, 200);
         }
       });
     }
 
     function buildWhatsAppUrl(payload) {
       const priceText = payload.isPromo
-        ? `${formatArs(payload.amount)} (-40% promo)`
+        ? `${formatArs(payload.amount)} (-${CONFIG.discountPercent}%)`
         : formatArs(payload.amount);
 
       const lines = [
         payload.type === "studio"
-          ? `Hola! Reservé una Sesión de estudio (${priceText} · 2 hs) y te paso el comprobante.`
-          : "Hola! Agendé la 1ª reunión gratuita de Dir. artística.",
+          ? `Hola! Reservé sesión de estudio (${priceText} · 2 hs) y te mando el comprobante.`
+          : "Hola! Agendé la 1ª reunión gratuita de dir. artística.",
         `Nombre: ${payload.name}`,
         `Email: ${payload.email}`,
         `Día: ${payload.date}`,
         `Horario: ${payload.slot}`
       ];
-      if (payload.notes) {
-        lines.push(`Info: ${payload.notes}`);
-      }
+      if (payload.notes) lines.push(`Info: ${payload.notes}`);
       return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
     }
 
-    function trackAbandonedLead(choice) {
-      const emailInput = document.getElementById(`${choice}-email`);
-      const nameInput = document.getElementById(`${choice}-name`);
-      const email = emailInput.value.trim();
-      const name = nameInput.value.trim();
+    function savePromoEmail(choice) {
+      const email = document.getElementById(`${choice}-email`).value.trim();
+      const name = document.getElementById(`${choice}-name`).value.trim();
       if (!email || !email.includes("@")) return;
 
-      const key = `${choice}:${email}:${state.selectedDate[choice]}:${state.selectedSlot[choice]}`;
-      if (state.abandonedSent.has(key)) return;
-      state.abandonedSent.add(key);
+      const key = `${choice}:${email.toLowerCase()}`;
+      if (state.savedEmails.has(key)) return;
+      state.savedEmails.add(key);
 
-      fetch(`${CONFIG.apiBase}/api/lead-abandon`, {
+      fetch(`${CONFIG.apiBase}/api/promo-emails`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1038,7 +955,6 @@
           email,
           date: state.selectedDate[choice],
           slot: state.selectedSlot[choice],
-          isPromo: Boolean(state.selectedSlotPromo[choice]),
           capturedAt: new Date().toISOString()
         })
       }).catch(() => {});
@@ -1051,8 +967,8 @@
       const notes = document.getElementById(`${choice}-notes`).value.trim();
       const date = state.selectedDate[choice];
       const slot = state.selectedSlot[choice];
-      const isPromo = Boolean(state.selectedSlotPromo[choice]);
-      const amount = choice === "studio" ? getFinalStudioPrice(isPromo) : 0;
+      const isPromo = Boolean(state.selectedSlotPromo[choice] || (choice === "studio" && CONFIG.allPromo && isLocalDateInPromo(date)));
+      const amount = choice === "studio" ? computePrice(isPromo) : 0;
       const statusEl = document.getElementById(`status-${choice}`);
       const confirmEl = document.getElementById(`confirm-${choice}`);
 
@@ -1065,7 +981,8 @@
         return;
       }
 
-      statusEl.textContent = "registrando reserva...";
+      savePromoEmail(choice);
+      statusEl.textContent = "guardando...";
       const payload = { type: choice, name, email, notes, date, slot, isPromo, amount };
       state.currentPayload = payload;
       const waUrl = buildWhatsAppUrl(payload);
@@ -1079,24 +996,20 @@
         .then((data) => {
           statusEl.textContent = "";
           state.currentBookingId = data.bookingId || `local-${Date.now()}`;
-
           if (choice === "studio") {
             const transferBox = document.getElementById("transfer-studio");
-            document.getElementById("transfer-summary").innerHTML = `
-              transferí <strong>${formatArs(amount)}</strong>${isPromo ? " <strong>(-40% promo)</strong>" : ""} para el <strong>${date}</strong> a las <strong>${slot} hs</strong> y subí el comprobante acá abajo:
-            `;
+            document.getElementById("transfer-summary").innerHTML =
+              `transferí <strong>${formatArs(amount)}</strong>${isPromo ? ` (-${CONFIG.discountPercent}% promo)` : ""} para el <strong>${date}</strong> a las <strong>${slot} hs</strong>:`;
             document.getElementById("transfer-wa-link").href = waUrl;
             transferBox.classList.add("open");
-            smoothRevealScroll(transferBox);
           } else {
             confirmEl.classList.add("open");
             confirmEl.innerHTML = `
-              <div><strong>qué bueno que reservaste</strong> — reunión agendada para el <strong>${date}</strong> a las <strong>${slot} hs</strong>. te llegó la invitación a tu calendario.</div>
+              <div><strong>qué bueno que reservaste</strong> — reunión agendada para el <strong>${date}</strong> a las <strong>${slot} hs</strong>.</div>
               <div class="confirm-actions">
-                <a class="action-btn crimson" href="${waUrl}" target="_blank" rel="noopener noreferrer">escribir por whatsapp (${CONFIG.contactPhoneDisplay})</a>
+                <a class="action-btn crimson" href="${waUrl}" target="_blank" rel="noopener noreferrer">whatsapp (${CONFIG.contactPhoneDisplay})</a>
               </div>
             `;
-            smoothRevealScroll(confirmEl);
           }
         })
         .catch(() => {
@@ -1104,21 +1017,18 @@
           state.currentBookingId = `local-${Date.now()}`;
           if (choice === "studio") {
             const transferBox = document.getElementById("transfer-studio");
-            document.getElementById("transfer-summary").innerHTML = `
-              transferí <strong>${formatArs(amount)}</strong>${isPromo ? " <strong>(-40% promo)</strong>" : ""} para el <strong>${date}</strong> a las <strong>${slot} hs</strong> y subí el comprobante acá abajo:
-            `;
+            document.getElementById("transfer-summary").innerHTML =
+              `transferí <strong>${formatArs(amount)}</strong>${isPromo ? ` (-${CONFIG.discountPercent}% promo)` : ""} para el <strong>${date}</strong> a las <strong>${slot} hs</strong>:`;
             document.getElementById("transfer-wa-link").href = waUrl;
             transferBox.classList.add("open");
-            smoothRevealScroll(transferBox);
           } else {
             confirmEl.classList.add("open");
             confirmEl.innerHTML = `
               <div><strong>qué bueno que reservaste</strong> — 1ª reunión agendada para el <strong>${date}</strong> a las <strong>${slot} hs</strong> (${name}).</div>
               <div class="confirm-actions">
-                <a class="action-btn crimson" href="${waUrl}" target="_blank" rel="noopener noreferrer">escribir por whatsapp (${CONFIG.contactPhoneDisplay})</a>
+                <a class="action-btn crimson" href="${waUrl}" target="_blank" rel="noopener noreferrer">whatsapp (${CONFIG.contactPhoneDisplay})</a>
               </div>
             `;
-            smoothRevealScroll(confirmEl);
           }
         });
     }
@@ -1128,7 +1038,7 @@
       try {
         await navigator.clipboard.writeText(CONFIG.alias);
         btn.textContent = "copiado ✓";
-        setTimeout(() => { btn.textContent = "copiar alias"; }, 1800);
+        setTimeout(() => { btn.textContent = "copiar alias"; }, 1600);
       } catch (_) {
         btn.textContent = CONFIG.alias;
       }
@@ -1141,12 +1051,12 @@
       const uploadBtn = document.getElementById("upload-receipt-btn");
 
       if (!fileInput.files || !fileInput.files[0]) {
-        statusEl.textContent = "seleccioná la foto o PDF del comprobante antes de enviar.";
+        statusEl.textContent = "seleccioná el comprobante antes de enviar.";
         return;
       }
 
       uploadBtn.disabled = true;
-      uploadBtn.textContent = "subiendo comprobante...";
+      uploadBtn.textContent = "enviando...";
       statusEl.textContent = "";
 
       const formData = new FormData();
@@ -1161,17 +1071,14 @@
       }
 
       try {
-        const res = await fetch(`${CONFIG.apiBase}/api/upload-receipt`, {
+        await fetch(`${CONFIG.apiBase}/api/upload-receipt`, {
           method: "POST",
           body: formData
         });
-        if (!res.ok) throw new Error("error al subir");
-      } catch (_) {
-        // Si se prueba local sin backend activo, igualmente muestra confirmación
-      }
+      } catch (_) {}
 
       uploadBtn.disabled = false;
-      uploadBtn.textContent = "comprobante enviado ✓";
+      uploadBtn.textContent = "enviar comprobante";
       document.getElementById("transfer-studio").classList.remove("open");
       showConfirmedScreen(state.currentPayload);
     });
@@ -1194,7 +1101,7 @@
           p.setAttribute("aria-hidden", "true");
           setTimeout(() => {
             if (!state.activeChoice) p.classList.remove("open");
-          }, 220);
+          }, 200);
         });
       }
       setFaqState(nextState);
@@ -1203,8 +1110,10 @@
     ["studio", "direction"].forEach((choice) => {
       initCalendar(choice);
       document.getElementById(`form-${choice}`).addEventListener("submit", (e) => handleFormSubmit(choice, e));
-      document.getElementById(`${choice}-email`).addEventListener("blur", () => trackAbandonedLead(choice));
+      document.getElementById(`${choice}-email`).addEventListener("blur", () => savePromoEmail(choice));
     });
+
+    loadRemoteConfig();
   </script>
 </body>
 </html>

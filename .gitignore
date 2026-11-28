@@ -1,3 +1,11 @@
 .env
 node_modules/
 data/
+
+*.env
+uploads/
+data/
+
+*.env
+uploads/
+data/
